@@ -554,37 +554,10 @@
 <a href="#554" id="554">554</a>
 <a href="#555" id="555">555</a>
 <a href="#556" id="556">556</a>
-<a href="#557" id="557">557</a>
-<a href="#558" id="558">558</a>
-<a href="#559" id="559">559</a>
-<a href="#560" id="560">560</a>
-<a href="#561" id="561">561</a>
-<a href="#562" id="562">562</a>
-<a href="#563" id="563">563</a>
-<a href="#564" id="564">564</a>
-<a href="#565" id="565">565</a>
-<a href="#566" id="566">566</a>
-<a href="#567" id="567">567</a>
-<a href="#568" id="568">568</a>
-<a href="#569" id="569">569</a>
-<a href="#570" id="570">570</a>
-<a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
 </pre><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::{fmt, path::PathBuf};
 
-<span class="kw">use </span>libafl::{
-    corpus::ondisk::OnDiskMetadataFormat,
-    monitors::tui::{ui::TuiUI, TuiMonitor},
-    prelude::<span class="kw-2">*</span>,
-};
+<span class="kw">use </span>libafl::{corpus::ondisk::OnDiskMetadataFormat, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>log4rs::Handle;
 
 <span class="kw">use </span><span class="kw">super</span>::harness;
@@ -593,7 +566,7 @@
         mutations::{trace_mutations, util::TermConstraints},
         stats_monitor::StatsMonitor,
     },
-    log::create_file_config,
+    log::{config_fuzzing, config_fuzzing_client},
     protocol::ProtocolBehavior,
     put_registry::PutRegistry,
     trace::Trace,
@@ -612,14 +585,14 @@
     <span class="kw">pub </span>static_seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     <span class="kw">pub </span>max_iters: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     <span class="kw">pub </span>core_definition: String,
-    <span class="kw">pub </span>monitor_file: PathBuf,
+    <span class="kw">pub </span>stats_file: PathBuf,
     <span class="kw">pub </span>corpus_dir: PathBuf,
     <span class="kw">pub </span>objective_dir: PathBuf,
     <span class="kw">pub </span>broker_port: u16,
     <span class="kw">pub </span>minimizer: bool, <span class="comment">// FIXME: support this property
     </span><span class="kw">pub </span>mutation_stage_config: MutationStageConfig,
     <span class="kw">pub </span>mutation_config: MutationConfig,
-    <span class="kw">pub </span>monitor: bool,
+    <span class="kw">pub </span>tui: bool,
     <span class="kw">pub </span>no_launcher: bool,
     <span class="kw">pub </span>log_file: PathBuf,
 }
@@ -633,7 +606,7 @@
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>MutationStageConfig {
-    <span class="comment">//  TODO:EVAL: evaluate modif to this config
+    <span class="comment">//  TODO:EVAL: evaluate modifications of this config
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             max_iterations_per_stage: <span class="number">256</span>,
@@ -654,7 +627,7 @@
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>MutationConfig {
-    <span class="comment">//  TODO:EVAL: evaluate modif to this config
+    <span class="comment">//  TODO:EVAL: evaluate modifications of this config
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             fresh_zoo_after: <span class="number">100000</span>,
@@ -983,20 +956,23 @@
 }
 
 <span class="doccomment">/// Starts the fuzzing loop
-</span><span class="kw">pub fn </span>start&lt;PB: ProtocolBehavior + Clone + <span class="lifetime">&#39;static</span>&gt;(
+</span><span class="kw">pub fn </span>start&lt;PB&gt;(
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
     config: FuzzerConfig,
     log_handle: Handle,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+<span class="kw">where
+    </span>PB: ProtocolBehavior + Clone + <span class="lifetime">&#39;static</span>,
+{
     <span class="kw">let </span>FuzzerConfig {
         core_definition,
         corpus_dir,
         objective_dir,
         static_seed: <span class="kw">_</span>,
         log_file,
-        monitor_file,
+        stats_file,
         broker_port,
-        monitor,
+        tui,
         no_launcher,
         mutation_config:
             MutationConfig {
@@ -1009,13 +985,17 @@
     } = <span class="kw-2">&amp;</span>config;
 
     <span class="macro">log::info!</span>(<span class="string">&quot;Running on cores: {}&quot;</span>, <span class="kw-2">&amp;</span>core_definition);
-
     <span class="macro">log::info!</span>(<span class="string">&quot;Config: {:?}\n\nlog_handle: {:?}&quot;</span>, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>log_handle);
+    log_handle.set_config(config_fuzzing(log_file));
 
     <span class="kw">let </span><span class="kw-2">mut </span>run_client = |state: <span class="prelude-ty">Option</span>&lt;StdState&lt;Trace&lt;PB::Matcher&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;,
                           event_manager: LlmpRestartingEventManager&lt;<span class="kw">_</span>, StdShMemProvider&gt;,
                           _core_id: CoreId|
      -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        log_handle
+            .clone()
+            .set_config(config_fuzzing_client(log_file));
+
         <span class="kw">let </span>harness_fn = <span class="kw-2">&amp;mut </span>(|input: <span class="kw-2">&amp;</span><span class="kw">_</span>| harness::harness::&lt;PB&gt;(put_registry, input));
 
         <span class="kw">let </span><span class="kw-2">mut </span>builder = RunClientBuilder::new(config.clone(), harness_fn, state, event_manager);
@@ -1072,26 +1052,14 @@
                 .with_scheduler(RandScheduler::new());
         } <span class="comment">// TODO:EVAL investigate using QueueScheduler instead (see https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/inmemory.rs#L190)
 
-        // TODO: Allow configuring the following warn level
-        </span>log_handle
-            .clone()
-            .set_config(create_file_config(log::LevelFilter::Warn, log_file));
-
-        builder.run_client()
+        </span>builder.run_client()
     };
 
     <span class="kw">if </span><span class="kw-2">*</span>no_launcher {
-        <span class="kw">let </span>(state, restarting_mgr) = setup_restarting_mgr_std(
-            StatsMonitor::new(
-                |s| {
-                    <span class="macro">log::info!</span>(<span class="string">&quot;{}&quot;</span>, s);
-                },
-                monitor_file.clone(),
-            )
-            .unwrap(),
-            <span class="kw-2">*</span>broker_port,
-            EventConfig::AlwaysUnique,
-        )<span class="question-mark">?</span>;
+        <span class="kw">let </span>stats_monitor = StatsMonitor::with_raw_output(stats_file.clone());
+
+        <span class="kw">let </span>(state, restarting_mgr) =
+            setup_restarting_mgr_std(stats_monitor, <span class="kw-2">*</span>broker_port, EventConfig::AlwaysUnique)<span class="question-mark">?</span>;
 
         run_client(state, restarting_mgr, CoreId(<span class="number">0</span>))
     } <span class="kw">else </span>{
@@ -1099,58 +1067,44 @@
         <span class="kw">let </span>configuration: EventConfig = <span class="string">&quot;launcher default&quot;</span>.into();
         <span class="kw">let </span>sh_mem_provider = StdShMemProvider::new().expect(<span class="string">&quot;Failed to init shared memory&quot;</span>);
 
-        <span class="kw">if </span><span class="kw-2">*</span>monitor {
+        <span class="comment">// NOTE tlspuffin&#39;s fuzzer should never write to stdout
+        //
+        // During fuzzing the logs are redirected to `log_file` (which is
+        // usually `tlspuffin.log`) and there should be no reason to print
+        // directly to stdout. We should therefore be able to safely discard the
+        // log output of clients.
+        //
+        // To verify this assumption, we save the clients&#39; output to a file that
+        // should always be empty.
+        </span><span class="kw">let </span>out_path = log_file.with_extension(<span class="string">&quot;out&quot;</span>);
+        <span class="kw">let </span>out_file = out_path
+            .to_str()
+            .expect(<span class="string">&quot;failed to create path to redirect fuzzer clients&#39; stdout&quot;</span>);
+
+        <span class="kw">if </span><span class="kw-2">*</span>tui {
+            <span class="kw">let </span>stats_monitor = StatsMonitor::with_tui_output(stats_file.clone());
+
             Launcher::builder()
                 .shmem_provider(sh_mem_provider)
                 .configuration(configuration)
-                .monitor(TuiMonitor::new(TuiUI::new(String::from(<span class="string">&quot;test&quot;</span>), <span class="bool-val">false</span>)))
+                .monitor(stats_monitor)
                 .run_client(<span class="kw-2">&amp;mut </span>run_client)
                 .cores(<span class="kw-2">&amp;</span>cores)
                 .broker_port(<span class="kw-2">*</span>broker_port)
-                <span class="comment">// tlspuffin never logs or outputs to stdout. It always logs its output
-                // to tlspuffin.log.
-                // We can safely, disable the log output of clients.
-                // [LH] Just to test this assumption:
-                </span>.stdout_file(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;{}.should-be-empty.log&quot;</span>,
-                    monitor_file
-                        .clone()
-                        .into_os_string()
-                        .into_string()
-                        .expect(<span class="string">&quot;Fail&quot;</span>)
-                        .to_owned()
-                )))
+                .stdout_file(<span class="prelude-val">Some</span>(out_file))
                 .build()
                 .launch()
         } <span class="kw">else </span>{
+            <span class="kw">let </span>stats_monitor = StatsMonitor::with_raw_output(stats_file.clone());
+
             Launcher::builder()
                 .shmem_provider(sh_mem_provider)
                 .configuration(configuration)
-                .monitor(
-                    StatsMonitor::new(
-                        |s| {
-                            <span class="macro">log::info!</span>(<span class="string">&quot;{}&quot;</span>, s);
-                        },
-                        monitor_file.clone(),
-                    )
-                    .unwrap(),
-                )
+                .monitor(stats_monitor)
                 .run_client(<span class="kw-2">&amp;mut </span>run_client)
                 .cores(<span class="kw-2">&amp;</span>cores)
                 .broker_port(<span class="kw-2">*</span>broker_port)
-                <span class="comment">// tlspuffin never logs or outputs to stdout. It always logs its output
-                // to tlspuffin.log.
-                // We can safely, disable the log output of clients.
-                // [LH] Just to test this assumption:
-                </span>.stdout_file(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;{}.should-be-empty.log&quot;</span>,
-                    monitor_file
-                        .clone()
-                        .into_os_string()
-                        .into_string()
-                        .expect(<span class="string">&quot;Fail&quot;</span>)
-                        .to_owned()
-                )))
+                .stdout_file(<span class="prelude-val">Some</span>(out_file))
                 .build()
                 .launch()
         }

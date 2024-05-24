@@ -186,6 +186,7 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>puffin::algebra::error::FnError;
@@ -294,18 +295,19 @@
 
 <span class="kw">fn </span>_fn_rsa_sign(
     message: <span class="kw-2">&amp;</span>[u8],
-    private_key: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    private_key: <span class="kw-2">&amp;</span>[u8],
     scheme: <span class="kw-2">&amp;</span>SignatureScheme,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
-    <span class="kw">let </span>invalid_scheme = <span class="kw">match </span>scheme {
+    <span class="kw">let </span>invalid_scheme = !<span class="macro">matches!</span>(
+        scheme,
         SignatureScheme::RSA_PKCS1_SHA256
-        | SignatureScheme::RSA_PKCS1_SHA384
-        | SignatureScheme::RSA_PKCS1_SHA512
-        | SignatureScheme::RSA_PSS_SHA256
-        | SignatureScheme::RSA_PSS_SHA384
-        | SignatureScheme::RSA_PSS_SHA512 =&gt; <span class="bool-val">false</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
-    };
+            | SignatureScheme::RSA_PKCS1_SHA384
+            | SignatureScheme::RSA_PKCS1_SHA512
+            | SignatureScheme::RSA_PSS_SHA256
+            | SignatureScheme::RSA_PSS_SHA384
+            | SignatureScheme::RSA_PSS_SHA512
+    );
+
     <span class="kw">if </span>invalid_scheme {
         <span class="kw">return </span><span class="prelude-val">Err</span>(FnError::Crypto(<span class="string">&quot;Unknown signature scheme&quot;</span>.to_string()));
     }
@@ -339,7 +341,7 @@
     _fn_ecdsa_sign(<span class="kw-2">&amp;</span>message, private_key)
 }
 
-<span class="kw">fn </span>_fn_ecdsa_sign(message: <span class="kw-2">&amp;</span>[u8], private_key: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
+<span class="kw">fn </span>_fn_ecdsa_sign(message: <span class="kw-2">&amp;</span>[u8], private_key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="kw">let </span>key = EcdsaSigningKey::new(
         <span class="kw-2">&amp;</span>PrivateKey(private_key.to_vec()),
         SignatureScheme::ECDSA_NISTP256_SHA256,

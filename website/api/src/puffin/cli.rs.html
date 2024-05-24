@@ -521,6 +521,13 @@
 <a href="#521" id="521">521</a>
 <a href="#522" id="522">522</a>
 <a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     env, fs,
     fs::File,
@@ -533,7 +540,7 @@
     arg, crate_authors, crate_name, crate_version, parser::ValuesRef, value_parser, Command,
 };
 <span class="kw">use </span>libafl::inputs::Input;
-<span class="kw">use </span>log::{error, info, LevelFilter};
+<span class="kw">use </span>log::{error, info};
 
 <span class="kw">use crate</span>::{
     algebra::set_deserialize_signature,
@@ -546,18 +553,21 @@
         start, FuzzerConfig,
     },
     graphviz::write_graphviz,
-    log::create_stderr_config,
+    log::config_default,
     protocol::{ProtocolBehavior, ProtocolMessage},
     put::PutOptions,
     put_registry::PutRegistry,
     trace::{Action, Trace, TraceContext},
 };
 
-<span class="kw">fn </span>create_app() -&gt; Command {
+<span class="kw">fn </span>create_app&lt;S&gt;(title: S) -&gt; Command
+<span class="kw">where
+    </span>S: AsRef&lt;str&gt;,
+{
     Command::new(<span class="macro">crate_name!</span>())
         .version(<span class="kw">crate</span>::MAYBE_GIT_REF.unwrap_or( <span class="macro">crate_version!</span>()))
         .author(<span class="macro">crate_authors!</span>())
-        .about(<span class="string">&quot;Fuzzes OpenSSL on a symbolic level&quot;</span>)
+        .about(title.as_ref().to_owned())
         .arg(<span class="macro">arg!</span>(-c --cores [spec] <span class="string">&quot;Sets the cores to use during fuzzing&quot;</span>))
         .arg(<span class="macro">arg!</span>(-s --seed [n] <span class="string">&quot;(experimental) provide a seed for all clients&quot;</span>)
             .value_parser(<span class="macro">value_parser!</span>(u64)))
@@ -566,14 +576,14 @@
         .arg(<span class="macro">arg!</span>(-i --<span class="string">&quot;max-iters&quot; </span>[i] <span class="string">&quot;Maximum iterations to do&quot;</span>)
             .value_parser(<span class="macro">value_parser!</span>(u64).range(<span class="number">0</span>..)))
         .arg(<span class="macro">arg!</span>(--minimizer <span class="string">&quot;Use a minimizer&quot;</span>))
-        .arg(<span class="macro">arg!</span>(--monitor <span class="string">&quot;Use a monitor&quot;</span>))
+        .arg(<span class="macro">arg!</span>(--tui <span class="string">&quot;Display fuzzing logs using the interactive terminal UI&quot;</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">&quot;put-use-clear&quot; &quot;Use clearing functionality instead of recreating puts&quot;</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">&quot;no-launcher&quot; &quot;Do not use the convenient launcher&quot;</span>))
         .subcommands(<span class="macro">vec!</span>[
             Command::new(<span class="string">&quot;quick-experiment&quot;</span>).about(<span class="string">&quot;Starts a new experiment and writes the results out&quot;</span>),
             Command::new(<span class="string">&quot;experiment&quot;</span>).about(<span class="string">&quot;Starts a new experiment and writes the results out&quot;</span>)
                 .arg(<span class="macro">arg!</span>(-t --title &lt;t&gt; <span class="string">&quot;Title of the experiment&quot;</span>))
-                         .arg(<span class="macro">arg!</span>(-d --description &lt;d&gt; <span class="string">&quot;Descritpion of the experiment&quot;</span>))
+                         .arg(<span class="macro">arg!</span>(-d --description &lt;d&gt; <span class="string">&quot;Description of the experiment&quot;</span>))
             ,
             Command::new(<span class="string">&quot;seed&quot;</span>).about(<span class="string">&quot;Generates seeds to ./seeds&quot;</span>),
             Command::new(<span class="string">&quot;plot&quot;</span>)
@@ -608,16 +618,20 @@
         ])
 }
 
-<span class="kw">pub fn </span>main&lt;PB: ProtocolBehavior + Clone&gt;(put_registry: PutRegistry&lt;PB&gt;) -&gt; ExitCode {
-    <span class="kw">let </span>handle = <span class="kw">match </span>log4rs::init_config(create_stderr_config(LevelFilter::Info)) {
+<span class="kw">pub fn </span>main&lt;S, PB&gt;(title: S, put_registry: PutRegistry&lt;PB&gt;) -&gt; ExitCode
+<span class="kw">where
+    </span>S: AsRef&lt;str&gt;,
+    PB: ProtocolBehavior + Clone,
+{
+    <span class="kw">let </span>handle = <span class="kw">match </span>log4rs::init_config(config_default()) {
         <span class="prelude-val">Ok</span>(handle) =&gt; handle,
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">error!</span>(<span class="string">&quot;Failed to init logging: {:?}&quot;</span>, err);
+            <span class="macro">eprintln!</span>(<span class="string">&quot;error: failed to initialize logging: {:?}&quot;</span>, err);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
     };
 
-    <span class="kw">let </span>matches = create_app().get_matches();
+    <span class="kw">let </span>matches = create_app(title).get_matches();
 
     <span class="kw">let </span>first_core = <span class="string">&quot;0&quot;</span>.to_string();
     <span class="kw">let </span>core_definition = matches.get_one(<span class="string">&quot;cores&quot;</span>).unwrap_or(<span class="kw-2">&amp;</span>first_core);
@@ -625,7 +639,7 @@
     <span class="kw">let </span>static_seed: <span class="prelude-ty">Option</span>&lt;u64&gt; = matches.get_one(<span class="string">&quot;seed&quot;</span>).copied();
     <span class="kw">let </span>max_iters: <span class="prelude-ty">Option</span>&lt;u64&gt; = matches.get_one(<span class="string">&quot;max-iters&quot;</span>).copied();
     <span class="kw">let </span>minimizer = matches.get_flag(<span class="string">&quot;minimizer&quot;</span>);
-    <span class="kw">let </span>monitor = matches.get_flag(<span class="string">&quot;monitor&quot;</span>);
+    <span class="kw">let </span>tui = matches.get_flag(<span class="string">&quot;tui&quot;</span>);
     <span class="kw">let </span>no_launcher = matches.get_flag(<span class="string">&quot;no-launcher&quot;</span>);
     <span class="kw">let </span>put_use_clear = matches.get_flag(<span class="string">&quot;put-use-clear&quot;</span>);
 
@@ -894,12 +908,12 @@
             corpus_dir: experiment_path.join(<span class="string">&quot;corpus&quot;</span>),
             objective_dir: experiment_path.join(<span class="string">&quot;objective&quot;</span>),
             broker_port: port,
-            monitor_file: experiment_path.join(<span class="string">&quot;stats.json&quot;</span>),
+            stats_file: experiment_path.join(<span class="string">&quot;stats.json&quot;</span>),
             log_file: experiment_path.join(<span class="string">&quot;tlspuffin.log&quot;</span>),
             minimizer,
             mutation_stage_config: Default::default(),
             mutation_config: Default::default(),
-            monitor,
+            tui,
             no_launcher,
         };
 

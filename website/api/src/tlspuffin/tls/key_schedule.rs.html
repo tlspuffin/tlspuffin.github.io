@@ -218,7 +218,7 @@
     server_finished: <span class="kw-2">&amp;</span>HandshakeHash,
     client_finished: <span class="kw-2">&amp;</span>HandshakeHash,
     server_key_share: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
-    new_ticket_nonce: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    new_ticket_nonce: <span class="kw-2">&amp;</span>[u8],
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw">_</span>, pending) = tls13_application_traffic_secret(

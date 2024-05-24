@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["create_config",""],["create_file_config",""],["create_stderr_config",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["appender_stderr",""],["appender_tofile",""],["config_default",""],["config_fuzzing",""],["config_fuzzing_client",""],["log_level",""]]};

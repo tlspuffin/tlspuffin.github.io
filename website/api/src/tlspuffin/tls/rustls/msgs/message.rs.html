@@ -412,7 +412,7 @@
         vers: ProtocolVersion,
         payload: Payload,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, Error&gt; {
-        <span class="kw">let </span>fallback_payload = payload.clone();
+        <span class="kw">let </span>fallback_payload = <span class="kw-2">&amp;</span>payload;
         <span class="kw">let </span><span class="kw-2">mut </span>r = Reader::init(<span class="kw-2">&amp;</span>payload.<span class="number">0</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>parsed: Vec&lt;<span class="self">Self</span>&gt; = <span class="macro">vec!</span>[];
         <span class="kw">while </span>r.any_left() {

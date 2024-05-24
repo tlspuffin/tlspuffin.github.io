@@ -101,9 +101,6 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::convert::TryInto;
 
 <span class="kw">use </span>puffin::algebra::error::FnError;
@@ -146,10 +143,7 @@
     }
 }
 
-<span class="kw">pub fn </span>tls13_key_exchange(
-    server_key_share: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
-    group: <span class="kw-2">&amp;</span>NamedGroup,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
+<span class="kw">pub fn </span>tls13_key_exchange(server_key_share: <span class="kw-2">&amp;</span>[u8], group: <span class="kw-2">&amp;</span>NamedGroup) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="comment">// Shared Secret
     </span><span class="kw">let </span>skxg = KeyExchange::choose(<span class="kw-2">*</span>group, <span class="kw-2">&amp;</span>ALL_KX_GROUPS)
         .ok_or_else(|| FnError::Unknown(<span class="string">&quot;Failed to choose group in key exchange&quot;</span>.to_string()))<span class="question-mark">?</span>;
@@ -169,7 +163,7 @@
 
 <span class="kw">pub fn </span>tls12_new_secrets(
     server_random: <span class="kw-2">&amp;</span>Random,
-    server_ecdh_pubkey: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    server_ecdh_pubkey: <span class="kw-2">&amp;</span>[u8],
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionSecrets, FnError&gt; {
     <span class="kw">let </span>suite = <span class="kw-2">&amp;</span>tls12::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256; <span class="comment">// todo https://github.com/tlspuffin/tlspuffin/issues/129

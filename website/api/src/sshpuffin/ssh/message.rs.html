@@ -375,10 +375,6 @@
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
 </pre><pre class="rust"><code><span class="kw">use </span>log::debug;
 <span class="kw">use </span>puffin::{
     codec::{Codec, Reader},
@@ -422,7 +418,7 @@
         <span class="kw">let </span>payload_length = packet_length <span class="kw">as </span>usize - padding_length <span class="kw">as </span>usize - <span class="number">1</span>;
         <span class="kw">let </span>payload = Vec::from(reader.take(payload_length)<span class="question-mark">?</span>);
         <span class="kw">let </span>random_padding = Vec::from(reader.take(padding_length <span class="kw">as </span>usize)<span class="question-mark">?</span>);
-        <span class="kw">let </span>mac = Vec::from(reader.take(<span class="number">0 </span><span class="kw">as </span>usize)<span class="question-mark">?</span>); <span class="comment">// TODO: parse non-zero
+        <span class="kw">let </span>mac = Vec::from(reader.take(<span class="number">0_usize</span>)<span class="question-mark">?</span>); <span class="comment">// TODO: parse non-zero
 
         </span><span class="prelude-val">Some</span>(BinaryPacket {
             payload,
@@ -445,21 +441,17 @@
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>NameList {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-        <span class="kw">let </span>names = <span class="self">self</span>.names.join(<span class="string">&quot;,&quot;</span>).to_string();
+        <span class="kw">let </span>names = <span class="self">self</span>.names.join(<span class="string">&quot;,&quot;</span>);
         <span class="kw">let </span>names_bytes = names.as_bytes(); <span class="comment">// ASCII is valid UTF-8
         </span>(names_bytes.len() <span class="kw">as </span>u32).encode(bytes);
-        bytes.extend_from_slice(<span class="kw-2">&amp;</span>names_bytes);
+        bytes.extend_from_slice(names_bytes);
     }
 
     <span class="kw">fn </span>read(reader: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>length = u32::read(reader)<span class="question-mark">?</span>;
         <span class="kw">let </span>names = <span class="kw">if </span>length &gt; <span class="number">0 </span>{
             <span class="kw">let </span>names = std::str::from_utf8(reader.take(length <span class="kw">as </span>usize)<span class="question-mark">?</span>).ok()<span class="question-mark">?</span>;
-            names
-                .split(<span class="string">&quot;,&quot;</span>)
-                <span class="comment">//.filter(|name| !name.is_empty())
-                </span>.map(str::to_string)
-                .collect()
+            names.split(<span class="string">&#39;,&#39;</span>).map(str::to_string).collect()
         } <span class="kw">else </span>{
             Vec::new()
         };
@@ -684,7 +676,7 @@
                 first_kex_packet_follows,
             }) =&gt; {
                 <span class="macro">vec!</span>[
-                    Box::new(cookie.clone()),
+                    Box::new(<span class="kw-2">*</span>cookie),
                     Box::new(kex_algorithms.clone()),
                     Box::new(server_host_key_algorithms.clone()),
                     Box::new(encryption_algorithms_server_to_client.clone()),
@@ -695,7 +687,7 @@
                     Box::new(compression_algorithms_server_to_client.clone()),
                     Box::new(languages_client_to_server.clone()),
                     Box::new(languages_server_to_client.clone()),
-                    Box::new(first_kex_packet_follows.clone()),
+                    Box::new(<span class="kw-2">*</span>first_kex_packet_follows),
                 ]
             }
             SshMessage::KexEcdhInit(KexEcdhInitMessage {

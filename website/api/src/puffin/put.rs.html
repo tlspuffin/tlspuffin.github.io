@@ -183,7 +183,7 @@
 </span><span class="kw">pub trait </span>Put&lt;PB: ProtocolBehavior&gt;:
     Stream&lt;PB::ProtocolMessage, PB::OpaqueProtocolMessage&gt; + <span class="lifetime">&#39;static
 </span>{
-    <span class="doccomment">/// Process incoming buffer, internal progress, can fill in output buffer
+    <span class="doccomment">/// Process incoming buffer, internal progress, can fill in the output buffer
     </span><span class="kw">fn </span>progress(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: <span class="kw-2">&amp;</span>AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
     <span class="doccomment">/// In-place reset of the state
@@ -208,7 +208,7 @@
     <span class="doccomment">/// Checks whether the Put is in a good state
     </span><span class="kw">fn </span>is_state_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
-    <span class="doccomment">/// Make the PUT used by self determimistic in the future by making its PRNG &quot;deterministic&quot;
+    <span class="doccomment">/// Make the PUT used by self deterministic in the future by making its PRNG &quot;deterministic&quot;
     /// Now subsumed by Factory-level functions to reseed globally: `determinism_reseed`
     </span><span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
@@ -218,7 +218,7 @@
         agent_descriptor.typ == other.typ &amp;&amp; agent_descriptor.tls_version == other.tls_version
     }
 
-    <span class="doccomment">/// Shutdown the PUT by consuming it and returning a string which summarizes the execution.
+    <span class="doccomment">/// Shut down the PUT by consuming it and returning a string that summarizes the execution.
     </span><span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String;
 
     <span class="doccomment">/// Returns a textual representation of the version of the PUT used by self

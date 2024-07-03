@@ -1368,6 +1368,15 @@
 <a href="#1368" id="1368">1368</a>
 <a href="#1369" id="1369">1369</a>
 <a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::{
@@ -1377,6 +1386,7 @@
 };
 
 <span class="kw">use crate</span>::{
+    protocol::MessageFlight,
     query::TlsQueryMatcher,
     tls::{fn_impl::<span class="kw-2">*</span>, rustls::msgs::enums::HandshakeType, seeds::<span class="kw-2">*</span>},
 };
@@ -1409,17 +1419,21 @@
         )
     };
 
-    <span class="comment">// ApplicationData 0 is EncryptedExtensions
-    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term! </span>{
-        fn_decrypt_handshake(
-            ((server, <span class="number">1</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::ApplicationData)]), <span class="comment">// Ticket from last session
+    <span class="kw">let </span>decrypted_handshake = <span class="macro">term! </span>{
+        fn_decrypt_handshake_flight(
+            ((server, <span class="number">0</span>)/MessageFlight), <span class="comment">// The first flight of messages sent by the server
             </span>(fn_server_hello_transcript(((server, <span class="number">0</span>)))),
-            (fn_get_server_key_share(((server, <span class="number">0</span>)))),
+            (fn_get_server_key_share(((server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerHello)))]))),
             fn_no_psk,
             fn_named_group_secp384r1,
             fn_true,
-            fn_seq_1
-        )
+            fn_seq_0  <span class="comment">// sequence 0
+        </span>)
+    };
+
+    <span class="comment">// ApplicationData 0 is EncryptedExtensions
+    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term! </span>{
+        fn_find_server_certificate_request((@decrypted_handshake))
     };
 
     <span class="kw">let </span>certificate_rsa = <span class="macro">term! </span>{
@@ -1562,17 +1576,21 @@
         )
     };
 
-    <span class="comment">// ApplicationData 0 is EncryptedExtensions
-    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term! </span>{
-        fn_decrypt_handshake(
-            ((server, <span class="number">1</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::ApplicationData)]),
-            (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
-            (fn_get_server_key_share(((server, <span class="number">0</span>)))),
+    <span class="kw">let </span>decrypted_handshake = <span class="macro">term! </span>{
+        fn_decrypt_handshake_flight(
+            ((server, <span class="number">0</span>)/MessageFlight), <span class="comment">// The first flight of messages sent by the server
+            </span>(fn_server_hello_transcript(((server, <span class="number">0</span>)))),
+            (fn_get_server_key_share(((server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerHello)))]))),
             fn_no_psk,
             fn_named_group_secp384r1,
             fn_true,
-            fn_seq_1
-        )
+            fn_seq_0  <span class="comment">// sequence 0
+        </span>)
+    };
+
+    <span class="comment">// ApplicationData 0 is EncryptedExtensions
+    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term! </span>{
+        fn_find_server_certificate_request((@decrypted_handshake))
     };
 
     <span class="kw">let </span>certificate = <span class="macro">term! </span>{

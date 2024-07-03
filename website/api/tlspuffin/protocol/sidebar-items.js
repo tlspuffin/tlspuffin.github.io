@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["TLSProtocolBehavior",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["MessageFlight",""],["OpaqueMessageFlight",""],["TLSProtocolBehavior",""]]};

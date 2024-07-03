@@ -187,16 +187,20 @@
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
 </pre><pre class="rust"><code><span class="kw">use </span>puffin::{
     agent::{AgentDescriptor, AgentName, AgentType, TLSVersion},
-    algebra::AnyMatcher,
     term,
     trace::{InputAction, OutputAction, Trace},
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::ssh::{fn_impl::<span class="kw-2">*</span>, message::<span class="kw-2">*</span>};
+<span class="kw">use crate</span>::{
+    query::SshQueryMatcher,
+    ssh::{fn_impl::<span class="kw-2">*</span>, message::<span class="kw-2">*</span>},
+};
 
-<span class="kw">pub fn </span>seed_successful(client: AgentName, server: AgentName) -&gt; Trace&lt;AnyMatcher&gt; {
+<span class="kw">pub fn </span>seed_successful(client: AgentName, server: AgentName) -&gt; Trace&lt;SshQueryMatcher&gt; {
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[

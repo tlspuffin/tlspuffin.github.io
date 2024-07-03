@@ -112,6 +112,11 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fmt::{Debug, Display, Formatter},
     hash::Hash,
@@ -181,7 +186,12 @@
 <span class="doccomment">/// Generic trait used to define the interface with a concrete library
 /// implementing the protocol.
 </span><span class="kw">pub trait </span>Put&lt;PB: ProtocolBehavior&gt;:
-    Stream&lt;PB::ProtocolMessage, PB::OpaqueProtocolMessage&gt; + <span class="lifetime">&#39;static
+    Stream&lt;
+        PB::Matcher,
+        PB::ProtocolMessage,
+        PB::OpaqueProtocolMessage,
+        PB::OpaqueProtocolMessageFlight,
+    &gt; + <span class="lifetime">&#39;static
 </span>{
     <span class="doccomment">/// Process incoming buffer, internal progress, can fill in the output buffer
     </span><span class="kw">fn </span>progress(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: <span class="kw-2">&amp;</span>AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;

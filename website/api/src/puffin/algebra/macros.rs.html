@@ -92,6 +92,8 @@
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
 </pre><pre class="rust"><code><span class="doccomment">//! This module provides a DLS for writing [`Term`](crate::algebra::Term)s within Rust.
 //! See the tlspuffin crate for usage examples.
 
@@ -110,8 +112,9 @@
     ((<span class="macro-nonterminal">$agent</span>:expr, <span class="macro-nonterminal">$counter</span>:expr) $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::trace::Source</span>;
 
-        <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="macro-nonterminal">$agent</span>, <span class="prelude-val">None</span>, <span class="macro-nonterminal">$counter</span>); <span class="comment">// TODO: verify hat using here None is fine. Before a refactor it was: Some(TlsMessageType::Handshake(None))
+        <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="prelude-val">Some</span>(Source::Agent(<span class="macro-nonterminal">$agent</span>)), <span class="prelude-val">None</span>, <span class="macro-nonterminal">$counter</span>); <span class="comment">// TODO: verify hat using here None is fine. Before a refactor it was: Some(TlsMessageType::Handshake(None))
         </span>Term::Variable(var)
     }};
 
@@ -128,8 +131,9 @@
     </span>((<span class="macro-nonterminal">$agent</span>:expr, <span class="macro-nonterminal">$counter</span>:expr) [<span class="macro-nonterminal">$message_type</span>:expr] $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::trace::Source</span>;
 
-        <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="macro-nonterminal">$agent</span>, <span class="macro-nonterminal">$message_type</span>, <span class="macro-nonterminal">$counter</span>);
+        <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="prelude-val">Some</span>(Source::Agent(<span class="macro-nonterminal">$agent</span>)), <span class="macro-nonterminal">$message_type</span>, <span class="macro-nonterminal">$counter</span>);
         Term::Variable(var)
     }};
 

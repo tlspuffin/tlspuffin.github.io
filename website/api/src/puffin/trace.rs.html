@@ -640,6 +640,104 @@
 <a href="#640" id="640">640</a>
 <a href="#641" id="641">641</a>
 <a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
 </pre><pre class="rust"><code><span class="doccomment">//! This module contains [`Trace`]s consisting of several [`Step`]s, of which each has either an
 //! [`OutputAction`] or [`InputAction`]. This is a declarative way of modeling communication between
 //! [`Agent`]s. The [`TraceContext`] holds data, also known as [`VariableData`], which is created by
@@ -664,6 +762,7 @@
     marker::PhantomData,
 };
 
+<span class="kw">use </span>clap::error::Result;
 <span class="kw">use </span>log::{debug, trace, warn};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
@@ -674,15 +773,18 @@
     algebra::{dynamic_function::TypeShape, error::FnError, remove_prefix, Matcher, Term},
     claims::{Claim, GlobalClaimList, SecurityViolationPolicy},
     error::Error,
-    protocol::{MessageResult, OpaqueProtocolMessage, ProtocolBehavior, ProtocolMessage},
+    protocol::{
+        ExtractKnowledge, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
+        ProtocolMessage, ProtocolMessageFlight,
+    },
     put::{PutDescriptor, PutOptions},
     put_registry::PutRegistry,
     variable_data::VariableData,
 };
 
-<span class="attr">#[derive(Debug, Deserialize, Serialize, Clone, Copy, Hash, Eq, PartialEq)]
+<span class="attr">#[derive(Debug, Deserialize, Serialize, Clone, Hash, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Query&lt;M&gt; {
-    <span class="kw">pub </span>agent_name: AgentName,
+    <span class="kw">pub </span>source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
     <span class="kw">pub </span>matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
     <span class="kw">pub </span>counter: u16, <span class="comment">// in case an agent sends multiple messages of the same type
 </span>}
@@ -691,8 +793,8 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;({}, {})[{:?}]&quot;</span>,
-            <span class="self">self</span>.agent_name, <span class="self">self</span>.counter, <span class="self">self</span>.matcher
+            <span class="string">&quot;({:?}, {})[{:?}]&quot;</span>,
+            <span class="self">self</span>.source, <span class="self">self</span>.counter, <span class="self">self</span>.matcher
         )
     }
 }
@@ -703,34 +805,139 @@
     }
 }
 
+<span class="doccomment">/// [Source] stores the origin of a knowledge, whether the agent name or
+/// the label of the precomputation that produced it
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Hash, Deserialize, Serialize)]
+</span><span class="kw">pub enum </span>Source {
+    Agent(AgentName),
+    Label(String),
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Source {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Agent(x) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;agent:{}&quot;</span>, x),
+            <span class="self">Self</span>::Label(x) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;label:{}&quot;</span>, x),
+        }
+    }
+}
+
 <span class="doccomment">/// [Knowledge] describes an atomic piece of knowledge inferred by the
-/// [`crate::protocol::ProtocolMessage::extract_knowledge`] function
-/// [Knowledge] is made of the data, the agent that produced the output, the TLS message type and the internal type.
+/// [`crate::protocol::ExtractKnowledge::extract_knowledge`] function
+/// [Knowledge] is made of the data, the source of the output, the
+/// TLS message type and the internal type.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Knowledge&lt;M: Matcher&gt; {
-    <span class="kw">pub </span>agent_name: AgentName,
+    <span class="kw">pub </span>source: Source,
     <span class="kw">pub </span>matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
     <span class="kw">pub </span>data: Box&lt;<span class="kw">dyn </span>VariableData&gt;,
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;M&gt; {
-    <span class="kw">pub fn </span>debug_print&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;, agent_name: <span class="kw-2">&amp;</span>AgentName)
+    <span class="kw">pub fn </span>debug_print&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;, source: <span class="kw-2">&amp;</span>Source)
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
     {
-        <span class="kw">let </span>data_type_id = <span class="self">self</span>.data.as_ref().type_id();
+        <span class="kw">let </span>data_type_id = <span class="self">self</span>.data.type_id();
         <span class="macro">debug!</span>(
             <span class="string">&quot;New knowledge {}: {}  (counter: {})&quot;</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             remove_prefix(<span class="self">self</span>.data.type_name()),
-            ctx.number_matching_message(<span class="kw-2">*</span>agent_name, data_type_id, <span class="kw-2">&amp;</span><span class="self">self</span>.matcher)
+            ctx.number_matching_message_with_source(source.clone(), data_type_id, <span class="kw-2">&amp;</span><span class="self">self</span>.matcher)
         );
         <span class="macro">trace!</span>(<span class="string">&quot;Knowledge data: {:?}&quot;</span>, <span class="self">self</span>.data);
     }
 }
+
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Knowledge&lt;M&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;({})/{:?}&quot;</span>, <span class="self">self</span>.agent_name, <span class="self">self</span>.matcher)
+        <span class="macro">write!</span>(f, <span class="string">&quot;({})/{:?}&quot;</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
+    }
+}
+
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>KnowledgeStore&lt;PB: ProtocolBehavior&gt; {
+    knowledge: Vec&lt;Knowledge&lt;PB::Matcher&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; KnowledgeStore&lt;PB&gt; {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ knowledge: <span class="macro">vec!</span>[] }
+    }
+
+    <span class="kw">pub fn </span>add_knowledge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, knowledge: Knowledge&lt;PB::Matcher&gt;) {
+        <span class="self">self</span>.knowledge.push(knowledge);
+    }
+
+    <span class="kw">pub fn </span>do_extract_knowledge&lt;T: ExtractKnowledge&lt;PB::Matcher&gt; + <span class="lifetime">&#39;static</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        data: T,
+        source: Source,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+        <span class="kw">let </span>count_before = <span class="self">self</span>.knowledge.len();
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Extracting knowledge on : {:?}&quot;</span>, data);
+        data.extract_knowledge(<span class="kw-2">&amp;mut </span><span class="self">self</span>.knowledge, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>source)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.knowledge.len() - count_before)
+    }
+
+    <span class="kw">pub fn </span>number_matching_message_with_source(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        source: Source,
+        type_id: TypeId,
+        tls_message_type: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;,
+    ) -&gt; usize {
+        <span class="self">self</span>.knowledge
+            .iter()
+            .filter(|knowledge| {
+                knowledge.source == source
+                    &amp;&amp; knowledge.matcher == <span class="kw-2">*</span>tls_message_type
+                    &amp;&amp; knowledge.data.type_id() == type_id
+            })
+            .count()
+    }
+
+    <span class="doccomment">/// Count the number of sub-messages of type `type_id` in the output message.
+    </span><span class="kw">pub fn </span>number_matching_message(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        type_id: TypeId,
+        tls_message_type: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;,
+    ) -&gt; usize {
+        <span class="self">self</span>.knowledge
+            .iter()
+            .filter(|knowledge| {
+                knowledge.matcher == <span class="kw-2">*</span>tls_message_type &amp;&amp; knowledge.data.type_id() == type_id
+            })
+            .count()
+    }
+
+    <span class="doccomment">/// Returns the variable which matches best -&gt; highest specificity
+    /// If we want a variable with lower specificity, then we can just query less specific
+    </span><span class="kw">pub fn </span>find_variable(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        query_type_shape: TypeShape,
+        query: <span class="kw-2">&amp;</span>Query&lt;PB::Matcher&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>VariableData)&gt; {
+        <span class="kw">let </span>query_type_id: TypeId = query_type_shape.into();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>possibilities: Vec&lt;<span class="kw-2">&amp;</span>Knowledge&lt;PB::Matcher&gt;&gt; = Vec::new();
+
+        <span class="kw">for </span>knowledge <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge {
+            <span class="kw">let </span>data: <span class="kw-2">&amp;</span><span class="kw">dyn </span>VariableData = knowledge.data.as_ref();
+
+            <span class="kw">if </span>query_type_id == data.type_id()
+                &amp;&amp; (query.source == <span class="prelude-val">None </span>|| query.source == <span class="prelude-val">Some</span>(knowledge.source.clone()))
+                &amp;&amp; knowledge.matcher.matches(<span class="kw-2">&amp;</span>query.matcher)
+            {
+                possibilities.push(knowledge);
+            }
+        }
+
+        possibilities.sort_by_key(|a| a.specificity());
+
+        possibilities
+            .get(query.counter <span class="kw">as </span>usize)
+            .map(|possibility| possibility.data.as_ref())
     }
 }
 
@@ -742,7 +949,7 @@
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>TraceContext&lt;PB: ProtocolBehavior&gt; {
     <span class="doccomment">/// The knowledge of the attacker
-    </span>knowledge: Vec&lt;Knowledge&lt;PB::Matcher&gt;&gt;,
+    </span><span class="kw">pub </span>knowledge_store: KnowledgeStore&lt;PB&gt;,
     agents: Vec&lt;Agent&lt;PB&gt;&gt;,
     claims: GlobalClaimList&lt;&lt;PB <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
 
@@ -759,9 +966,9 @@
         <span class="macro">write!</span>(
             f,
             <span class="string">&quot;Knowledge [not displaying other fields] (size={}):&quot;</span>,
-            <span class="self">self</span>.knowledge.len()
+            <span class="self">self</span>.knowledge_store.knowledge.len()
         )<span class="question-mark">?</span>;
-        <span class="kw">for </span>k <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge {
+        <span class="kw">for </span>k <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge_store.knowledge {
             <span class="macro">write!</span>(f, <span class="string">&quot;\n   {},          --  {:?}&quot;</span>, k, k)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
@@ -775,7 +982,8 @@
             &amp;&amp; <span class="self">self</span>.deterministic_put == other.deterministic_put
             &amp;&amp; <span class="self">self</span>.default_put_options == other.default_put_options
             &amp;&amp; <span class="self">self</span>.non_default_put_descriptors == other.non_default_put_descriptors
-            &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.knowledge) == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.knowledge)
+            &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.knowledge_store.knowledge)
+                == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.knowledge_store.knowledge)
             &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.claims) == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.claims)
     }
 }
@@ -787,7 +995,7 @@
         </span><span class="kw">let </span>claims = GlobalClaimList::new();
 
         <span class="self">Self </span>{
-            knowledge: <span class="macro">vec!</span>[],
+            knowledge_store: KnowledgeStore::new(),
             agents: <span class="macro">vec!</span>[],
             claims,
             non_default_put_descriptors: Default::default(),
@@ -816,25 +1024,25 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub fn </span>add_knowledge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, knowledge: Knowledge&lt;PB::Matcher&gt;) {
-        <span class="self">self</span>.knowledge.push(knowledge)
-    }
-
-    <span class="doccomment">/// Count the number of sub-messages of type `type_id`.
-    </span><span class="kw">pub fn </span>number_matching_message(
+    <span class="doccomment">/// Count the number of sub-messages of type `type_id` with the correct source
+    </span><span class="kw">pub fn </span>number_matching_message_with_source(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        agent: AgentName,
+        source: Source,
         type_id: TypeId,
         tls_message_type: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;,
     ) -&gt; usize {
-        <span class="self">self</span>.knowledge
-            .iter()
-            .filter(|knowledge| {
-                knowledge.agent_name == agent
-                    &amp;&amp; knowledge.matcher == <span class="kw-2">*</span>tls_message_type
-                    &amp;&amp; knowledge.data.as_ref().type_id() == type_id
-            })
-            .count()
+        <span class="self">self</span>.knowledge_store
+            .number_matching_message_with_source(source, type_id, tls_message_type)
+    }
+
+    <span class="doccomment">/// Count the number of sub-messages of type `type_id` in the output message.
+    </span><span class="kw">pub fn </span>number_matching_message(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        type_id: TypeId,
+        tls_message_type: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;,
+    ) -&gt; usize {
+        <span class="self">self</span>.knowledge_store
+            .number_matching_message(type_id, tls_message_type)
     }
 
     <span class="kw">pub fn </span>find_claim(
@@ -855,36 +1063,17 @@
         query_type_shape: TypeShape,
         query: <span class="kw-2">&amp;</span>Query&lt;PB::Matcher&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>VariableData)&gt; {
-        <span class="kw">let </span>query_type_id: TypeId = query_type_shape.into();
-
-        <span class="kw">let </span><span class="kw-2">mut </span>possibilities: Vec&lt;<span class="kw-2">&amp;</span>Knowledge&lt;PB::Matcher&gt;&gt; = Vec::new();
-
-        <span class="kw">for </span>knowledge <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge {
-            <span class="kw">let </span>data: <span class="kw-2">&amp;</span><span class="kw">dyn </span>VariableData = knowledge.data.as_ref();
-
-            <span class="kw">if </span>query_type_id == data.type_id()
-                &amp;&amp; query.agent_name == knowledge.agent_name
-                &amp;&amp; knowledge.matcher.matches(<span class="kw-2">&amp;</span>query.matcher)
-            {
-                possibilities.push(knowledge);
-            }
-        }
-
-        possibilities.sort_by_key(|a| a.specificity());
-
-        possibilities
-            .get(query.counter <span class="kw">as </span>usize)
-            .map(|possibility| possibility.data.as_ref())
+        <span class="self">self</span>.knowledge_store.find_variable(query_type_shape, query)
     }
 
     <span class="doccomment">/// Adds data to the inbound [`Channel`] of the [`Agent`] referenced by the parameter &quot;agent&quot;.
     </span><span class="kw">pub fn </span>add_to_inbound(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         agent_name: AgentName,
-        message: <span class="kw-2">&amp;</span>PB::OpaqueProtocolMessage,
+        message_flight: <span class="kw-2">&amp;</span>PB::OpaqueProtocolMessageFlight,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="self">self</span>.find_agent_mut(agent_name)
-            .map(|agent| agent.put_mut().add_to_inbound(message))
+            .map(|agent| agent.put_mut().add_to_inbound(message_flight))
     }
 
     <span class="kw">pub fn </span>next_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -897,7 +1086,7 @@
     </span><span class="kw">pub fn </span>take_message_from_outbound(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         agent_name: AgentName,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;MessageResult&lt;PB::ProtocolMessage, PB::OpaqueProtocolMessage&gt;&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PB::OpaqueProtocolMessageFlight&gt;, Error&gt; {
         <span class="kw">let </span>agent = <span class="self">self</span>.find_agent_mut(agent_name)<span class="question-mark">?</span>;
         agent.put_mut().take_message_from_outbound()
     }
@@ -1179,44 +1368,36 @@
     {
         ctx.next_state(step.agent)<span class="question-mark">?</span>;
 
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(message_result) = ctx.take_message_from_outbound(step.agent)<span class="question-mark">? </span>{
-            <span class="kw">let </span>matcher = message_result.create_matcher::&lt;PB&gt;();
+        <span class="kw">let </span>source = Source::Agent(step.agent);
 
-            <span class="kw">let </span>MessageResult(message, opaque_message) = message_result;
+        <span class="kw">let </span>opaque_flight_result = ctx.take_message_from_outbound(step.agent)<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>knowledge = message
-                .and_then(|message| message.extract_knowledge().ok())
-                .unwrap_or_default();
-            <span class="kw">let </span>opaque_knowledge = opaque_message.extract_knowledge()<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(opaque_flight) = opaque_flight_result {
+            <span class="kw">let </span>flight = TryInto::&lt;PB::ProtocolMessageFlight&gt;::try_into(opaque_flight.clone());
 
-            <span class="macro">debug!</span>(
-                <span class="string">&quot;Knowledge increased by {:?}&quot;</span>,
-                knowledge.len() + opaque_knowledge.len()
-            ); <span class="comment">// +1 because of the OpaqueMessage below
-
-            </span><span class="kw">for </span>variable <span class="kw">in </span>knowledge {
-                <span class="kw">let </span>knowledge = Knowledge::&lt;M&gt; {
-                    agent_name: step.agent,
-                    matcher: matcher.clone(),
-                    data: variable,
-                };
-
-                knowledge.debug_print(ctx, <span class="kw-2">&amp;</span>step.agent);
-                ctx.add_knowledge(knowledge)
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx
+                .knowledge_store
+                .do_extract_knowledge(opaque_flight, source.clone())
+            {
+                <span class="macro">debug!</span>(<span class="string">&quot;Knowledge increased by {}&quot;</span>, num);
             }
 
-            <span class="kw">for </span>variable <span class="kw">in </span>opaque_knowledge {
-                <span class="kw">let </span>knowledge = Knowledge::&lt;M&gt; {
-                    agent_name: step.agent,
-                    matcher: <span class="prelude-val">None</span>, <span class="comment">// none because we can not trust the decoding of tls_message_type, because the message could be encrypted like in TLS 1.2
-                    </span>data: variable,
-                };
-
-                knowledge.debug_print(ctx, <span class="kw-2">&amp;</span>step.agent);
-                ctx.add_knowledge(knowledge)
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(f) = flight {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx.knowledge_store.do_extract_knowledge(f, source.clone()) {
+                    <span class="macro">debug!</span>(<span class="string">&quot;Knowledge increased by {}&quot;</span>, num);
+                }
             }
         }
-        <span class="prelude-val">Ok</span>(())
+
+        <span class="comment">// let flight_knowledge = Knowledge::&lt;M&gt; {
+        //     agent_name: step.agent,
+        //     matcher: None,
+        //     data: Box::new(flight),
+        // };
+        // flight_knowledge.debug_print(ctx, &amp;step.agent);
+        // ctx.add_knowledge(flight_knowledge);
+
+        </span><span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1256,19 +1437,34 @@
         <span class="comment">// message controlled by the attacker
         </span><span class="kw">let </span>evaluated = <span class="self">self</span>.recipe.evaluate(ctx)<span class="question-mark">?</span>;
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_ref().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(flight) = evaluated
+            .as_ref()
+            .downcast_ref::&lt;PB::ProtocolMessageFlight&gt;()
+        {
+            flight.debug(<span class="string">&quot;Input message flight&quot;</span>);
+
+            ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>flight.clone().into())<span class="question-mark">?</span>;
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(flight) = evaluated
+            .as_ref()
+            .downcast_ref::&lt;PB::OpaqueProtocolMessageFlight&gt;()
+        {
+            flight.debug(<span class="string">&quot;Input opaque message flight&quot;</span>);
+
+            ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>flight)<span class="question-mark">?</span>;
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_ref().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
             msg.debug(<span class="string">&quot;Input message&quot;</span>);
 
-            ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>msg.create_opaque())<span class="question-mark">?</span>;
+            <span class="kw">let </span>message_flight: PB::ProtocolMessageFlight = msg.clone().into();
+            ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>message_flight.into())<span class="question-mark">?</span>;
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(opaque_message) = evaluated
             .as_ref()
             .downcast_ref::&lt;PB::OpaqueProtocolMessage&gt;()
         {
             opaque_message.debug(<span class="string">&quot;Input opaque message&quot;</span>);
-            ctx.add_to_inbound(step.agent, opaque_message)<span class="question-mark">?</span>;
+            ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>opaque_message.clone().into())<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(FnError::Unknown(String::from(
-                <span class="string">&quot;Recipe is not a `ProtocolMessage`, `OpaqueProtocolMessage`!&quot;</span>,
+                <span class="string">&quot;Recipe is not a `ProtocolMessage`, `OpaqueProtocolMessage`, `MessageFlight`, `OpaqueMessageFlight` !&quot;</span>,
             ))
             .into());
         }

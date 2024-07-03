@@ -134,7 +134,6 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     collections::HashMap,
     fmt::{Debug, Formatter},
@@ -145,7 +144,6 @@
 
 <span class="kw">use </span><span class="kw">super</span>::atoms::Function;
 <span class="kw">use crate</span>::{
-    agent::AgentName,
     algebra::{
         atoms::Variable,
         dynamic_function::{
@@ -153,7 +151,7 @@
         },
         Matcher,
     },
-    trace::Query,
+    trace::{Query, Source},
 };
 
 <span class="kw">pub type </span>FunctionDefinition = (DynamicFunctionShape, Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;);
@@ -224,22 +222,22 @@
     }
 
     <span class="kw">pub fn </span>new_var_with_type&lt;T: <span class="lifetime">&#39;static</span>, M: Matcher&gt;(
-        agent_name: AgentName,
+        source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
         counter: u16,
     ) -&gt; Variable&lt;M&gt; {
         <span class="kw">let </span>type_shape = TypeShape::of::&lt;T&gt;();
-        <span class="self">Self</span>::new_var(type_shape, agent_name, matcher, counter)
+        <span class="self">Self</span>::new_var(type_shape, source, matcher, counter)
     }
 
     <span class="kw">pub fn </span>new_var&lt;M: Matcher&gt;(
         type_shape: TypeShape,
-        agent_name: AgentName,
+        source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
         counter: u16,
     ) -&gt; Variable&lt;M&gt; {
         <span class="kw">let </span>query = Query {
-            agent_name,
+            source,
             matcher,
             counter,
         };

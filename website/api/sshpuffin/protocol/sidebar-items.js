@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SshProtocolBehavior",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["RawSshMessageFlight",""],["SshMessageFlight",""],["SshProtocolBehavior",""]]};

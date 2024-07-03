@@ -263,6 +263,11 @@
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The *tls* module provides concrete implementations for the functions used in the term.
 //! The module offers a variety of [`DynamicFunction`](puffin::algebra::dynamic_function::DynamicFunction)s
 //! which can be used in the fuzzing.
@@ -469,10 +474,15 @@
     fn_weak_export_cipher_suite
     fn_secure_rsa_cipher_suite12
     <span class="comment">// utils
-    </span>fn_new_transcript
+    </span>fn_new_flight
+    fn_append_flight
+    fn_new_opaque_flight
+    fn_append_opaque_flight
+    fn_new_transcript
     fn_append_transcript
-    fn_decrypt_handshake
+    fn_decrypt_handshake_flight
     fn_decrypt_multiple_handshake_messages
+    fn_decrypt_application_flight
     fn_find_server_certificate
     fn_find_server_certificate_request
     fn_find_server_ticket

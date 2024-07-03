@@ -257,6 +257,12 @@
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
 </pre><pre class="rust"><code><span class="doccomment">//! This module provides[`Term`]sas well as iterators over them.
 
 </span><span class="kw">use </span>std::{any::Any, fmt, fmt::Formatter};
@@ -269,7 +275,7 @@
     algebra::{dynamic_function::TypeShape, error::FnError, Matcher},
     error::Error,
     protocol::ProtocolBehavior,
-    trace::TraceContext,
+    trace::{Source, TraceContext},
 };
 
 <span class="doccomment">/// A first-order term: either a [`Variable`] or an application of an [`Function`].
@@ -373,7 +379,13 @@
             Term::Variable(variable) =&gt; context
                 .find_variable(variable.typ, <span class="kw-2">&amp;</span>variable.query)
                 .map(|data| data.boxed_any())
-                .or_else(|| context.find_claim(variable.query.agent_name, variable.typ))
+                .or_else(|| {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(Source::Agent(agent_name)) = variable.query.source {
+                        context.find_claim(agent_name, variable.typ)
+                    } <span class="kw">else </span>{
+                        <span class="macro">todo!</span>(<span class="string">&quot;Implement querying by label&quot;</span>);
+                    }
+                })
                 .ok_or_else(|| Error::Term(<span class="macro">format!</span>(<span class="string">&quot;Unable to find variable {}!&quot;</span>, variable))),
             Term::Application(func, args) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>dynamic_args: Vec&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt; = Vec::new();

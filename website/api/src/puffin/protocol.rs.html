@@ -91,6 +91,16 @@
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use crate</span>::{
@@ -98,31 +108,66 @@
     claims::{Claim, SecurityViolationPolicy},
     codec::Codec,
     error::Error,
-    trace::Trace,
-    variable_data::VariableData,
+    trace::{Knowledge, Source, Trace},
 };
+
+<span class="doccomment">/// Provide a way to extract knowledge out of a Message/OpaqueMessage or any type that
+/// might be used in a precomputation
+</span><span class="kw">pub trait </span>ExtractKnowledge&lt;M: Matcher&gt;: std::fmt::Debug {
+    <span class="doccomment">/// Fill `knowledges` with new knowledge gathered form the type implementing ExtractKnowledge
+    /// by recursively calling extract_knowledge on all contained element
+    /// This will put source as the source of all the produced knowledges, matcher is also passed
+    /// recursively but might be overriten by a type with a more specific matcher
+    </span><span class="kw">fn </span>extract_knowledge(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;M&gt;&gt;,
+        matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
+        source: <span class="kw-2">&amp;</span>Source,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
+}
+
+<span class="doccomment">/// Store a message flight, a vec of all the messages sent by the PUT between two steps
+</span><span class="kw">pub trait </span>ProtocolMessageFlight&lt;
+    Mt: Matcher,
+    M: ProtocolMessage&lt;Mt, O&gt;,
+    O: OpaqueProtocolMessage&lt;Mt&gt;,
+    OF: OpaqueProtocolMessageFlight&lt;Mt, O&gt;,
+&gt;: Clone + Debug + From&lt;M&gt; + TryFrom&lt;OF&gt; + Into&lt;OF&gt; + ExtractKnowledge&lt;Mt&gt;
+{
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self</span>;
+    <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: M);
+    <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str);
+}
+
+<span class="doccomment">/// Store a flight of opaque messages, a vec of all the messages sent by the PUT between two steps
+</span><span class="kw">pub trait </span>OpaqueProtocolMessageFlight&lt;Mt: Matcher, O: OpaqueProtocolMessage&lt;Mt&gt;&gt;:
+    Clone + Debug + Codec + From&lt;O&gt; + ExtractKnowledge&lt;Mt&gt;
+{
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self</span>;
+    <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str);
+    <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: O);
+}
 
 <span class="doccomment">/// A structured message. This type defines how all possible messages of a protocol.
 /// Usually this is implemented using an `enum`.
-</span><span class="kw">pub trait </span>ProtocolMessage&lt;O: OpaqueProtocolMessage&gt;: Clone + Debug {
+</span><span class="kw">pub trait </span>ProtocolMessage&lt;Mt: Matcher, O: OpaqueProtocolMessage&lt;Mt&gt;&gt;:
+    Clone + Debug + ExtractKnowledge&lt;Mt&gt;
+{
     <span class="kw">fn </span>create_opaque(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; O;
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str);
-    <span class="kw">fn </span>extract_knowledge(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Box&lt;<span class="kw">dyn </span>VariableData&gt;&gt;, Error&gt;;
 }
 
 <span class="doccomment">/// A non-structured version of [`ProtocolMessage`]. This can be used for example for encrypted messages
 /// which do not have a structure.
-</span><span class="kw">pub trait </span>OpaqueProtocolMessage: Clone + Debug + Codec {
+</span><span class="kw">pub trait </span>OpaqueProtocolMessage&lt;Mt: Matcher&gt;: Clone + Debug + Codec + ExtractKnowledge&lt;Mt&gt; {
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str);
-
-    <span class="kw">fn </span>extract_knowledge(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Box&lt;<span class="kw">dyn </span>VariableData&gt;&gt;, Error&gt;;
 }
 
 <span class="doccomment">/// Deframes a stream of bytes into distinct [OpaqueProtocolMessages](OpaqueProtocolMessage).
 /// A deframer is usually state-ful. This means it produces as many messages from the input bytes
 /// and stores them.
-</span><span class="kw">pub trait </span>ProtocolMessageDeframer {
-    <span class="kw">type </span>OpaqueProtocolMessage: OpaqueProtocolMessage;
+</span><span class="kw">pub trait </span>ProtocolMessageDeframer&lt;Mt: Matcher&gt; {
+    <span class="kw">type </span>OpaqueProtocolMessage: OpaqueProtocolMessage&lt;Mt&gt;;
 
     <span class="kw">fn </span>pop_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::OpaqueProtocolMessage&gt;;
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>std::io::Read) -&gt; std::io::Result&lt;usize&gt;;
@@ -138,51 +183,26 @@
 /// sequences of them. Finally, there is a [matcher](Matcher) which allows traces to include
 /// queries for [knowledge](crate::trace::Knowledge).
 </span><span class="kw">pub trait </span>ProtocolBehavior: <span class="lifetime">&#39;static </span>{
+    <span class="kw">type </span>Matcher: Matcher;
     <span class="kw">type </span>Claim: Claim;
     <span class="kw">type </span>SecurityViolationPolicy: SecurityViolationPolicy&lt;<span class="self">Self</span>::Claim&gt;;
 
-    <span class="kw">type </span>ProtocolMessage: ProtocolMessage&lt;<span class="self">Self</span>::OpaqueProtocolMessage&gt;;
-    <span class="kw">type </span>OpaqueProtocolMessage: OpaqueProtocolMessage;
-
-    <span class="kw">type </span>Matcher: Matcher
-        + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MessageResult&lt;<span class="self">Self</span>::ProtocolMessage, <span class="self">Self</span>::OpaqueProtocolMessage&gt;&gt;;
+    <span class="kw">type </span>ProtocolMessage: ProtocolMessage&lt;<span class="self">Self</span>::Matcher, <span class="self">Self</span>::OpaqueProtocolMessage&gt;;
+    <span class="kw">type </span>OpaqueProtocolMessage: OpaqueProtocolMessage&lt;<span class="self">Self</span>::Matcher&gt;;
+    <span class="kw">type </span>ProtocolMessageFlight: ProtocolMessageFlight&lt;
+        <span class="self">Self</span>::Matcher,
+        <span class="self">Self</span>::ProtocolMessage,
+        <span class="self">Self</span>::OpaqueProtocolMessage,
+        <span class="self">Self</span>::OpaqueProtocolMessageFlight,
+    &gt;;
+    <span class="kw">type </span>OpaqueProtocolMessageFlight: OpaqueProtocolMessageFlight&lt;<span class="self">Self</span>::Matcher, <span class="self">Self</span>::OpaqueProtocolMessage&gt;
+        + From&lt;<span class="self">Self</span>::ProtocolMessageFlight&gt;;
 
     <span class="doccomment">/// Get the signature that is used in the protocol
     </span><span class="kw">fn </span>signature() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Signature;
 
     <span class="doccomment">/// Creates a sane initial seed corpus.
     </span><span class="kw">fn </span>create_corpus() -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::Matcher&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt;;
-}
-
-<span class="kw">pub struct </span>MessageResult&lt;M: ProtocolMessage&lt;O&gt;, O: OpaqueProtocolMessage&gt;(<span class="kw">pub </span><span class="prelude-ty">Option</span>&lt;M&gt;, <span class="kw">pub </span>O);
-
-<span class="kw">impl</span>&lt;M: ProtocolMessage&lt;O&gt;, O: OpaqueProtocolMessage&gt; MessageResult&lt;M, O&gt; {
-    <span class="doccomment">/// Extracts as much data from the message as possible. Depending on the protocol,
-    /// the extraction can be more fine-grained to more coarse.
-    </span><span class="kw">pub fn </span>extract_knowledge(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Box&lt;<span class="kw">dyn </span>VariableData&gt;&gt;, Error&gt; {
-        <span class="kw">let </span>opaque_knowledge = <span class="self">self</span>.<span class="number">1</span>.extract_knowledge();
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(message) = <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(opaque_knowledge) = opaque_knowledge {
-                message.extract_knowledge().map(|<span class="kw-2">mut </span>knowledge| {
-                    knowledge.extend(opaque_knowledge);
-                    knowledge
-                })
-            } <span class="kw">else </span>{
-                message.extract_knowledge()
-            }
-        } <span class="kw">else </span>{
-            opaque_knowledge
-        }
-    }
-
-    <span class="kw">pub fn </span>create_matcher&lt;PB: ProtocolBehavior&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;
-    <span class="kw">where
-        </span>PB: ProtocolBehavior&lt;OpaqueProtocolMessage = O, ProtocolMessage = M&gt;,
-    {
-        <span class="comment">// TODO: Should we return here or use None?
-        </span>&lt;&lt;PB <span class="kw">as </span>ProtocolBehavior&gt;::Matcher <span class="kw">as </span>TryFrom&lt;<span class="kw-2">&amp;</span>MessageResult&lt;M, O&gt;&gt;&gt;::try_from(<span class="self">self</span>).ok()
-    }
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

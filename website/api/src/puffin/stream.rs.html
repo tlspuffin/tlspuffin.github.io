@@ -114,43 +114,6 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
 </pre><pre class="rust"><code><span class="doccomment">//!  These are currently implemented by using an in-memory buffer.
 //! One might ask why we want two channels. There two very practical reasons
 //! for this. Note that these are advantages for the implementation and are not
@@ -170,24 +133,25 @@
 //! If Bob is an [`Agent`](crate::agent::Agent), which has an underlying *PUT state* then OpenSSL may write into the
 //! *outbound channel* of Bob.
 
-</span><span class="kw">use </span>std::{
-    io,
-    io::{ErrorKind, Read, Write},
-};
-
-<span class="kw">use </span>log::error;
+</span><span class="kw">use </span>std::io::{<span class="self">self</span>, Read, Write};
 
 <span class="kw">use crate</span>::{
-    codec::Codec,
+    algebra::Matcher,
     error::Error,
-    protocol::{MessageResult, OpaqueProtocolMessage, ProtocolMessage, ProtocolMessageDeframer},
+    protocol::{OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolMessage},
 };
 
-<span class="kw">pub trait </span>Stream&lt;M: ProtocolMessage&lt;O&gt;, O: OpaqueProtocolMessage&gt; {
-    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opaque_message: <span class="kw-2">&amp;</span>O);
+<span class="kw">pub trait </span>Stream&lt;
+    Mt: Matcher,
+    M: ProtocolMessage&lt;Mt, O&gt;,
+    O: OpaqueProtocolMessage&lt;Mt&gt;,
+    OF: OpaqueProtocolMessageFlight&lt;Mt, O&gt;,
+&gt;
+{
+    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>OF);
 
     <span class="doccomment">/// Takes a single TLS message from the outbound channel
-    </span><span class="kw">fn </span>take_message_from_outbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;MessageResult&lt;M, O&gt;&gt;, Error&gt;;
+    </span><span class="kw">fn </span>take_message_from_outbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;OF&gt;, Error&gt;;
 }
 
 <span class="doccomment">/// Describes in- or outbound channels of an [`crate::agent::Agent`]. Each [`crate::agent::Agent`] can send and receive data.
@@ -204,79 +168,41 @@
 ///
 /// **Note: There need to be two separate buffer! Else for example a TLS socket would read and write
 /// into the same buffer**
-</span><span class="kw">pub struct </span>MemoryStream&lt;D: ProtocolMessageDeframer&gt; {
+</span><span class="kw">pub struct </span>MemoryStream {
     inbound: Channel,
     outbound: Channel,
-    deframer: D,
 }
 
-<span class="kw">impl</span>&lt;D: ProtocolMessageDeframer&gt; MemoryStream&lt;D&gt; {
-    <span class="kw">pub fn </span>new(deframer: D) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>MemoryStream {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             inbound: io::Cursor::new(Vec::new()),
             outbound: io::Cursor::new(Vec::new()),
-            deframer,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;M, D: ProtocolMessageDeframer, E&gt; Stream&lt;M, D::OpaqueProtocolMessage&gt; <span class="kw">for </span>MemoryStream&lt;D&gt;
-<span class="kw">where
-    </span>M: ProtocolMessage&lt;D::OpaqueProtocolMessage&gt;,
-    D::OpaqueProtocolMessage: TryInto&lt;M, Error = E&gt;,
-    E: Into&lt;Error&gt;,
-    M: TryInto&lt;M&gt;,
+<span class="kw">impl</span>&lt;
+        Mt: Matcher,
+        M: ProtocolMessage&lt;Mt, O&gt;,
+        O: OpaqueProtocolMessage&lt;Mt&gt;,
+        OF: OpaqueProtocolMessageFlight&lt;Mt, O&gt;,
+    &gt; Stream&lt;Mt, M, O, OF&gt; <span class="kw">for </span>MemoryStream
 {
-    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opaque_message: <span class="kw-2">&amp;</span>D::OpaqueProtocolMessage) {
-        opaque_message.encode(<span class="self">self</span>.inbound.get_mut());
+    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>OF) {
+        message_flight.encode(<span class="self">self</span>.inbound.get_mut());
     }
 
-    <span class="kw">fn </span>take_message_from_outbound(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;MessageResult&lt;M, D::OpaqueProtocolMessage&gt;&gt;, Error&gt; {
-        <span class="comment">// Retry to read if no more frames in the deframer buffer
-        </span><span class="kw">let </span>opaque_message = <span class="kw">loop </span>{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(opaque_message) = <span class="self">self</span>.deframer.pop_frame() {
-                <span class="kw">break </span><span class="prelude-val">Some</span>(opaque_message);
-            } <span class="kw">else </span>{
-                <span class="kw">match </span><span class="self">self</span>.deframer.read(<span class="kw-2">&amp;mut </span><span class="self">self</span>.outbound.get_ref().as_slice()) {
-                    <span class="prelude-val">Ok</span>(v) =&gt; {
-                        <span class="self">self</span>.outbound.set_position(<span class="number">0</span>);
-                        <span class="self">self</span>.outbound.get_mut().clear();
-                        <span class="kw">if </span>v == <span class="number">0 </span>{
-                            <span class="kw">break </span><span class="prelude-val">None</span>;
-                        }
-                    }
-                    <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">match </span>err.kind() {
-                        ErrorKind::WouldBlock =&gt; {
-                            <span class="comment">// This is not a hard error. It just means we will should read again from
-                            // the TCPStream in the next steps.
-                            </span><span class="kw">break </span><span class="prelude-val">None</span>;
-                        }
-                        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err.into()),
-                    },
-                }
-            }
-        };
+    <span class="kw">fn </span>take_message_from_outbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;OF&gt;, Error&gt; {
+        <span class="kw">let </span>flight = OF::read_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>.outbound.get_ref().as_slice());
+        <span class="self">self</span>.outbound.set_position(<span class="number">0</span>);
+        <span class="self">self</span>.outbound.get_mut().clear();
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(opaque_message) = opaque_message {
-            <span class="kw">let </span>message = <span class="kw">match </span>opaque_message.clone().try_into() {
-                <span class="prelude-val">Ok</span>(message) =&gt; <span class="prelude-val">Some</span>(message),
-                <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;Failed to decode message! This means we maybe need to remove logical checks from rustls! {}&quot;</span>, err.into());
-                    <span class="prelude-val">None
-                </span>}
-            };
-
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(MessageResult(message, opaque_message)))
-        } <span class="kw">else </span>{
-            <span class="comment">// no message to return
-            </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        }
+        <span class="prelude-val">Ok</span>(flight)
     }
 }
 
-<span class="kw">impl</span>&lt;D: ProtocolMessageDeframer&gt; Read <span class="kw">for </span>MemoryStream&lt;D&gt; {
+<span class="kw">impl </span>Read <span class="kw">for </span>MemoryStream {
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">let </span>n = <span class="self">self</span>.inbound.read(buf)<span class="question-mark">?</span>;
 
@@ -295,7 +221,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;D: ProtocolMessageDeframer&gt; Write <span class="kw">for </span>MemoryStream&lt;D&gt; {
+<span class="kw">impl </span>Write <span class="kw">for </span>MemoryStream {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="self">self</span>.outbound.write(buf)
     }

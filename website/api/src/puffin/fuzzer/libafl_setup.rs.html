@@ -1032,7 +1032,7 @@
                 TimeoutFeedback::new()
             ));
 
-        <span class="comment">//#[cfg(feature = &quot;sancov_libafl&quot;)]
+        <span class="comment">//#[cfg(feature = &quot;sancov&quot;)]
         //{
         /*            let (feedback, observers) = builder.create_feedback_observers();*/
         /*            builder = builder*/
@@ -1041,7 +1041,7 @@
         /*                .with_scheduler(IndexesLenTimeMinimizerScheduler::new(QueueScheduler::new()));*/
         //}
 
-        //#[cfg(not(feature = &quot;sancov_libafl&quot;))]
+        //#[cfg(not(feature = &quot;sancov&quot;))]
         </span>{
             <span class="comment">// FIXME
             </span><span class="macro">log::error!</span>(<span class="string">&quot;Running without minimizer is unsupported&quot;</span>);

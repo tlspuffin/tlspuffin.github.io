@@ -21,8 +21,8 @@
 <a href="#21" id="21">21</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>asan;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;sancov_pcguard_log&quot;</span>, feature = <span class="string">&quot;sancov_libafl&quot;</span>))]
-</span><span class="macro">compile_error!</span>(<span class="string">&quot;`sancov_pcguard_log` and `sancov_libafl` features are mutually exclusive.&quot;</span>);
+<span class="attr">#[cfg(all(feature = <span class="string">&quot;sancov_pcguard_log&quot;</span>, feature = <span class="string">&quot;sancov&quot;</span>))]
+</span><span class="macro">compile_error!</span>(<span class="string">&quot;`sancov_pcguard_log` and `sancov` features are mutually exclusive.&quot;</span>);
 
 <span class="macro">cfg_if::cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(test)] </span>{

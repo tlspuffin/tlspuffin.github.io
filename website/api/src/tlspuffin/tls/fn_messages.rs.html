@@ -640,7 +640,7 @@
     <span class="doccomment">/// hello_verify_request_RESERVED =&gt; 0x03,
 </span>}
 <span class="doccomment">/// NewSessionTicket =&gt; 0x04,
-</span><span class="kw">pub fn </span>fn_new_session_ticket(lifetime_hint: <span class="kw-2">&amp;</span>u64, ticket: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
+</span><span class="kw">pub fn </span>fn_new_session_ticket(lifetime_hint: <span class="kw-2">&amp;</span>u32, ticket: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
     <span class="comment">// todo unclear where the arguments come from here, needs manual trace implementation
     //      https://github.com/tlspuffin/tlspuffin/issues/155
     </span><span class="prelude-val">Ok</span>(Message {
@@ -648,7 +648,7 @@
         payload: MessagePayload::Handshake(HandshakeMessagePayload {
             typ: HandshakeType::NewSessionTicket,
             payload: HandshakePayload::NewSessionTicket(NewSessionTicketPayload {
-                lifetime_hint: <span class="kw-2">*</span>lifetime_hint <span class="kw">as </span>u32,
+                lifetime_hint: <span class="kw-2">*</span>lifetime_hint,
                 ticket: PayloadU16::new(ticket.clone()),
             }),
         }),

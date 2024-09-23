@@ -738,6 +738,35 @@
 <a href="#738" id="738">738</a>
 <a href="#739" id="739">739</a>
 <a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
 </pre><pre class="rust"><code><span class="doccomment">//! This module contains [`Trace`]s consisting of several [`Step`]s, of which each has either an
 //! [`OutputAction`] or [`InputAction`]. This is a declarative way of modeling communication between
 //! [`Agent`]s. The [`TraceContext`] holds data, also known as [`VariableData`], which is created by
@@ -760,6 +789,7 @@
     fmt::Debug,
     hash::Hash,
     marker::PhantomData,
+    vec::IntoIter,
 };
 
 <span class="kw">use </span>clap::error::Result;
@@ -799,12 +829,6 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;M&gt; {
-    <span class="kw">pub fn </span>specificity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.matcher.specificity()
-    }
-}
-
 <span class="doccomment">/// [Source] stores the origin of a knowledge, whether the agent name or
 /// the label of the precomputation that produced it
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Hash, Deserialize, Serialize)]
@@ -827,13 +851,46 @@
 /// [Knowledge] is made of the data, the source of the output, the
 /// TLS message type and the internal type.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Knowledge&lt;M: Matcher&gt; {
-    <span class="kw">pub </span>source: Source,
+</span><span class="kw">pub struct </span>Knowledge&lt;<span class="lifetime">&#39;a</span>, M: Matcher&gt; {
+    <span class="kw">pub </span>source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     <span class="kw">pub </span>matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
-    <span class="kw">pub </span>data: Box&lt;<span class="kw">dyn </span>VariableData&gt;,
+    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>VariableData,
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;M&gt; {
+<span class="doccomment">/// [RawKnowledge] stores
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>RawKnowledge&lt;M: Matcher&gt; {
+    <span class="kw">pub </span>source: Source,
+    <span class="kw">pub </span>matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
+    <span class="kw">pub </span>data: Box&lt;<span class="kw">dyn </span>ExtractKnowledge&lt;M&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>RawKnowledge&lt;M&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;({})/{:?}&quot;</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M: Matcher&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RawKnowledge&lt;M&gt; {
+    <span class="kw">type </span>Item = Knowledge&lt;<span class="lifetime">&#39;a</span>, M&gt;;
+    <span class="kw">type </span>IntoIter = IntoIter&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, M&gt;&gt;;
+
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        <span class="kw">let </span><span class="kw-2">mut </span>knowledges = <span class="macro">vec!</span>[];
+        <span class="kw">let _ </span>= <span class="self">self
+            </span>.data
+            .extract_knowledge(<span class="kw-2">&amp;mut </span>knowledges, <span class="self">self</span>.matcher.clone(), <span class="kw-2">&amp;</span><span class="self">self</span>.source);
+        knowledges.into_iter()
+    }
+}
+
+<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;<span class="lifetime">&#39;_</span>, M&gt; {
+    <span class="kw">pub fn </span>specificity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.matcher.specificity()
+    }
+}
+
+<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;<span class="lifetime">&#39;_</span>, M&gt; {
     <span class="kw">pub fn </span>debug_print&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;, source: <span class="kw-2">&amp;</span>Source)
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
@@ -849,7 +906,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Knowledge&lt;M&gt; {
+<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Knowledge&lt;<span class="lifetime">&#39;_</span>, M&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;({})/{:?}&quot;</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
     }
@@ -857,28 +914,29 @@
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>KnowledgeStore&lt;PB: ProtocolBehavior&gt; {
-    knowledge: Vec&lt;Knowledge&lt;PB::Matcher&gt;&gt;,
+    raw_knowledge: Vec&lt;RawKnowledge&lt;PB::Matcher&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; KnowledgeStore&lt;PB&gt; {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ knowledge: <span class="macro">vec!</span>[] }
+        <span class="self">Self </span>{
+            raw_knowledge: <span class="macro">vec!</span>[],
+        }
     }
 
-    <span class="kw">pub fn </span>add_knowledge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, knowledge: Knowledge&lt;PB::Matcher&gt;) {
-        <span class="self">self</span>.knowledge.push(knowledge);
-    }
-
-    <span class="kw">pub fn </span>do_extract_knowledge&lt;T: ExtractKnowledge&lt;PB::Matcher&gt; + <span class="lifetime">&#39;static</span>&gt;(
+    <span class="kw">pub fn </span>add_raw_knowledge&lt;T: ExtractKnowledge&lt;PB::Matcher&gt; + <span class="lifetime">&#39;static</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         data: T,
         source: Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
-        <span class="kw">let </span>count_before = <span class="self">self</span>.knowledge.len();
-        <span class="macro">log::trace!</span>(<span class="string">&quot;Extracting knowledge on : {:?}&quot;</span>, data);
-        data.extract_knowledge(<span class="kw-2">&amp;mut </span><span class="self">self</span>.knowledge, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>source)<span class="question-mark">?</span>;
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Adding raw knowledge : {:?}&quot;</span>, <span class="kw-2">&amp;</span>data);
+        <span class="self">self</span>.raw_knowledge.push(RawKnowledge {
+            source,
+            matcher: <span class="prelude-val">None</span>,
+            data: Box::new(data),
+        });
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.knowledge.len() - count_before)
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.raw_knowledge.len())
     }
 
     <span class="kw">pub fn </span>number_matching_message_with_source(
@@ -887,12 +945,12 @@
         type_id: TypeId,
         tls_message_type: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;,
     ) -&gt; usize {
-        <span class="self">self</span>.knowledge
+        <span class="self">self</span>.raw_knowledge
             .iter()
+            .filter(|raw| raw.source == source)
+            .flatten()
             .filter(|knowledge| {
-                knowledge.source == source
-                    &amp;&amp; knowledge.matcher == <span class="kw-2">*</span>tls_message_type
-                    &amp;&amp; knowledge.data.type_id() == type_id
+                knowledge.matcher == <span class="kw-2">*</span>tls_message_type &amp;&amp; knowledge.data.type_id() == type_id
             })
             .count()
     }
@@ -903,8 +961,9 @@
         type_id: TypeId,
         tls_message_type: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PB::Matcher&gt;,
     ) -&gt; usize {
-        <span class="self">self</span>.knowledge
+        <span class="self">self</span>.raw_knowledge
             .iter()
+            .flatten()
             .filter(|knowledge| {
                 knowledge.matcher == <span class="kw-2">*</span>tls_message_type &amp;&amp; knowledge.data.type_id() == type_id
             })
@@ -920,24 +979,23 @@
     ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>VariableData)&gt; {
         <span class="kw">let </span>query_type_id: TypeId = query_type_shape.into();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>possibilities: Vec&lt;<span class="kw-2">&amp;</span>Knowledge&lt;PB::Matcher&gt;&gt; = Vec::new();
-
-        <span class="kw">for </span>knowledge <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge {
-            <span class="kw">let </span>data: <span class="kw-2">&amp;</span><span class="kw">dyn </span>VariableData = knowledge.data.as_ref();
-
-            <span class="kw">if </span>query_type_id == data.type_id()
-                &amp;&amp; (query.source == <span class="prelude-val">None </span>|| query.source == <span class="prelude-val">Some</span>(knowledge.source.clone()))
-                &amp;&amp; knowledge.matcher.matches(<span class="kw-2">&amp;</span>query.matcher)
-            {
-                possibilities.push(knowledge);
-            }
-        }
+        <span class="kw">let </span><span class="kw-2">mut </span>possibilities: Vec&lt;Knowledge&lt;PB::Matcher&gt;&gt; = <span class="self">self
+            </span>.raw_knowledge
+            .iter()
+            .filter(|raw| (query.source == <span class="prelude-val">None </span>|| query.source.as_ref().unwrap() == <span class="kw-2">&amp;</span>raw.source))
+            .flatten()
+            .filter(|knowledge| {
+                <span class="comment">// let data: &amp;dyn VariableData = knowledge.data;
+                </span>query_type_id == knowledge.data.type_id()
+                    &amp;&amp; knowledge.matcher.matches(<span class="kw-2">&amp;</span>query.matcher)
+            })
+            .collect();
 
         possibilities.sort_by_key(|a| a.specificity());
 
         possibilities
             .get(query.counter <span class="kw">as </span>usize)
-            .map(|possibility| possibility.data.as_ref())
+            .map(|possibility| possibility.data)
     }
 }
 
@@ -966,9 +1024,9 @@
         <span class="macro">write!</span>(
             f,
             <span class="string">&quot;Knowledge [not displaying other fields] (size={}):&quot;</span>,
-            <span class="self">self</span>.knowledge_store.knowledge.len()
+            <span class="self">self</span>.knowledge_store.raw_knowledge.len()
         )<span class="question-mark">?</span>;
-        <span class="kw">for </span>k <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge_store.knowledge {
+        <span class="kw">for </span>k <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge_store.raw_knowledge {
             <span class="macro">write!</span>(f, <span class="string">&quot;\n   {},          --  {:?}&quot;</span>, k, k)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
@@ -982,8 +1040,8 @@
             &amp;&amp; <span class="self">self</span>.deterministic_put == other.deterministic_put
             &amp;&amp; <span class="self">self</span>.default_put_options == other.default_put_options
             &amp;&amp; <span class="self">self</span>.non_default_put_descriptors == other.non_default_put_descriptors
-            &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.knowledge_store.knowledge)
-                == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.knowledge_store.knowledge)
+            &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.knowledge_store.raw_knowledge)
+                == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.knowledge_store.raw_knowledge)
             &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.claims) == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.claims)
     }
 }
@@ -1377,14 +1435,14 @@
 
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx
                 .knowledge_store
-                .do_extract_knowledge(opaque_flight, source.clone())
+                .add_raw_knowledge(opaque_flight, source.clone())
             {
-                <span class="macro">debug!</span>(<span class="string">&quot;Knowledge increased by {}&quot;</span>, num);
+                <span class="macro">debug!</span>(<span class="string">&quot;Raw Knowledge increased to {}&quot;</span>, num);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(f) = flight {
-                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx.knowledge_store.do_extract_knowledge(f, source.clone()) {
-                    <span class="macro">debug!</span>(<span class="string">&quot;Knowledge increased by {}&quot;</span>, num);
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx.knowledge_store.add_raw_knowledge(f, source.clone()) {
+                    <span class="macro">debug!</span>(<span class="string">&quot;Raw Knowledge increased to {}&quot;</span>, num);
                 }
             }
         }

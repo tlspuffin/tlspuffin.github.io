@@ -114,15 +114,15 @@
 <span class="doccomment">/// Provide a way to extract knowledge out of a Message/OpaqueMessage or any type that
 /// might be used in a precomputation
 </span><span class="kw">pub trait </span>ExtractKnowledge&lt;M: Matcher&gt;: std::fmt::Debug {
-    <span class="doccomment">/// Fill `knowledges` with new knowledge gathered form the type implementing ExtractKnowledge
+    <span class="doccomment">/// Fill `knowledge` with new knowledge gathered form the type implementing ExtractKnowledge
     /// by recursively calling extract_knowledge on all contained element
-    /// This will put source as the source of all the produced knowledges, matcher is also passed
-    /// recursively but might be overriten by a type with a more specific matcher
-    </span><span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;M&gt;&gt;,
+    /// This will put source as the source of all the produced knowledge, matcher is also passed
+    /// recursively but might be overwritten by a type with a more specific matcher
+    </span><span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, M&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 }
 

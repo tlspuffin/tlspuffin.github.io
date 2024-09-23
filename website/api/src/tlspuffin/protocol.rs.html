@@ -667,7 +667,6 @@
 <a href="#667" id="667">667</a>
 <a href="#668" id="668">668</a>
 <a href="#669" id="669">669</a>
-<a href="#670" id="670">670</a>
 </pre><pre class="rust"><code><span class="kw">use </span>log::debug;
 <span class="kw">use </span>puffin::{
     algebra::{signature::Signature, Matcher},
@@ -678,7 +677,6 @@
         ProtocolMessage, ProtocolMessageDeframer, ProtocolMessageFlight,
     },
     trace::{Knowledge, Source, Trace},
-    variable_data::VariableData,
 };
 
 <span class="kw">use crate</span>::{
@@ -822,16 +820,16 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>MessageFlight {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
 
         <span class="kw">for </span>msg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.messages {
@@ -842,16 +840,16 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>OpaqueMessageFlight {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         <span class="kw">for </span>msg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.messages {
             msg.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
@@ -866,11 +864,11 @@
     /// If a message is an ApplicationData (TLS 1.3) or an encrypted Heartbeet
     /// or Handhake message (TLS 1.2), then only the message itself and the
     /// binary payload is returned.
-    </span><span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    </span><span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         <span class="kw">_</span>: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>matcher = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.payload {
             MessagePayload::Alert(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(TlsQueryMatcher::Alert),
@@ -882,9 +880,9 @@
         };
 
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
 
         <span class="self">self</span>.payload
@@ -894,16 +892,16 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>MessagePayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             MessagePayload::Alert(alert) =&gt; alert.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>,
@@ -924,84 +922,84 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>ChangeCipherSpecPayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>HeartbeatPayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.payload.<span class="number">0</span>.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.payload.<span class="number">0</span>,
         });
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>AlertMessagePayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.description),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.description,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.level),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.level,
         });
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>HandshakeMessagePayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.typ),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.typ,
         });
         <span class="self">self</span>.payload
             .extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
@@ -1010,16 +1008,16 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>HandshakePayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             HandshakePayload::HelloRequest =&gt; {}
@@ -1049,37 +1047,37 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>CertificatePayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.<span class="number">0</span>.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>,
         });
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>ServerKeyExchangePayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         <span class="kw">match </span><span class="self">self </span>{
             ServerKeyExchangePayload::ECDHE(ecdhe) =&gt; {
@@ -1096,180 +1094,180 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>ECDHEServerKeyExchange {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>Payload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.<span class="number">0</span>.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>,
         });
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>ClientHelloPayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.random),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.random,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.session_id),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.session_id,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.client_version),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.client_version,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.extensions.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.extensions,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.compression_methods.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.compression_methods,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.cipher_suites.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.cipher_suites,
         });
 
         knowledges.extend(<span class="self">self</span>.extensions.iter().map(|extension| Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(extension.clone()) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>VariableData&gt;,
+            data: extension,
         }));
         knowledges.extend(
             <span class="self">self</span>.compression_methods
                 .iter()
                 .map(|compression| Knowledge {
-                    source: source.clone(),
+                    source,
                     matcher,
-                    data: Box::new(<span class="kw-2">*</span>compression) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>VariableData&gt;,
+                    data: compression,
                 }),
         );
         knowledges.extend(<span class="self">self</span>.cipher_suites.iter().map(|cipher_suite| Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="kw-2">*</span>cipher_suite) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>VariableData&gt;,
+            data: cipher_suite,
         }));
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>NewSessionTicketPayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.lifetime_hint <span class="kw">as </span>u64),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.lifetime_hint,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.ticket.<span class="number">0</span>.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.ticket.<span class="number">0</span>,
         });
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>ServerHelloPayload {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.random),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.random,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.session_id),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.session_id,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.cipher_suite),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.cipher_suite,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.compression_method),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.compression_method,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.legacy_version),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.legacy_version,
         });
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.extensions.clone()),
+            data: <span class="kw-2">&amp;</span><span class="self">self</span>.extensions,
         });
         knowledges.extend(<span class="self">self</span>.extensions.iter().map(|extension| Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(extension.clone()) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>VariableData&gt;,
+            data: extension,
         }));
         <span class="prelude-val">Ok</span>(())
     }
@@ -1293,16 +1291,16 @@
 }
 
 <span class="kw">impl </span>ExtractKnowledge&lt;TlsQueryMatcher&gt; <span class="kw">for </span>OpaqueMessage {
-    <span class="kw">fn </span>extract_knowledge(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;TlsQueryMatcher&gt;&gt;,
+    <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, TlsQueryMatcher&gt;&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;TlsQueryMatcher&gt;,
-        source: <span class="kw-2">&amp;</span>Source,
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         knowledges.push(Knowledge {
-            source: source.clone(),
+            source,
             matcher,
-            data: Box::new(<span class="self">self</span>.clone()),
+            data: <span class="self">self</span>,
         });
         <span class="prelude-val">Ok</span>(())
     }

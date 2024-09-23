@@ -570,6 +570,10 @@
 <a href="#570" id="570">570</a>
 <a href="#571" id="571">571</a>
 <a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -1141,6 +1145,10 @@
 
 <span class="kw">pub fn </span>fn_named_group_x25519() -&gt; <span class="prelude-ty">Result</span>&lt;NamedGroup, FnError&gt; {
     <span class="prelude-val">Ok</span>(NamedGroup::X25519)
+}
+
+<span class="kw">pub fn </span>fn_u64_to_u32(input: <span class="kw-2">&amp;</span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;u32, FnError&gt; {
+    <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>input <span class="kw">as </span>u32)
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tcp/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tlspuffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tcp/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -829,7 +829,7 @@
 <a href="#829" id="829">829</a>
 <a href="#830" id="830">830</a>
 <a href="#831" id="831">831</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     ffi::OsStr,
     io::{<span class="self">self</span>, ErrorKind, Read, Write},
     net::{AddrParseError, IpAddr, SocketAddr, TcpListener, TcpStream, ToSocketAddrs},
@@ -872,20 +872,20 @@
 
             <span class="kw">let </span>options = <span class="kw-2">&amp;</span>put_descriptor.options;
 
-            <span class="kw">if </span>options.get_option(<span class="string">&quot;args&quot;</span>).is_some() {
-                <span class="macro">info!</span>(<span class="string">&quot;Trace contains TCP running information we shall reuse.&quot;</span>);
+            <span class="kw">if </span>options.get_option(<span class="string">"args"</span>).is_some() {
+                <span class="macro">info!</span>(<span class="string">"Trace contains TCP running information we shall reuse."</span>);
                 <span class="kw">let </span>args = options
-                    .get_option(<span class="string">&quot;args&quot;</span>)
+                    .get_option(<span class="string">"args"</span>)
                     .ok_or_else(|| {
-                        Error::Agent(<span class="macro">format!</span>(<span class="string">&quot;{} // {:?}&quot;</span>, <span class="string">&quot;Unable to find args&quot;</span>, put_descriptor))
+                        Error::Agent(<span class="macro">format!</span>(<span class="string">"{} // {:?}"</span>, <span class="string">"Unable to find args"</span>, put_descriptor))
                     })<span class="question-mark">?
                     </span>.to_owned();
                 <span class="kw">let </span>prog = options
-                    .get_option(<span class="string">&quot;prog&quot;</span>)
-                    .ok_or_else(|| Error::Agent(<span class="string">&quot;Unable to find prog&quot;</span>.to_string()))<span class="question-mark">?
+                    .get_option(<span class="string">"prog"</span>)
+                    .ok_or_else(|| Error::Agent(<span class="string">"Unable to find prog"</span>.to_string()))<span class="question-mark">?
                     </span>.to_owned();
                 <span class="kw">let </span>cwd = options
-                    .get_option(<span class="string">&quot;cwd&quot;</span>)
+                    .get_option(<span class="string">"cwd"</span>)
                     .map(|cwd| <span class="prelude-val">Some</span>(cwd.to_owned()))
                     .unwrap_or_default();
                 <span class="kw">if </span>agent_descriptor.typ == AgentType::Client {
@@ -899,7 +899,7 @@
                     <span class="prelude-val">Ok</span>(Box::new(client))
                 }
             } <span class="kw">else </span>{
-                <span class="macro">info!</span>(<span class="string">&quot;Trace contains no TCP running information so we fall back to external TCP client and servers.&quot;</span>);
+                <span class="macro">info!</span>(<span class="string">"Trace contains no TCP running information so we fall back to external TCP client and servers."</span>);
                 <span class="kw">if </span>agent_descriptor.typ == AgentType::Client {
                     <span class="kw">let </span>server = TcpServerPut::new(agent_descriptor, <span class="kw-2">&amp;</span>put_descriptor)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(Box::new(server))
@@ -920,18 +920,18 @@
 
         <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(String, String)&gt; {
             <span class="macro">vec!</span>[(
-                <span class="string">&quot;harness&quot;</span>.to_string(),
-                <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, TCP_PUT, VERSION_STR),
+                <span class="string">"harness"</span>.to_string(),
+                <span class="macro">format!</span>(<span class="string">"{} ({})"</span>, TCP_PUT, VERSION_STR),
             )]
         }
 
         <span class="kw">fn </span>determinism_set_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">debug!</span>(<span class="string">&quot; [Determinism] Factory {} has no support for determinism. We cannot set and reseed.&quot;</span>, <span class="self">self</span>.name());
+            <span class="macro">debug!</span>(<span class="string">" [Determinism] Factory {} has no support for determinism. We cannot set and reseed."</span>, <span class="self">self</span>.name());
         }
 
         <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
             <span class="macro">debug!</span>(
-                <span class="string">&quot; [Determinism] Factory {} has no support for determinism. We cannot reseed.&quot;</span>,
+                <span class="string">" [Determinism] Factory {} has no support for determinism. We cannot reseed."</span>,
                 <span class="self">self</span>.name()
             );
         }
@@ -1014,7 +1014,7 @@
 
         stream.ok_or(io::Error::new(
             ErrorKind::NotConnected,
-            <span class="string">&quot;TcpClientPut failed to connect&quot;</span>,
+            <span class="string">"TcpClientPut failed to connect"</span>,
         ))
     }
 
@@ -1074,7 +1074,7 @@
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(tuple) = <span class="self">self</span>.stream_receiver.recv_timeout(Duration::from_secs(<span class="number">60</span>)) {
             <span class="self">self</span>.stream = <span class="prelude-val">Some</span>(tuple);
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;Unable to get stream to client!&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"Unable to get stream to client!"</span>)
         }
     }
 }
@@ -1127,15 +1127,15 @@
 
 <span class="kw">fn </span>addr_from_config(put_descriptor: <span class="kw-2">&amp;</span>PutDescriptor) -&gt; <span class="prelude-ty">Result</span>&lt;SocketAddr, AddrParseError&gt; {
     <span class="kw">let </span>options = <span class="kw-2">&amp;</span>put_descriptor.options;
-    <span class="kw">let </span>host = options.get_option(<span class="string">&quot;host&quot;</span>).unwrap_or(<span class="string">&quot;127.0.0.1&quot;</span>);
+    <span class="kw">let </span>host = options.get_option(<span class="string">"host"</span>).unwrap_or(<span class="string">"127.0.0.1"</span>);
     <span class="kw">let </span>port = options
-        .get_option(<span class="string">&quot;port&quot;</span>)
+        .get_option(<span class="string">"port"</span>)
         .and_then(|value| u16::from_str(value).ok())
         .unwrap_or_else(|| {
             <span class="kw">let </span>port = <span class="number">44338</span>;
             <span class="macro">warn!</span>(
-                <span class="string">&quot;Failed to parse port option (maybe you executed a trace that was not produced in \
-            TCP mode?). We anyway fall back to port {port}.&quot;
+                <span class="string">"Failed to parse port option (maybe you executed a trace that was not produced in \
+            TCP mode?). We anyway fall back to port {port}."
             </span>);
             port
         });
@@ -1149,21 +1149,21 @@
     }
 
     <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="macro">panic!</span>(<span class="string">&quot;Not supported&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 
     <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor {
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;claims&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
     </span><span class="kw">fn </span>register_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _agent_name: AgentName) {
-        <span class="macro">panic!</span>(<span class="string">&quot;Claims are not supported with TcpPut&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Claims are not supported with TcpPut"</span>)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;claims&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
     </span><span class="kw">fn </span>deregister_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="macro">panic!</span>(<span class="string">&quot;Claims are not supported with TcpPut&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Claims are not supported with TcpPut"</span>)
     }
 
     <span class="kw">fn </span>rename_agent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -1171,7 +1171,7 @@
     }
 
     <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="macro">panic!</span>(<span class="string">&quot;Not supported&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 
     <span class="kw">fn </span>is_state_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1180,7 +1180,7 @@
 
     <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), puffin::error::Error&gt; {
         <span class="prelude-val">Err</span>(Error::Agent(
-            <span class="string">&quot;[deterministic] Unable to reseed TCP PUT!&quot;</span>.to_string(),
+            <span class="string">"[deterministic] Unable to reseed TCP PUT!"</span>.to_string(),
         ))
     }
 
@@ -1192,7 +1192,7 @@
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
     {
-        <span class="string">&quot;Undefined&quot;</span>.to_string()
+        <span class="string">"Undefined"</span>.to_string()
     }
 }
 
@@ -1211,14 +1211,14 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;claims&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
     </span><span class="kw">fn </span>register_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _agent_name: AgentName) {
-        <span class="macro">panic!</span>(<span class="string">&quot;Claims are not supported with TcpPut&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Claims are not supported with TcpPut"</span>)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;claims&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
     </span><span class="kw">fn </span>deregister_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="macro">panic!</span>(<span class="string">&quot;Claims are not supported with TcpPut&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Claims are not supported with TcpPut"</span>)
     }
 
     <span class="kw">fn </span>rename_agent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -1226,7 +1226,7 @@
     }
 
     <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="macro">panic!</span>(<span class="string">&quot;Not supported&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 
     <span class="kw">fn </span>is_state_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1235,7 +1235,7 @@
 
     <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), puffin::error::Error&gt; {
         <span class="prelude-val">Err</span>(Error::Agent(
-            <span class="string">&quot;[deterministic] Unable to reseed TCP PUT!&quot;</span>.to_string(),
+            <span class="string">"[deterministic] Unable to reseed TCP PUT!"</span>.to_string(),
         ))
     }
 
@@ -1247,7 +1247,7 @@
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
     {
-        <span class="string">&quot;Undefined&quot;</span>.to_string()
+        <span class="string">"Undefined"</span>.to_string()
     }
 }
 
@@ -1259,14 +1259,14 @@
 <span class="kw">impl </span>TLSProcess {
     <span class="kw">pub fn </span>new&lt;P: AsRef&lt;Path&gt;&gt;(prog: <span class="kw-2">&amp;</span>str, args: <span class="kw-2">&amp;</span>str, cwd: <span class="prelude-ty">Option</span>&lt;P&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            child: <span class="prelude-val">Some</span>(execute_command(prog, args.split(<span class="string">&#39; &#39;</span>), cwd)),
+            child: <span class="prelude-val">Some</span>(execute_command(prog, args.split(<span class="string">' '</span>), cwd)),
             output: <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">pub fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
         <span class="self">self</span>.output = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>child) = <span class="self">self</span>.child.take() {
-            child.kill().expect(<span class="string">&quot;failed to stop process&quot;</span>);
+            child.kill().expect(<span class="string">"failed to stop process"</span>);
 
             <span class="prelude-val">Some</span>(collect_output(child))
         } <span class="kw">else </span>{
@@ -1281,7 +1281,7 @@
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(output) = <span class="self">self</span>.shutdown() {
             <span class="macro">println!</span>(
-                <span class="string">&quot;TLSProcess was not shutdown manually. Output of the process: {}&quot;</span>,
+                <span class="string">"TLSProcess was not shutdown manually. Output of the process: {}"</span>,
                 output
             );
         }
@@ -1289,14 +1289,14 @@
 }
 
 <span class="kw">fn </span>collect_output(child: Child) -&gt; String {
-    <span class="kw">let </span>output = child.wait_with_output().expect(<span class="string">&quot;failed to wait on child&quot;</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>complete = <span class="string">&quot;--- start stderr\n&quot;</span>.to_string();
+    <span class="kw">let </span>output = child.wait_with_output().expect(<span class="string">"failed to wait on child"</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>complete = <span class="string">"--- start stderr\n"</span>.to_string();
 
     complete.push_str(std::str::from_utf8(<span class="kw-2">&amp;</span>output.stderr).unwrap());
-    complete.push_str(<span class="string">&quot;\n--- end stderr\n&quot;</span>);
-    complete.push_str(<span class="string">&quot;--- start stdout\n&quot;</span>);
+    complete.push_str(<span class="string">"\n--- end stderr\n"</span>);
+    complete.push_str(<span class="string">"--- start stdout\n"</span>);
     complete.push_str(std::str::from_utf8(<span class="kw-2">&amp;</span>output.stdout).unwrap());
-    complete.push_str(<span class="string">&quot;\n--- end stdout\n&quot;</span>);
+    complete.push_str(<span class="string">"\n--- end stdout\n"</span>);
 
     complete
 }
@@ -1317,7 +1317,7 @@
         </span>.stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .expect(<span class="string">&quot;failed to execute process&quot;</span>)
+        .expect(<span class="string">"failed to execute process"</span>)
 }
 
 <span class="attr">#[cfg(test)]
@@ -1327,7 +1327,7 @@
 
     <span class="kw">use </span><span class="kw">crate</span>::tcp::{collect_output, execute_command};
 
-    <span class="kw">const </span>OPENSSL_PROG: <span class="kw-2">&amp;</span>str = <span class="string">&quot;openssl&quot;</span>;
+    <span class="kw">const </span>OPENSSL_PROG: <span class="kw-2">&amp;</span>str = <span class="string">"openssl"</span>;
 
     <span class="kw">pub struct </span>ParametersGuard {
         port: u16,
@@ -1344,9 +1344,9 @@
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>build_options(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutOptions {
             <span class="kw">let </span>port = <span class="self">self</span>.port.to_string();
             <span class="kw">let </span><span class="kw-2">mut </span>options: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; =
-                <span class="macro">vec!</span>[(<span class="string">&quot;port&quot;</span>, <span class="kw-2">&amp;</span>port), (<span class="string">&quot;prog&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.prog), (<span class="string">&quot;args&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.args)];
+                <span class="macro">vec!</span>[(<span class="string">"port"</span>, <span class="kw-2">&amp;</span>port), (<span class="string">"prog"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.prog), (<span class="string">"args"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.args)];
             <span class="kw">if let </span><span class="prelude-val">Some</span>(cwd) = <span class="kw-2">&amp;</span><span class="self">self</span>.cwd {
-                options.push((<span class="string">&quot;cwd&quot;</span>, cwd));
+                options.push((<span class="string">"cwd"</span>, cwd));
             }
             PutOptions::from_slice_vec(options)
         }
@@ -1355,25 +1355,25 @@
     <span class="kw">fn </span>gen_certificate() -&gt; (String, String, TempDir) {
         <span class="kw">let </span>temp_dir = tempdir().unwrap();
 
-        <span class="kw">let </span>key = temp_dir.path().join(<span class="string">&quot;key.pem&quot;</span>);
+        <span class="kw">let </span>key = temp_dir.path().join(<span class="string">"key.pem"</span>);
         <span class="kw">let </span>key_path = key.as_os_str().to_str().unwrap();
-        <span class="kw">let </span>cert = temp_dir.path().join(<span class="string">&quot;cert.pem&quot;</span>);
+        <span class="kw">let </span>cert = temp_dir.path().join(<span class="string">"cert.pem"</span>);
         <span class="kw">let </span>cert_path = cert.as_os_str().to_str().unwrap();
 
         <span class="kw">let </span>openssl_gen_cert_args = [
-            <span class="string">&quot;req&quot;</span>,
-            <span class="string">&quot;-x509&quot;</span>,
-            <span class="string">&quot;-newkey&quot;</span>,
-            <span class="string">&quot;rsa:2048&quot;</span>,
-            <span class="string">&quot;-keyout&quot;</span>,
+            <span class="string">"req"</span>,
+            <span class="string">"-x509"</span>,
+            <span class="string">"-newkey"</span>,
+            <span class="string">"rsa:2048"</span>,
+            <span class="string">"-keyout"</span>,
             key_path,
-            <span class="string">&quot;-out&quot;</span>,
+            <span class="string">"-out"</span>,
             cert_path,
-            <span class="string">&quot;-days&quot;</span>,
-            <span class="string">&quot;365&quot;</span>,
-            <span class="string">&quot;-nodes&quot;</span>,
-            <span class="string">&quot;-subj&quot;</span>,
-            <span class="string">&quot;/C=US/ST=New Sweden/L=Stockholm/O=.../OU=.../CN=.../emailAddress=...&quot;</span>,
+            <span class="string">"-days"</span>,
+            <span class="string">"365"</span>,
+            <span class="string">"-nodes"</span>,
+            <span class="string">"-subj"</span>,
+            <span class="string">"/C=US/ST=New Sweden/L=Stockholm/O=.../OU=.../CN=.../emailAddress=..."</span>,
         ];
 
         <span class="kw">let </span>cert_output = collect_output(execute_command::&lt;<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">&amp;</span>str&gt;(
@@ -1381,7 +1381,7 @@
             openssl_gen_cert_args,
             <span class="prelude-val">None</span>,
         ));
-        <span class="macro">println!</span>(<span class="string">&quot;Certificate generation: {}&quot;</span>, cert_output);
+        <span class="macro">println!</span>(<span class="string">"Certificate generation: {}"</span>, cert_output);
 
         (key_path.to_owned(), cert_path.to_owned(), temp_dir)
     }
@@ -1390,32 +1390,32 @@
         <span class="kw">let </span>(_key, _cert, temp_dir) = gen_certificate();
 
         <span class="kw">let </span>port_string = port.to_string();
-        <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[<span class="string">&quot;-h&quot;</span>, <span class="string">&quot;127.0.0.1&quot;</span>, <span class="string">&quot;-p&quot;</span>, <span class="kw-2">&amp;</span>port_string, <span class="string">&quot;-x&quot;</span>, <span class="string">&quot;-d&quot;</span>];
-        <span class="kw">let </span>prog = <span class="string">&quot;./examples/client/client&quot;</span>;
-        <span class="kw">let </span>cwd = <span class="string">&quot;/home/max/projects/wolfssl&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[<span class="string">"-h"</span>, <span class="string">"127.0.0.1"</span>, <span class="string">"-p"</span>, <span class="kw-2">&amp;</span>port_string, <span class="string">"-x"</span>, <span class="string">"-d"</span>];
+        <span class="kw">let </span>prog = <span class="string">"./examples/client/client"</span>;
+        <span class="kw">let </span>cwd = <span class="string">"/home/max/projects/wolfssl"</span>;
 
         <span class="kw">match </span>version {
             TLSVersion::V1_3 =&gt; {
-                args.push(<span class="string">&quot;-v&quot;</span>);
-                args.push(<span class="string">&quot;4&quot;</span>);
+                args.push(<span class="string">"-v"</span>);
+                args.push(<span class="string">"4"</span>);
             }
             TLSVersion::V1_2 =&gt; {
-                args.push(<span class="string">&quot;-v&quot;</span>);
-                args.push(<span class="string">&quot;3&quot;</span>);
+                args.push(<span class="string">"-v"</span>);
+                args.push(<span class="string">"3"</span>);
             }
         }
 
         <span class="kw">let </span>warmups = warmups.map(|warmups| warmups.to_string());
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(warmups) = <span class="kw-2">&amp;</span>warmups {
-            args.push(<span class="string">&quot;-b&quot;</span>);
+            args.push(<span class="string">"-b"</span>);
             args.push(warmups);
         }
 
         ParametersGuard {
             port,
             prog: prog.to_owned(),
-            args: args.join(<span class="string">&quot; &quot;</span>),
+            args: args.join(<span class="string">" "</span>),
             cwd: <span class="prelude-val">Some</span>(cwd.to_owned()),
             temp_dir: <span class="prelude-val">Some</span>(temp_dir),
         }
@@ -1425,25 +1425,25 @@
         <span class="kw">let </span>(_key, _cert, temp_dir) = gen_certificate();
 
         <span class="kw">let </span>port_string = port.to_string();
-        <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[<span class="string">&quot;-p&quot;</span>, <span class="kw-2">&amp;</span>port_string, <span class="string">&quot;-x&quot;</span>, <span class="string">&quot;-d&quot;</span>, <span class="string">&quot;-i&quot;</span>];
-        <span class="kw">let </span>prog = <span class="string">&quot;./examples/server/server&quot;</span>;
-        <span class="kw">let </span>cwd = <span class="string">&quot;/home/max/projects/wolfssl&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[<span class="string">"-p"</span>, <span class="kw-2">&amp;</span>port_string, <span class="string">"-x"</span>, <span class="string">"-d"</span>, <span class="string">"-i"</span>];
+        <span class="kw">let </span>prog = <span class="string">"./examples/server/server"</span>;
+        <span class="kw">let </span>cwd = <span class="string">"/home/max/projects/wolfssl"</span>;
 
         <span class="kw">match </span>version {
             TLSVersion::V1_3 =&gt; {
-                args.push(<span class="string">&quot;-v&quot;</span>);
-                args.push(<span class="string">&quot;4&quot;</span>);
+                args.push(<span class="string">"-v"</span>);
+                args.push(<span class="string">"4"</span>);
             }
             TLSVersion::V1_2 =&gt; {
-                args.push(<span class="string">&quot;-v&quot;</span>);
-                args.push(<span class="string">&quot;3&quot;</span>);
+                args.push(<span class="string">"-v"</span>);
+                args.push(<span class="string">"3"</span>);
             }
         }
 
         ParametersGuard {
             port,
             prog: prog.to_owned(),
-            args: args.join(<span class="string">&quot; &quot;</span>),
+            args: args.join(<span class="string">" "</span>),
             cwd: <span class="prelude-val">Some</span>(cwd.to_owned()),
             temp_dir: <span class="prelude-val">Some</span>(temp_dir),
         }
@@ -1454,52 +1454,52 @@
 
         <span class="kw">let </span>port_string = port.to_string();
         <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[
-            <span class="string">&quot;s_server&quot;</span>,
-            <span class="string">&quot;-accept&quot;</span>,
+            <span class="string">"s_server"</span>,
+            <span class="string">"-accept"</span>,
             <span class="kw-2">&amp;</span>port_string,
-            <span class="string">&quot;-msg&quot;</span>,
-            <span class="string">&quot;-state&quot;</span>,
-            <span class="string">&quot;-key&quot;</span>,
+            <span class="string">"-msg"</span>,
+            <span class="string">"-state"</span>,
+            <span class="string">"-key"</span>,
             <span class="kw-2">&amp;</span>key,
-            <span class="string">&quot;-cert&quot;</span>,
+            <span class="string">"-cert"</span>,
             <span class="kw-2">&amp;</span>cert,
         ];
 
         <span class="kw">match </span>version {
             TLSVersion::V1_3 =&gt; {
-                args.push(<span class="string">&quot;-tls1_3&quot;</span>);
+                args.push(<span class="string">"-tls1_3"</span>);
             }
             TLSVersion::V1_2 =&gt; {
-                args.push(<span class="string">&quot;-tls1_2&quot;</span>);
+                args.push(<span class="string">"-tls1_2"</span>);
             }
         }
 
         ParametersGuard {
             port,
             prog: OPENSSL_PROG.to_owned(),
-            args: args.join(<span class="string">&quot; &quot;</span>),
+            args: args.join(<span class="string">" "</span>),
             cwd: <span class="prelude-val">None</span>,
             temp_dir: <span class="prelude-val">Some</span>(temp_dir),
         }
     }
 
     <span class="kw">pub fn </span>openssl_client(port: u16, version: TLSVersion) -&gt; ParametersGuard {
-        <span class="kw">let </span>connect = <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="string">&quot;127.0.0.1&quot;</span>, port);
-        <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[<span class="string">&quot;s_client&quot;</span>, <span class="string">&quot;-connect&quot;</span>, <span class="kw-2">&amp;</span>connect, <span class="string">&quot;-msg&quot;</span>, <span class="string">&quot;-state&quot;</span>];
+        <span class="kw">let </span>connect = <span class="macro">format!</span>(<span class="string">"{}:{}"</span>, <span class="string">"127.0.0.1"</span>, port);
+        <span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[<span class="string">"s_client"</span>, <span class="string">"-connect"</span>, <span class="kw-2">&amp;</span>connect, <span class="string">"-msg"</span>, <span class="string">"-state"</span>];
 
         <span class="kw">match </span>version {
             TLSVersion::V1_3 =&gt; {
-                args.push(<span class="string">&quot;-tls1_3&quot;</span>);
+                args.push(<span class="string">"-tls1_3"</span>);
             }
             TLSVersion::V1_2 =&gt; {
-                args.push(<span class="string">&quot;-tls1_2&quot;</span>);
+                args.push(<span class="string">"-tls1_2"</span>);
             }
         }
 
         ParametersGuard {
             port,
             prog: OPENSSL_PROG.to_owned(),
-            args: args.join(<span class="string">&quot; &quot;</span>),
+            args: args.join(<span class="string">" "</span>),
             cwd: <span class="prelude-val">None</span>,
             temp_dir: <span class="prelude-val">None</span>,
         }
@@ -1549,8 +1549,8 @@
 
         <span class="kw">let </span>server = AgentName::first().next();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-        <span class="macro">assert!</span>(shutdown.contains(<span class="string">&quot;Reused session-id&quot;</span>));
+        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">assert!</span>(shutdown.contains(<span class="string">"Reused session-id"</span>));
     }
 
     <span class="attr">#[test]
@@ -1572,9 +1572,9 @@
 
         <span class="kw">let </span>server = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-        <span class="macro">assert!</span>(shutdown.contains(<span class="string">&quot;BEGIN SSL SESSION PARAMETERS&quot;</span>));
-        <span class="macro">assert!</span>(!shutdown.contains(<span class="string">&quot;Reused session-id&quot;</span>));
+        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">assert!</span>(shutdown.contains(<span class="string">"BEGIN SSL SESSION PARAMETERS"</span>));
+        <span class="macro">assert!</span>(!shutdown.contains(<span class="string">"Reused session-id"</span>));
     }
 
     <span class="attr">#[test]
@@ -1609,13 +1609,13 @@
 
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(client).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-        <span class="macro">assert!</span>(shutdown.contains(<span class="string">&quot;Timeout   : 7200 (sec)&quot;</span>));
+        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">assert!</span>(shutdown.contains(<span class="string">"Timeout   : 7200 (sec)"</span>));
 
         <span class="kw">let </span>server = client.next();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-        <span class="macro">assert!</span>(shutdown.contains(<span class="string">&quot;BEGIN SSL SESSION PARAMETERS&quot;</span>));
+        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">assert!</span>(shutdown.contains(<span class="string">"BEGIN SSL SESSION PARAMETERS"</span>));
     }
 
     <span class="attr">#[test]
@@ -1651,14 +1651,13 @@
 
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(client).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-        <span class="macro">assert!</span>(!shutdown.contains(<span class="string">&quot;fail&quot;</span>));
+        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">assert!</span>(!shutdown.contains(<span class="string">"fail"</span>));
 
         <span class="kw">let </span>server = client.next();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-        <span class="macro">assert!</span>(shutdown.contains(<span class="string">&quot;BEGIN SSL SESSION PARAMETERS&quot;</span>));
+        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">assert!</span>(shutdown.contains(<span class="string">"BEGIN SSL SESSION PARAMETERS"</span>));
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

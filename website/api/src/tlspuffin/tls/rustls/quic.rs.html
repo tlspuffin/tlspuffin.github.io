@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/rustls/quic.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tlspuffin/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/rustls/quic.rs`."><title>quic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -570,7 +570,7 @@
 <a href="#570" id="570">570</a>
 <a href="#571" id="571">571</a>
 <a href="#572" id="572">572</a>
-</pre><pre class="rust"><code><span class="kw">use </span>ring::{aead, hkdf};
+</pre></div><pre class="rust"><code><span class="kw">use </span>ring::{aead, hkdf};
 
 <span class="doccomment">/// This module contains optional APIs for implementing QUIC TLS.
 </span><span class="kw">use </span><span class="kw">crate</span>::tls::rustls::cipher::{Iv, IvLen};
@@ -589,7 +589,7 @@
     <span class="doccomment">/// Secret used to encrypt packets transmitted by the server
     </span>server: hkdf::Prk,
     <span class="doccomment">/// Cipher suite used with these secrets
-    </span>suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls13CipherSuite,
+    </span>suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite,
     is_client: bool,
 }
 
@@ -597,7 +597,7 @@
     <span class="kw">pub fn </span>new(
         client: hkdf::Prk,
         server: hkdf::Prk,
-        suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls13CipherSuite,
+        suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite,
         is_client: bool,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -617,8 +617,8 @@
 
     <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>hkdf_alg = <span class="self">self</span>.suite.hkdf_algorithm;
-        <span class="self">self</span>.client = hkdf_expand(<span class="kw-2">&amp;</span><span class="self">self</span>.client, hkdf_alg, <span class="string">b&quot;quic ku&quot;</span>, <span class="kw-2">&amp;</span>[]);
-        <span class="self">self</span>.server = hkdf_expand(<span class="kw-2">&amp;</span><span class="self">self</span>.server, hkdf_alg, <span class="string">b&quot;quic ku&quot;</span>, <span class="kw-2">&amp;</span>[]);
+        <span class="self">self</span>.client = hkdf_expand(<span class="kw-2">&amp;</span><span class="self">self</span>.client, hkdf_alg, <span class="string">b"quic ku"</span>, <span class="kw-2">&amp;</span>[]);
+        <span class="self">self</span>.server = hkdf_expand(<span class="kw-2">&amp;</span><span class="self">self</span>.server, hkdf_alg, <span class="string">b"quic ku"</span>, <span class="kw-2">&amp;</span>[]);
     }
 
     <span class="kw">fn </span>local_remote(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>hkdf::Prk, <span class="kw-2">&amp;</span>hkdf::Prk) {
@@ -632,7 +632,7 @@
 
 <span class="doccomment">/// Generic methods for QUIC sessions
 </span><span class="kw">pub trait </span>QuicExt {
-    <span class="doccomment">/// Return the TLS-encoded transport parameters for the session&#39;s peer.
+    <span class="doccomment">/// Return the TLS-encoded transport parameters for the session's peer.
     ///
     /// While the transport parameters are technically available prior to the
     /// completion of the handshake, they cannot be fully trusted until the
@@ -662,14 +662,14 @@
 
 <span class="doccomment">/// Keys used to communicate in a single direction
 </span><span class="kw">pub struct </span>DirectionalKeys {
-    <span class="doccomment">/// Encrypts or decrypts a packet&#39;s headers
+    <span class="doccomment">/// Encrypts or decrypts a packet's headers
     </span><span class="kw">pub </span>header: HeaderProtectionKey,
     <span class="doccomment">/// Encrypts or decrypts the payload of a packet
     </span><span class="kw">pub </span>packet: PacketKey,
 }
 
 <span class="kw">impl </span>DirectionalKeys {
-    <span class="kw">pub fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             header: HeaderProtectionKey::new(suite, secret),
             packet: PacketKey::new(suite, secret),
@@ -681,14 +681,14 @@
 </span><span class="kw">pub struct </span>HeaderProtectionKey(aead::quic::HeaderProtectionKey);
 
 <span class="kw">impl </span>HeaderProtectionKey {
-    <span class="kw">fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>alg = <span class="kw">match </span>suite.common.bulk {
             BulkAlgorithm::Aes128Gcm =&gt; <span class="kw-2">&amp;</span>aead::quic::AES_128,
             BulkAlgorithm::Aes256Gcm =&gt; <span class="kw-2">&amp;</span>aead::quic::AES_256,
             BulkAlgorithm::Chacha20Poly1305 =&gt; <span class="kw-2">&amp;</span>aead::quic::CHACHA20,
         };
 
-        <span class="self">Self</span>(hkdf_expand(secret, alg, <span class="string">b&quot;quic hp&quot;</span>, <span class="kw-2">&amp;</span>[]))
+        <span class="self">Self</span>(hkdf_expand(secret, alg, <span class="string">b"quic hp"</span>, <span class="kw-2">&amp;</span>[]))
     }
 
     <span class="doccomment">/// Adds QUIC Header Protection.
@@ -764,7 +764,7 @@
         </span><span class="kw">let </span>mask = <span class="self">self
             </span>.<span class="number">0
             </span>.new_mask(sample)
-            .map_err(|<span class="kw">_</span>| Error::General(<span class="string">&quot;sample of invalid length&quot;</span>.into()))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| Error::General(<span class="string">"sample of invalid length"</span>.into()))<span class="question-mark">?</span>;
 
         <span class="comment">// The `unwrap()` will not panic because `new_mask` returns a
         // non-empty result.
@@ -773,7 +773,7 @@
         <span class="comment">// It is OK for the `mask` to be longer than `packet_number`,
         // but a valid `packet_number` will never be longer than `mask`.
         </span><span class="kw">if </span>packet_number.len() &gt; pn_mask.len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="string">&quot;packet number too long&quot;</span>.into()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="string">"packet number too long"</span>.into()));
         }
 
         <span class="comment">// Infallible from this point on. Before this point, `first` and
@@ -801,7 +801,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Expected sample length for the key&#39;s algorithm
+    <span class="doccomment">/// Expected sample length for the key's algorithm
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>sample_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.<span class="number">0</span>.algorithm().sample_len()
@@ -810,24 +810,24 @@
 
 <span class="doccomment">/// Keys to encrypt or decrypt the payload of a packet
 </span><span class="kw">pub struct </span>PacketKey {
-    <span class="doccomment">/// Encrypts or decrypts a packet&#39;s payload
+    <span class="doccomment">/// Encrypts or decrypts a packet's payload
     </span>key: aead::LessSafeKey,
     <span class="doccomment">/// Computes unique nonces for each packet
     </span>iv: Iv,
     <span class="doccomment">/// The cipher suite used for this packet key
-    </span>suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls13CipherSuite,
+    </span>suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite,
 }
 
 <span class="kw">impl </span>PacketKey {
-    <span class="kw">fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             key: aead::LessSafeKey::new(hkdf_expand(
                 secret,
                 suite.common.aead_algorithm,
-                <span class="string">b&quot;quic key&quot;</span>,
+                <span class="string">b"quic key"</span>,
                 <span class="kw-2">&amp;</span>[],
             )),
-            iv: hkdf_expand(secret, IvLen, <span class="string">b&quot;quic iv&quot;</span>, <span class="kw-2">&amp;</span>[]),
+            iv: hkdf_expand(secret, IvLen, <span class="string">b"quic iv"</span>, <span class="kw-2">&amp;</span>[]),
             suite,
         }
     }
@@ -838,7 +838,7 @@
     /// the additional authenticated data; and the `payload`. The authentication tag is returned if
     /// encryption succeeds.
     ///
-    /// Fails iff the payload is longer than allowed by the cipher suite&#39;s AEAD algorithm.
+    /// Fails iff the payload is longer than allowed by the cipher suite's AEAD algorithm.
     </span><span class="kw">pub fn </span>encrypt_in_place(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         packet_number: u64,
@@ -861,12 +861,12 @@
     ///
     /// If the return value is `Ok`, the decrypted payload can be found in `payload`, up to the
     /// length found in the return value.
-    </span><span class="kw">pub fn </span>decrypt_in_place&lt;<span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">pub fn </span>decrypt_in_place&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         packet_number: u64,
         header: <span class="kw-2">&amp;</span>[u8],
-        payload: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], Error&gt; {
+        payload: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], Error&gt; {
         <span class="kw">let </span>payload_len = payload.len();
         <span class="kw">let </span>aad = aead::Aad::from(header);
         <span class="kw">let </span>nonce = nonce_for(packet_number, <span class="kw-2">&amp;</span><span class="self">self</span>.iv);
@@ -940,8 +940,8 @@
 <span class="kw">impl </span>Keys {
     <span class="doccomment">/// Construct keys for use with initial packets
     </span><span class="kw">pub fn </span>initial(version: Version, client_dst_connection_id: <span class="kw-2">&amp;</span>[u8], is_client: bool) -&gt; <span class="self">Self </span>{
-        <span class="kw">const </span>CLIENT_LABEL: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;client in&quot;</span>;
-        <span class="kw">const </span>SERVER_LABEL: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;server in&quot;</span>;
+        <span class="kw">const </span>CLIENT_LABEL: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"client in"</span>;
+        <span class="kw">const </span>SERVER_LABEL: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"server in"</span>;
         <span class="kw">let </span>salt = version.initial_salt();
         <span class="kw">let </span>hs_secret = hkdf::Salt::new(hkdf::HKDF_SHA256, salt).extract(client_dst_connection_id);
 
@@ -1015,7 +1015,7 @@
 }
 
 <span class="kw">impl </span>Version {
-    <span class="kw">fn </span>initial_salt(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8; <span class="number">20</span>] {
+    <span class="kw">fn </span>initial_salt(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8; <span class="number">20</span>] {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::V1Draft =&gt; <span class="kw-2">&amp;</span>[
                 <span class="comment">// https://datatracker.ietf.org/doc/html/draft-ietf-quic-tls-32#section-5.2
@@ -1088,9 +1088,9 @@
         <span class="kw">fn </span>equal_prk(x: <span class="kw-2">&amp;</span>hkdf::Prk, y: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; bool {
             <span class="kw">let </span><span class="kw-2">mut </span>x_data = [<span class="number">0</span>; <span class="number">16</span>];
             <span class="kw">let </span><span class="kw-2">mut </span>y_data = [<span class="number">0</span>; <span class="number">16</span>];
-            <span class="kw">let </span>x_okm = x.expand(<span class="kw-2">&amp;</span>[<span class="string">b&quot;info&quot;</span>], <span class="kw-2">&amp;</span>aead::quic::AES_128).unwrap();
+            <span class="kw">let </span>x_okm = x.expand(<span class="kw-2">&amp;</span>[<span class="string">b"info"</span>], <span class="kw-2">&amp;</span>aead::quic::AES_128).unwrap();
             x_okm.fill(<span class="kw-2">&amp;mut </span>x_data[..]).unwrap();
-            <span class="kw">let </span>y_okm = y.expand(<span class="kw-2">&amp;</span>[<span class="string">b&quot;info&quot;</span>], <span class="kw-2">&amp;</span>aead::quic::AES_128).unwrap();
+            <span class="kw">let </span>y_okm = y.expand(<span class="kw-2">&amp;</span>[<span class="string">b"info"</span>], <span class="kw-2">&amp;</span>aead::quic::AES_128).unwrap();
             y_okm.fill(<span class="kw-2">&amp;mut </span>y_data[..]).unwrap();
             x_data == y_data
         }
@@ -1142,5 +1142,4 @@
         ));
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

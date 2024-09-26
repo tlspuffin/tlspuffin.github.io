@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["main",""]],"mod":[["claim",""],["libssh",""],["protocol",""],["put_registry",""],["query",""],["ssh",""],["violation",""]]};
+window.SIDEBAR_ITEMS = {"fn":["main"],"mod":["claim","libssh","protocol","put_registry","query","ssh","violation"]};

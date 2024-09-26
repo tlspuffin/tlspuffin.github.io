@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/vulnerabilities.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vulnerabilities.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tlspuffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/vulnerabilities.rs`."><title>vulnerabilities.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1377,7 +1377,7 @@
 <a href="#1377" id="1377">1377</a>
 <a href="#1378" id="1378">1378</a>
 <a href="#1379" id="1379">1379</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(dead_code)]
+</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::{
     agent::{AgentDescriptor, AgentName, AgentType, TLSVersion},
@@ -1393,7 +1393,7 @@
 
 <span class="doccomment">/// &lt;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25638&gt;
 </span><span class="kw">pub fn </span>seed_cve_2022_25638(server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -1419,7 +1419,7 @@
         )
     };
 
-    <span class="kw">let </span>decrypted_handshake = <span class="macro">term! </span>{
+    <span class="kw">let </span>decrypted_handshake = <span class="macro">term!</span> {
         fn_decrypt_handshake_flight(
             ((server, <span class="number">0</span>)/MessageFlight), <span class="comment">// The first flight of messages sent by the server
             </span>(fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1432,16 +1432,16 @@
     };
 
     <span class="comment">// ApplicationData 0 is EncryptedExtensions
-    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term! </span>{
+    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term!</span> {
         fn_find_server_certificate_request((@decrypted_handshake))
     };
 
-    <span class="kw">let </span>certificate_rsa = <span class="macro">term! </span>{
+    <span class="kw">let </span>certificate_rsa = <span class="macro">term!</span> {
         fn_certificate13(
             (fn_get_context((@certificate_request_message))),
             <span class="comment">//fn_empty_certificate_chain
             // Or append eve cert
-            </span>(fn_append_certificate_entry(
+            </span>(fn_chain_append_certificate_entry(
                 (fn_certificate_entry(
                     fn_eve_cert
                 )),
@@ -1450,7 +1450,7 @@
         )
     };
 
-    <span class="kw">let </span>certificate_verify_rsa = <span class="macro">term! </span>{
+    <span class="kw">let </span>certificate_verify_rsa = <span class="macro">term!</span> {
         fn_certificate_verify(
             fn_invalid_signature_algorithm,
             <span class="comment">// Option 1 (something random, only possible because of fn_empty_certificate_chain, if FAIL_IF_NO_PEER_CERT is unset):
@@ -1466,7 +1466,7 @@
         </span>)
     };
 
-    <span class="kw">let </span>client_finished = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_finished = <span class="macro">term!</span> {
         fn_finished(
             (fn_verify_data(
                 (fn_server_finished_transcript(((server, <span class="number">0</span>)))),
@@ -1491,7 +1491,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @client_hello
                     },
                 }),
@@ -1499,7 +1499,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@certificate_rsa),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1515,7 +1515,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                          fn_encrypt_handshake(
                             (@certificate_verify_rsa),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1531,7 +1531,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@client_finished),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1550,7 +1550,7 @@
 
 <span class="doccomment">/// &lt;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25640&gt;
 </span><span class="kw">pub fn </span>seed_cve_2022_25640(server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -1576,7 +1576,7 @@
         )
     };
 
-    <span class="kw">let </span>decrypted_handshake = <span class="macro">term! </span>{
+    <span class="kw">let </span>decrypted_handshake = <span class="macro">term!</span> {
         fn_decrypt_handshake_flight(
             ((server, <span class="number">0</span>)/MessageFlight), <span class="comment">// The first flight of messages sent by the server
             </span>(fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1589,14 +1589,14 @@
     };
 
     <span class="comment">// ApplicationData 0 is EncryptedExtensions
-    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term! </span>{
+    </span><span class="kw">let </span>certificate_request_message = <span class="macro">term!</span> {
         fn_find_server_certificate_request((@decrypted_handshake))
     };
 
-    <span class="kw">let </span>certificate = <span class="macro">term! </span>{
+    <span class="kw">let </span>certificate = <span class="macro">term!</span> {
         fn_certificate13(
             (fn_get_context((@certificate_request_message))),
-            (fn_append_certificate_entry(
+            (fn_chain_append_certificate_entry(
                 (fn_certificate_entry(
                     fn_eve_cert
                 )),
@@ -1605,7 +1605,7 @@
         )
     };
 
-    <span class="kw">let </span>client_finished = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_finished = <span class="macro">term!</span> {
         fn_finished(
             (fn_verify_data(
                 (fn_certificate_transcript(((server, <span class="number">0</span>)))),
@@ -1630,7 +1630,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @client_hello
                     },
                 }),
@@ -1638,7 +1638,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@certificate),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1654,7 +1654,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@client_finished),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1675,7 +1675,7 @@
 </span><span class="kw">pub fn </span>seed_cve_2021_3449(server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
     <span class="kw">let </span>(<span class="kw-2">mut </span>trace, client_verify_data) = _seed_client_attacker12(server);
 
-    <span class="kw">let </span>renegotiation_client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>renegotiation_client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -1710,7 +1710,7 @@
     trace.steps.push(Step {
         agent: server,
         action: Action::Input(InputAction {
-            recipe: <span class="macro">term! </span>{
+            recipe: <span class="macro">term!</span> {
                 fn_encrypt12(
                     (@renegotiation_client_hello),
                     ((server, <span class="number">0</span>)),
@@ -1747,7 +1747,7 @@
 }
 
 <span class="kw">pub fn </span>seed_heartbleed(client: AgentName, server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -1788,7 +1788,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_heartbeat_fake_length(fn_empty_bytes_vec, fn_large_length)
                     },
                 }),
@@ -1809,7 +1809,7 @@
             <span class="comment">// Client Hello, Client -&gt; Server
             </span>InputAction::new_step(
                 server,
-                <span class="macro">term! </span>{
+                <span class="macro">term!</span> {
                     fn_client_hello(
                         ((client, <span class="number">0</span>)),
                         ((client, <span class="number">0</span>)),
@@ -1826,7 +1826,7 @@
             <span class="comment">// Server Hello, Server -&gt; Client
             </span>InputAction::new_step(
                 client,
-                <span class="macro">term! </span>{
+                <span class="macro">term!</span> {
                     fn_server_hello(
                         ((server, <span class="number">0</span>)),
                         ((server, <span class="number">0</span>)),
@@ -1841,7 +1841,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_certificate(
                             ((server, <span class="number">0</span>))
                         )
@@ -1853,7 +1853,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_server_key_exchange(  <span class="comment">// check whether the client rejects this if it does not support export
                             </span>((server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerKeyExchange)))]/Vec&lt;u8&gt;)
                         )
@@ -1864,7 +1864,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_server_hello_done
                     },
                 }),
@@ -1873,7 +1873,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_client_key_exchange(
                              ((client, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ClientKeyExchange)))]/Vec&lt;u8&gt;)
                         )
@@ -1884,7 +1884,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_change_cipher_spec
                     },
                 }),
@@ -1895,7 +1895,7 @@
 
 <span class="doccomment">/// A simplified version of [`seed_cve_2022_25640`]
 </span><span class="kw">pub fn </span>seed_cve_2022_25640_simple(server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -1921,7 +1921,7 @@
         )
     };
 
-    <span class="kw">let </span>client_finished = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_finished = <span class="macro">term!</span> {
         fn_finished(
             (fn_verify_data(
                 (fn_server_finished_transcript(((server, <span class="number">0</span>)))),
@@ -1946,7 +1946,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @client_hello
                     },
                 }),
@@ -1954,7 +1954,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@client_finished),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1983,7 +1983,7 @@
             <span class="comment">// Client Hello, Client -&gt; Server
             </span>InputAction::new_step(
                 server,
-                <span class="macro">term! </span>{
+                <span class="macro">term!</span> {
                     fn_client_hello(
                         ((client, <span class="number">0</span>)),
                         ((client, <span class="number">0</span>)),
@@ -1997,7 +1997,7 @@
             <span class="comment">// Server Hello, Server -&gt; Client
             </span>InputAction::new_step(
                 client,
-                <span class="macro">term! </span>{
+                <span class="macro">term!</span> {
                         fn_server_hello(
                             ((server, <span class="number">0</span>)),
                             ((server, <span class="number">0</span>)),
@@ -2012,7 +2012,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_certificate(
                             ((server, <span class="number">0</span>))
                         )
@@ -2023,7 +2023,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_server_key_exchange(
                             ((server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerKeyExchange)))]/Vec&lt;u8&gt;)
                         )
@@ -2034,7 +2034,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_server_hello_done
                     },
                 }),
@@ -2043,7 +2043,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_client_key_exchange(
                             ((client, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ClientKeyExchange)))]/Vec&lt;u8&gt;)
                         )
@@ -2054,7 +2054,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_change_cipher_spec
                     },
                 }),
@@ -2066,7 +2066,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_opaque_message(
                             ((client, <span class="number">3</span>)[<span class="prelude-val">None</span>])
                         )
@@ -2077,7 +2077,7 @@
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         fn_new_session_ticket(
                             ((server, <span class="number">0</span>)/u32),
                             fn_large_bytes_vec
@@ -2092,7 +2092,7 @@
 <span class="kw">pub fn </span>seed_cve_2022_39173(initial_server: AgentName, server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
     <span class="kw">let </span>initial_handshake = seed_client_attacker(initial_server);
 
-    <span class="kw">let </span>new_ticket_message = <span class="macro">term! </span>{
+    <span class="kw">let </span>new_ticket_message = <span class="macro">term!</span> {
         fn_decrypt_application(
             ((initial_server, <span class="number">4</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::ApplicationData)]), <span class="comment">// Ticket from last session
             </span>(fn_server_hello_transcript(((initial_server, <span class="number">0</span>)))),
@@ -2105,7 +2105,7 @@
         </span>)
     };
 
-    <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term! </span>{ fn_new_cipher_suites() };
+    <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term!</span> { fn_new_cipher_suites() };
     <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">149 </span>{
         <span class="comment">// also works with 149, 150 leads a too large list of suites (as expected)
         // Maximum reached suitesSz value depending on the number of ciphers in the list:
@@ -2114,7 +2114,7 @@
         // 13 -&gt; suiteSz reaches 392  (overflow of 92 bytes)
         // 12 -&gt; suiteSz reaches 338  (overflow of 38 bytes)
         // 11 -&gt; suiteSz remains below 300
-        </span>cipher_suites = <span class="macro">term! </span>{
+        </span>cipher_suites = <span class="macro">term!</span> {
             fn_append_cipher_suite(
                 (@cipher_suites),
                 fn_cipher_suite13_aes_128_gcm_sha256 <span class="comment">// For 5.5.0 this MUST be a supported cipher suite
@@ -2123,7 +2123,7 @@
         };
     }
 
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -2162,7 +2162,7 @@
         )
     };
 
-    <span class="kw">let </span>psk = <span class="macro">term! </span>{
+    <span class="kw">let </span>psk = <span class="macro">term!</span> {
         fn_derive_psk(
             (fn_server_hello_transcript(((initial_server, <span class="number">0</span>)))),
             (fn_server_finished_transcript(((initial_server, <span class="number">0</span>)))),
@@ -2173,14 +2173,14 @@
         )
     };
 
-    <span class="kw">let </span>binder = <span class="macro">term! </span>{
+    <span class="kw">let </span>binder = <span class="macro">term!</span> {
         fn_derive_binder(
             (@client_hello),
             (@psk)
         )
     };
 
-    <span class="kw">let </span>full_client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>full_client_hello = <span class="macro">term!</span> {
         fn_fill_binder(
             (@client_hello),
             (@binder)
@@ -2199,7 +2199,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @full_client_hello
                     },
                 }),
@@ -2213,7 +2213,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @full_client_hello
                     },
                 }),
@@ -2233,7 +2233,7 @@
         client_finished_transcript,
     ) = _seed_client_attacker_full(initial_server);
 
-    <span class="kw">let </span>new_ticket_message = <span class="macro">term! </span>{
+    <span class="kw">let </span>new_ticket_message = <span class="macro">term!</span> {
         fn_decrypt_application(
             ((initial_server, <span class="number">4</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::ApplicationData)]), <span class="comment">// Ticket?
             </span>(@server_hello_transcript),
@@ -2246,11 +2246,11 @@
         </span>)
     };
 
-    <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term! </span>{ fn_new_cipher_suites() };
+    <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term!</span> { fn_new_cipher_suites() };
 
     <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">149 </span>{
         <span class="comment">// 200 is too large already
-        </span>cipher_suites = <span class="macro">term! </span>{
+        </span>cipher_suites = <span class="macro">term!</span> {
             fn_append_cipher_suite(
                 (@cipher_suites),
                 fn_cipher_suite13_aes_128_gcm_sha256 <span class="comment">// For 5.5.0 this MUST be a supported cipher suite
@@ -2259,7 +2259,7 @@
         };
     }
 
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -2296,7 +2296,7 @@
         )
     };
 
-    <span class="kw">let </span>psk = <span class="macro">term! </span>{
+    <span class="kw">let </span>psk = <span class="macro">term!</span> {
         fn_derive_psk(
             (@server_hello_transcript),
             (@server_finished_transcript),
@@ -2307,14 +2307,14 @@
         )
     };
 
-    <span class="kw">let </span>binder = <span class="macro">term! </span>{
+    <span class="kw">let </span>binder = <span class="macro">term!</span> {
         fn_derive_binder(
             (@client_hello),
             (@psk)
         )
     };
 
-    <span class="kw">let </span>full_client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>full_client_hello = <span class="macro">term!</span> {
         fn_fill_binder(
             (@client_hello),
             (@binder)
@@ -2328,7 +2328,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @full_client_hello
                     },
                 }),
@@ -2336,7 +2336,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @full_client_hello
                     },
                 }),
@@ -2348,7 +2348,7 @@
 <span class="kw">pub fn </span>seed_cve_2022_39173_minimized(server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
     <span class="comment">// WAS REQUIRED: let initial_handshake = seed_client_attacker(initial_server);
 
-    </span><span class="kw">let </span>new_ticket_message = <span class="macro">term! </span>{
+    </span><span class="kw">let </span>new_ticket_message = <span class="macro">term!</span> {
         fn_new_session_ticket13(  <span class="comment">// DUMMY resumption ticket
             </span>fn_alice_cert,
             fn_alice_cert,
@@ -2367,7 +2367,7 @@
         // )
     </span>};
 
-    <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term! </span>{ fn_new_cipher_suites() };
+    <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term!</span> { fn_new_cipher_suites() };
     <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">149 </span>{
         <span class="comment">// also works with 149, 150 leads a too large list of suites (as expected)
         // Maximum reached suitesSz value depending on the number of ciphers in the list:
@@ -2376,7 +2376,7 @@
         // 13 -&gt; suiteSz reaches 392  (overflow of 92 bytes)
         // 12 -&gt; suiteSz reaches 338  (overflow of 38 bytes)
         // 11 -&gt; suiteSz remains below 300
-        </span>cipher_suites = <span class="macro">term! </span>{
+        </span>cipher_suites = <span class="macro">term!</span> {
             fn_append_cipher_suite(
                 (@cipher_suites),
                 fn_cipher_suite13_aes_256_gcm_sha384 <span class="comment">// For 5.5.0 this MUST be a supported cipher suite
@@ -2385,7 +2385,7 @@
         };
     }
 
-    <span class="kw">let </span>client_hello = <span class="macro">term! </span>{
+    <span class="kw">let </span>client_hello = <span class="macro">term!</span> {
           fn_client_hello(
             fn_protocol_version12,
             fn_new_random,
@@ -2432,7 +2432,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @client_hello
                     },
                 }),
@@ -2440,7 +2440,7 @@
             Step {
                 agent: server,
                 action: Action::Input(InputAction {
-                    recipe: <span class="macro">term! </span>{
+                    recipe: <span class="macro">term!</span> {
                         @client_hello
                     },
                 }),
@@ -2480,7 +2480,7 @@
                         </span><span class="kw">let </span>terms = input.recipe.size();
                         <span class="macro">assert!</span>(
                             terms &lt; <span class="number">300</span>,
-                            <span class="string">&quot;{} has step with too large term size {}!&quot;</span>,
+                            <span class="string">"{} has step with too large term size {}!"</span>,
                             name,
                             terms
                         );
@@ -2492,8 +2492,8 @@
     }
 
     <span class="comment">// Vulnerable up until OpenSSL 1.0.1j
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;openssl101-binding&quot;</span>, feature = <span class="string">&quot;asan&quot;</span>))]
-    #[cfg(feature = <span class="string">&quot;tls12&quot;</span>)]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"openssl101-binding"</span>, feature = <span class="string">"asan"</span>))]
+    #[cfg(feature = <span class="string">"tls12"</span>)]
     #[test]
     #[ignore] </span><span class="comment">// We cannot check for this vulnerability right now
     </span><span class="kw">fn </span>test_seed_freak() {
@@ -2509,8 +2509,8 @@
         );
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;openssl101-binding&quot;</span>, feature = <span class="string">&quot;asan&quot;</span>))]
-    #[cfg(feature = <span class="string">&quot;tls12&quot;</span>)]
+    <span class="attr">#[cfg(all(feature = <span class="string">"openssl101-binding"</span>, feature = <span class="string">"asan"</span>))]
+    #[cfg(feature = <span class="string">"tls12"</span>)]
     #[test]
     </span><span class="kw">fn </span>test_seed_heartbleed() {
         <span class="kw">use </span>puffin::put::PutOptions;
@@ -2526,8 +2526,8 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;openssl111j&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;tls12&quot;</span>)]
+    #[cfg(feature = <span class="string">"openssl111j"</span>)]
+    #[cfg(feature = <span class="string">"tls12"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2021_3449() {
         <span class="kw">use </span>puffin::put::PutOptions;
 
@@ -2542,11 +2542,11 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;wolfssl510&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;tls13&quot;</span>)] </span><span class="comment">// require version which supports TLS 1.3
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;client-authentication-transcript-extraction&quot;</span>)]
-    #[cfg(not(feature = <span class="string">&quot;fix-CVE-2022-25640&quot;</span>))]
-    #[should_panic(expected = <span class="string">&quot;Authentication bypass&quot;</span>)]
+    #[cfg(feature = <span class="string">"wolfssl510"</span>)]
+    #[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
+    </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
+    #[cfg(not(feature = <span class="string">"fix-CVE-2022-25640"</span>))]
+    #[should_panic(expected = <span class="string">"Authentication bypass"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2022_25640() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -2555,11 +2555,11 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;wolfssl510&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;tls13&quot;</span>)] </span><span class="comment">// require version which supports TLS 1.3
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;client-authentication-transcript-extraction&quot;</span>)]
-    #[cfg(not(feature = <span class="string">&quot;fix-CVE-2022-25640&quot;</span>))]
-    #[should_panic(expected = <span class="string">&quot;Authentication bypass&quot;</span>)]
+    #[cfg(feature = <span class="string">"wolfssl510"</span>)]
+    #[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
+    </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
+    #[cfg(not(feature = <span class="string">"fix-CVE-2022-25640"</span>))]
+    #[should_panic(expected = <span class="string">"Authentication bypass"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2022_25640_simple() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -2568,11 +2568,11 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;wolfssl510&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;tls13&quot;</span>)] </span><span class="comment">// require version which supports TLS 1.3
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;client-authentication-transcript-extraction&quot;</span>)]
-    #[cfg(not(feature = <span class="string">&quot;fix-CVE-2022-25638&quot;</span>))]
-    #[should_panic(expected = <span class="string">&quot;Authentication bypass&quot;</span>)]
+    #[cfg(feature = <span class="string">"wolfssl510"</span>)]
+    #[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
+    </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
+    #[cfg(not(feature = <span class="string">"fix-CVE-2022-25638"</span>))]
+    #[should_panic(expected = <span class="string">"Authentication bypass"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2022_25638() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -2581,9 +2581,9 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;tls12&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;wolfssl540&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;wolfssl-disable-postauth&quot;</span>)]
+    #[cfg(feature = <span class="string">"tls12"</span>)]
+    #[cfg(feature = <span class="string">"wolfssl540"</span>)]
+    #[cfg(feature = <span class="string">"wolfssl-disable-postauth"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2022_38152() {
         <span class="kw">use </span>puffin::put::PutOptions;
 
@@ -2591,16 +2591,16 @@
 
         expect_trace_crash(
             seed_session_resumption_dhe_full.build_trace(),
-            PutOptions::from_slice_vec(<span class="macro">vec!</span>[(<span class="string">&quot;use_clear&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>.to_string())]),
+            PutOptions::from_slice_vec(<span class="macro">vec!</span>[(<span class="string">"use_clear"</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>.to_string())]),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;tls12&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;tls12-session-resumption&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;wolfssl530&quot;</span>)]
+    #[cfg(feature = <span class="string">"tls12"</span>)]
+    #[cfg(feature = <span class="string">"tls12-session-resumption"</span>)]
+    #[cfg(feature = <span class="string">"wolfssl530"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2022_38153() {
         <span class="kw">use </span>puffin::put::PutOptions;
 
@@ -2618,12 +2618,12 @@
         );
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;tls13&quot;</span>, feature = <span class="string">&quot;tls13-session-resumption&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(all(
-        any(feature = <span class="string">&quot;wolfssl540&quot;</span>, feature = <span class="string">&quot;wolfssl530&quot;</span>, feature = <span class="string">&quot;wolfssl510&quot;</span>),
-        feature = <span class="string">&quot;asan&quot;
+        any(feature = <span class="string">"wolfssl540"</span>, feature = <span class="string">"wolfssl530"</span>, feature = <span class="string">"wolfssl510"</span>),
+        feature = <span class="string">"asan"
     </span>))]
-    #[cfg(not(feature = <span class="string">&quot;fix-CVE-2022-39173&quot;</span>))]
+    #[cfg(not(feature = <span class="string">"fix-CVE-2022-39173"</span>))]
     #[test]
     </span><span class="kw">fn </span>test_seed_cve_2022_39173() {
         <span class="kw">use </span>puffin::put::PutOptions;
@@ -2638,12 +2638,12 @@
         );
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;tls13&quot;</span>, feature = <span class="string">&quot;tls13-session-resumption&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(all(
-        any(feature = <span class="string">&quot;wolfssl540&quot;</span>, feature = <span class="string">&quot;wolfssl530&quot;</span>, feature = <span class="string">&quot;wolfssl510&quot;</span>),
-        feature = <span class="string">&quot;asan&quot;
+        any(feature = <span class="string">"wolfssl540"</span>, feature = <span class="string">"wolfssl530"</span>, feature = <span class="string">"wolfssl510"</span>),
+        feature = <span class="string">"asan"
     </span>))]
-    #[cfg(not(feature = <span class="string">&quot;fix-CVE-2022-39173&quot;</span>))]
+    #[cfg(not(feature = <span class="string">"fix-CVE-2022-39173"</span>))]
     #[test]
     </span><span class="kw">fn </span>test_seed_cve_2022_39173_full() {
         <span class="kw">use </span>puffin::put::PutOptions;
@@ -2658,12 +2658,12 @@
         );
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;tls13&quot;</span>, feature = <span class="string">&quot;tls13-session-resumption&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(all(
-        any(feature = <span class="string">&quot;wolfssl540&quot;</span>, feature = <span class="string">&quot;wolfssl530&quot;</span>, feature = <span class="string">&quot;wolfssl510&quot;</span>),
-        feature = <span class="string">&quot;asan&quot;
+        any(feature = <span class="string">"wolfssl540"</span>, feature = <span class="string">"wolfssl530"</span>, feature = <span class="string">"wolfssl510"</span>),
+        feature = <span class="string">"asan"
     </span>))]
-    #[cfg(not(feature = <span class="string">&quot;fix-CVE-2022-39173&quot;</span>))]
+    #[cfg(not(feature = <span class="string">"fix-CVE-2022-39173"</span>))]
     #[test]
     </span><span class="kw">fn </span>test_seed_cve_2022_39173_minimized() {
         <span class="kw">use </span>puffin::put::PutOptions;
@@ -2725,8 +2725,8 @@
 
             <span class="kw">let </span>client = AgentName::first();
             <span class="kw">let </span>shutdown = context.find_agent_mut(client).unwrap().put_mut().shutdown();
-            <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
-            <span class="macro">assert!</span>(shutdown.contains(<span class="string">&quot;free(): invalid pointer&quot;</span>));
+            <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+            <span class="macro">assert!</span>(shutdown.contains(<span class="string">"free(): invalid pointer"</span>));
         }
 
         <span class="attr">#[test]
@@ -2752,9 +2752,8 @@
 
             <span class="kw">let </span>server = AgentName::first().next();
             <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-            <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, shutdown);
+            <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
         }
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

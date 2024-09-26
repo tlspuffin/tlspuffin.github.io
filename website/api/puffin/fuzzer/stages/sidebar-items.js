@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["PuffinMutationalStage","The default mutational stage"],["PuffinScheduledMutator","A [`Mutator`] that schedules one of the embedded mutations on each call."]]};
+window.SIDEBAR_ITEMS = {"struct":["PuffinMutationalStage","PuffinScheduledMutator"]};

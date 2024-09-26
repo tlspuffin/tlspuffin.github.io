@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `puffin/src/fuzzer/mutations.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mutations.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../puffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `puffin/src/fuzzer/mutations.rs`."><title>mutations.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1035,7 +1035,9 @@
 <a href="#1035" id="1035">1035</a>
 <a href="#1036" id="1036">1036</a>
 <a href="#1037" id="1037">1037</a>
-</pre><pre class="rust"><code><span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
+<a href="#1038" id="1038">1038</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>util::{Choosable, <span class="kw-2">*</span>};
 
 <span class="kw">use crate</span>::{
@@ -1049,7 +1051,7 @@
     max_trace_length: usize,
     constraints: TermConstraints,
     fresh_zoo_after: u64,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Signature,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
 ) -&gt; <span class="macro">tuple_list_type!</span>(
        RepeatMutator&lt;S&gt;,
        SkipMutator&lt;S&gt;,
@@ -1230,7 +1232,7 @@
     </span>S: HasRand,
 {
     constraints: TermConstraints,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Signature,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
     phantom_s: std::marker::PhantomData&lt;S&gt;,
 }
 
@@ -1239,7 +1241,7 @@
     </span>S: HasRand,
 {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new(constraints: TermConstraints, signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Signature) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(constraints: TermConstraints, signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             constraints,
             signature,
@@ -1480,7 +1482,7 @@
     refresh_zoo_after: u64,
     constraints: TermConstraints,
     zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;M&gt;&gt;,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Signature,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
     phantom_s: std::marker::PhantomData&lt;S&gt;,
 }
 <span class="kw">impl</span>&lt;S, M: Matcher&gt; GenerateMutator&lt;S, M&gt;
@@ -1493,7 +1495,7 @@
         refresh_zoo_after: u64,
         constraints: TermConstraints,
         zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;M&gt;&gt;,
-        signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Signature,
+        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             mutation_counter,
@@ -1548,7 +1550,7 @@
 }
 
 <span class="kw">pub mod </span>util {
-    <span class="kw">use </span>libafl::bolts::rands::Rand;
+    <span class="kw">use </span>libafl_bolts::rands::Rand;
 
     <span class="kw">use crate</span>::{
         algebra::{Matcher, Term},
@@ -1631,13 +1633,13 @@
     <span class="kw">pub type </span>TracePath = (StepIndex, TermPath);
 
     <span class="doccomment">/// &lt;https://en.wikipedia.org/wiki/Reservoir_sampling#Simple_algorithm&gt;
-    </span><span class="kw">fn </span>reservoir_sample&lt;<span class="lifetime">&#39;a</span>, R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Trace&lt;M&gt;,
+    </span><span class="kw">fn </span>reservoir_sample&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;M&gt;,
         filter: P,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Term&lt;M&gt;, TracePath)&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>reservoir: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Term&lt;M&gt;, TracePath)&gt; = <span class="prelude-val">None</span>;
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, TracePath)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>reservoir: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, TracePath)&gt; = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>visited = <span class="number">0</span>;
 
         <span class="kw">for </span>(step_index, step) <span class="kw">in </span>trace.steps.iter().enumerate() {
@@ -1696,10 +1698,10 @@
         reservoir
     }
 
-    <span class="kw">fn </span>find_term_by_term_path_mut&lt;<span class="lifetime">&#39;a</span>, M: Matcher&gt;(
-        term: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Term&lt;M&gt;,
+    <span class="kw">fn </span>find_term_by_term_path_mut&lt;<span class="lifetime">'a</span>, M: Matcher&gt;(
+        term: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;,
         term_path: <span class="kw-2">&amp;mut </span>TermPath,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
         <span class="kw">if </span>term_path.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Some</span>(term);
         }
@@ -1718,10 +1720,10 @@
         }
     }
 
-    <span class="kw">pub fn </span>find_term_mut&lt;<span class="lifetime">&#39;a</span>, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>find_term_mut&lt;<span class="lifetime">'a</span>, M: Matcher&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
         trace_path: <span class="kw-2">&amp;</span>TracePath,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
         <span class="kw">let </span>(step_index, term_path) = trace_path;
 
         <span class="kw">let </span>step: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Step&lt;M&gt;&gt; = trace.steps.get_mut(<span class="kw-2">*</span>step_index);
@@ -1737,27 +1739,27 @@
         </span>}
     }
 
-    <span class="kw">pub fn </span>choose&lt;<span class="lifetime">&#39;a</span>, R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;M&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Term&lt;M&gt;, (usize, TermPath))&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, (usize, TermPath))&gt; {
         reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand)
     }
 
-    <span class="kw">pub fn </span>choose_term&lt;<span class="lifetime">&#39;a</span>, R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;M&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;&gt; {
         reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand).map(|ret| ret.<span class="number">0</span>)
     }
 
-    <span class="kw">pub fn </span>choose_term_mut&lt;<span class="lifetime">&#39;a</span>, R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term_mut&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path) = choose_term_path_filtered(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand) {
             find_term_mut(trace, <span class="kw-2">&amp;</span>trace_path)
         } <span class="kw">else </span>{
@@ -1765,12 +1767,12 @@
         </span>}
     }
 
-    <span class="kw">pub fn </span>choose_term_filtered_mut&lt;<span class="lifetime">&#39;a</span>, R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term_filtered_mut&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
         filter: P,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path) = choose_term_path_filtered(trace, filter, constraints, rand) {
             find_term_mut(trace, <span class="kw-2">&amp;</span>trace_path)
         } <span class="kw">else </span>{
@@ -1801,11 +1803,11 @@
     <span class="kw">use </span>std::collections::{HashMap, HashSet};
 
     <span class="kw">use </span>libafl::{
-        bolts::rands::{RomuDuoJrRand, StdRand},
         corpus::InMemoryCorpus,
         mutators::{MutationResult, Mutator},
         state::StdState,
     };
+    <span class="kw">use </span>libafl_bolts::rands::{RomuDuoJrRand, StdRand};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{
@@ -2065,12 +2067,11 @@
 
         <span class="kw">let </span>std_dev =
             std_deviation(stats.values().cloned().collect::&lt;Vec&lt;u32&gt;&gt;().as_slice()).unwrap();
-        <span class="comment">/*        println!(&quot;{:?}&quot;, std_dev);
-        println!(&quot;{:?}&quot;, stats);*/
+        <span class="comment">/*        println!("{:?}", std_dev);
+        println!("{:?}", stats);*/
 
         </span><span class="macro">assert!</span>(std_dev &lt; <span class="number">30.0</span>);
         <span class="macro">assert_eq!</span>(term_size, stats.len());
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

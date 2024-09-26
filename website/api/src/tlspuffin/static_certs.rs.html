@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/static_certs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>static_certs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../tlspuffin/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/static_certs.rs`."><title>static_certs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -62,7 +62,7 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
-</pre><pre class="rust"><code><span class="doccomment">//!
+</pre></div><pre class="rust"><code><span class="doccomment">//!
 //! ```bash
 //! openssl req -x509 -newkey rsa:2048 -keyout bob-key.pem -out bob.pem -days 365 -nodes
 //! openssl req -x509 -newkey rsa:2048 -keyout alice-key.pem -out alice.pem -days 365 -nodes
@@ -76,55 +76,54 @@
 //! openssl pkcs8 -topk8 -in random-key.pem -out random-key.pkcs8 -nocrypt
 //! ```
 
-</span><span class="kw">pub type </span>PEMDER = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]);
+</span><span class="kw">pub type </span>PEMDER = (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]);
 
 <span class="doccomment">/// Private key usually used for the server
 </span><span class="kw">pub const </span>ALICE_PRIVATE_KEY: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/alice-key.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/alice-key.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/alice-key.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/alice-key.der"</span>),
 );
 
 <span class="doccomment">/// Certificate for [`ALICE_PRIVATE_KEY`]
 </span><span class="kw">pub const </span>ALICE_CERT: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/alice.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/alice.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/alice.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/alice.der"</span>),
 );
 
 <span class="doccomment">/// Private key usually used for the client
 </span><span class="kw">pub const </span>BOB_PRIVATE_KEY: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/bob-key.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/bob-key.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/bob-key.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/bob-key.der"</span>),
 );
 
 <span class="doccomment">/// Certificate for [`BOB_PRIVATE_KEY`]
 </span><span class="kw">pub const </span>BOB_CERT: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/bob.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/bob.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/bob.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/bob.der"</span>),
 );
 
 <span class="doccomment">/// Private key usually which identifies the attacker. This should not be accessible by the attacker
 /// though! Else the security violation gives false-positives!
-</span><span class="kw">pub const </span>EVE_PRIVATE_KEY: (<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]&gt;) = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/eve-key.pem&quot;</span>),
-    <span class="prelude-val">Some</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/eve-key.der&quot;</span>)),
+</span><span class="kw">pub const </span>EVE_PRIVATE_KEY: (<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]&gt;) = (
+    <span class="macro">include_str!</span>(<span class="string">"../assets/eve-key.pem"</span>),
+    <span class="prelude-val">Some</span>(<span class="macro">include_bytes!</span>(<span class="string">"../assets/eve-key.der"</span>)),
 );
 
 <span class="doccomment">/// Certificate for [`EVE_PRIVATE_KEY`]
 </span><span class="kw">pub const </span>EVE_CERT: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/eve.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/eve.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/eve.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/eve.der"</span>),
 );
 
 <span class="doccomment">/// Random EC (prime256v1) key with no specific use. Encoded using PKCS8.
 </span><span class="kw">pub const </span>RANDOM_EC_PRIVATE_KEY_PKCS8: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/random-ec-key.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/random-ec-key.pkcs8.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/random-ec-key.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/random-ec-key.pkcs8.der"</span>),
 );
 
 <span class="doccomment">/// Certificate for [`RANDOM_EC_PRIVATE_KEY_PKCS8`]
 </span><span class="kw">pub const </span>RANDOM_EC_CERT: PEMDER = (
-    <span class="macro">include_str!</span>(<span class="string">&quot;../assets/random-ec.pem&quot;</span>),
-    <span class="macro">include_bytes!</span>(<span class="string">&quot;../assets/random-ec.der&quot;</span>),
+    <span class="macro">include_str!</span>(<span class="string">"../assets/random-ec.pem"</span>),
+    <span class="macro">include_bytes!</span>(<span class="string">"../assets/random-ec.der"</span>),
 );
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

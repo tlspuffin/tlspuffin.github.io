@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/./fn_extensions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fn_extensions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tlspuffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/./fn_extensions.rs`."><title>fn_extensions.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -659,7 +659,7 @@
 <a href="#659" id="659">659</a>
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
+</pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
 </span><span class="doccomment">//! Extensions according to IANA:
@@ -792,7 +792,7 @@
 
 </span><span class="doccomment">/// ServerName =&gt; 0x0000,
 </span><span class="kw">pub fn </span>fn_server_name_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
-    <span class="kw">let </span>dns_name = <span class="string">&quot;inria.fr&quot;</span>;
+    <span class="kw">let </span>dns_name = <span class="string">"inria.fr"</span>;
     <span class="prelude-val">Ok</span>(ClientExtension::ServerName(ServerNameRequest(<span class="macro">vec!</span>[
         ServerName {
             typ: ServerNameType::HostName,
@@ -808,16 +808,16 @@
 <span class="kw">pub fn </span>fn_server_name_server_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::ServerNameAck)
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// MaxFragmentLength =&gt; 0x0001,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// ClientCertificateUrl =&gt; 0x0002,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// TrustedCAKeys =&gt; 0x0003,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// TruncatedHMAC =&gt; 0x0004,
 </span>}
 <span class="doccomment">/// StatusRequest =&gt; 0x0005,
@@ -852,16 +852,16 @@
         ocsp_response: PayloadU24::new(ocsp_response.clone()),
     }))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// UserMapping =&gt; 0x0006,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// ClientAuthz =&gt; 0x0007,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// ServerAuthz =&gt; 0x0008,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// CertificateType =&gt; 0x0009,
 </span>}
 <span class="doccomment">/// EllipticCurves =&gt; 0x000a,
@@ -879,7 +879,7 @@
         ECPointFormat::Uncompressed,
     ])))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// SRP =&gt; 0x000c,
 </span>}
 <span class="doccomment">/// SignatureAlgorithms =&gt; 0x000d,
@@ -899,10 +899,10 @@
         ]),
     ))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// UseSRTP =&gt; 0x000e,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// Heartbeat =&gt; 0x000f,
 </span>}
 <span class="doccomment">/// ALProtocolNegotiation =&gt; 0x0010,
@@ -936,7 +936,7 @@
             .collect(),
     )))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// status_request_v2 =&gt; 0x0011
 </span>}
 <span class="doccomment">/// SCT =&gt; 0x0012,
@@ -958,16 +958,16 @@
         VecU16OfPayloadU16(<span class="macro">vec!</span>[PayloadU16::new(Vec::from([<span class="number">42u8</span>; <span class="number">128</span>]))]),
     ))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// client_certificate_type =&gt; 0x0013,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// server_certificate_type =&gt; 0x0014,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// Padding =&gt; 0x0015,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// encrypt_then_mac =&gt; 0x0016,
 </span>}
 <span class="doccomment">/// ExtendedMasterSecret =&gt; 0x0017,
@@ -977,37 +977,37 @@
 <span class="kw">pub fn </span>fn_extended_master_secret_server_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::ExtendedMasterSecretAck)
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// token_binding =&gt; 0x0018,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// cached_info =&gt; 0x0019,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// tls_lts =&gt; 0x001A,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// compress_certificate =&gt; 0x001B,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// record_size_limit =&gt; 0x001C,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// pwd_protect =&gt; 0x001D,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// pwd_clear =&gt; 0x001E,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// password_salt =&gt; 0x001F,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// ticket_pinning =&gt; 0x0020,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// tls_cert_with_extern_psk =&gt; 0x0021,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// delegated_credentials =&gt; 0x0022,
 </span>}
 <span class="doccomment">/// SessionTicket =&gt; 0x0023,
@@ -1024,16 +1024,16 @@
 <span class="kw">pub fn </span>fn_session_ticket_server_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::ServerNameAck)
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// TLMSP =&gt; 0x0024,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// TLMSP_proxying =&gt; 0x0025,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// TLMSP_delegate =&gt; 0x0026,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// supported_ekt_ciphers =&gt; 0x0027,
 </span>}
 <span class="doccomment">/// PreSharedKey =&gt; 0x0029,
@@ -1139,14 +1139,14 @@
         <span class="macro">vec!</span>[PSKKeyExchangeMode::PSK_KE],
     )))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// TicketEarlyDataInfo =&gt; 0x002e,
 </span>}
 <span class="doccomment">/// CertificateAuthorities =&gt; 0x002f,
 </span><span class="kw">pub fn </span>fn_certificate_authorities_extension() -&gt; <span class="prelude-ty">Result</span>&lt;CertReqExtension, FnError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>r = VecU16OfPayloadU16(Vec::new());
 
-    <span class="kw">let </span>subject = <span class="string">&quot;inria.fr&quot;</span>;
+    <span class="kw">let </span>subject = <span class="string">"inria.fr"</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>name = Vec::new();
     name.extend_from_slice(subject.as_bytes());
     x509::wrap_in_sequence(<span class="kw-2">&amp;mut </span>name);
@@ -1154,10 +1154,10 @@
 
     <span class="prelude-val">Ok</span>(CertReqExtension::AuthorityNames(r))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// OIDFilters =&gt; 0x0030,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// PostHandshakeAuth =&gt; 0x0031,
 </span>}
 <span class="doccomment">/// SignatureAlgorithmsCert =&gt; 0x0032,
@@ -1216,16 +1216,16 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;HelloRetryExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(HelloRetryExtension::KeyShare(<span class="kw-2">*</span>group))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// transparency_info =&gt; 0x0034,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// connection_id =&gt; 0x0035,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// external_id_hash =&gt; 0x0037,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// external_session_id =&gt; 0x0038,
 </span>}
 <span class="doccomment">/// TransportParameters/quic_transport_parameters =&gt; 0x0039,
@@ -1241,10 +1241,10 @@
     //      https://github.com/tlspuffin/tlspuffin/issues/155
     </span><span class="prelude-val">Ok</span>(ServerExtension::TransportParameters(parameters.clone()))
 }
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// NextProtocolNegotiation =&gt; 0x3374,
 </span>}
-<span class="macro">nyi_fn! </span>{
+<span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// ChannelId =&gt; 0x754f,
 </span>}
 <span class="doccomment">/// RenegotiationInfo =&gt; 0xff01,
@@ -1320,5 +1320,4 @@
         payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
     }))
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["VariableData",""]]};
+window.SIDEBAR_ITEMS = {"trait":["VariableData"]};

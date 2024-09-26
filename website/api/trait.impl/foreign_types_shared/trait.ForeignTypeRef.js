@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["sshpuffin",[["impl <a class=\"trait\" href=\"https://docs.rs/foreign-types-shared/0.3/foreign_types_shared/trait.ForeignTypeRef.html\" title=\"trait foreign_types_shared::ForeignTypeRef\">ForeignTypeRef</a> for <a class=\"struct\" href=\"sshpuffin/libssh/ssh/struct.SshBindRef.html\" title=\"struct sshpuffin::libssh::ssh::SshBindRef\">SshBindRef</a>"],["impl <a class=\"trait\" href=\"https://docs.rs/foreign-types-shared/0.3/foreign_types_shared/trait.ForeignTypeRef.html\" title=\"trait foreign_types_shared::ForeignTypeRef\">ForeignTypeRef</a> for <a class=\"struct\" href=\"sshpuffin/libssh/ssh/struct.SshKeyRef.html\" title=\"struct sshpuffin::libssh::ssh::SshKeyRef\">SshKeyRef</a>"],["impl <a class=\"trait\" href=\"https://docs.rs/foreign-types-shared/0.3/foreign_types_shared/trait.ForeignTypeRef.html\" title=\"trait foreign_types_shared::ForeignTypeRef\">ForeignTypeRef</a> for <a class=\"struct\" href=\"sshpuffin/libssh/ssh/struct.SshMessageRef.html\" title=\"struct sshpuffin::libssh::ssh::SshMessageRef\">SshMessageRef</a>"],["impl <a class=\"trait\" href=\"https://docs.rs/foreign-types-shared/0.3/foreign_types_shared/trait.ForeignTypeRef.html\" title=\"trait foreign_types_shared::ForeignTypeRef\">ForeignTypeRef</a> for <a class=\"struct\" href=\"sshpuffin/libssh/ssh/struct.SshSessionRef.html\" title=\"struct sshpuffin::libssh::ssh::SshSessionRef\">SshSessionRef</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1394]}

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `puffin/src/fuzzer/libafl_setup.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>libafl_setup.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../puffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `puffin/src/fuzzer/libafl_setup.rs`."><title>libafl_setup.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -554,10 +554,12 @@
 <a href="#554" id="554">554</a>
 <a href="#555" id="555">555</a>
 <a href="#556" id="556">556</a>
-</pre><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
+<a href="#557" id="557">557</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::{fmt, path::PathBuf};
 
 <span class="kw">use </span>libafl::{corpus::ondisk::OnDiskMetadataFormat, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>log4rs::Handle;
 
 <span class="kw">use </span><span class="kw">super</span>::harness;
@@ -572,10 +574,10 @@
     trace::Trace,
 };
 
-<span class="kw">pub const </span>MAP_FEEDBACK_NAME: <span class="kw-2">&amp;</span>str = <span class="string">&quot;edges&quot;</span>;
-<span class="kw">const </span>EDGES_OBSERVER_NAME: <span class="kw-2">&amp;</span>str = <span class="string">&quot;edges_observer&quot;</span>;
+<span class="kw">pub const </span>MAP_FEEDBACK_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges"</span>;
+<span class="kw">const </span>EDGES_OBSERVER_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges_observer"</span>;
 
-<span class="kw">type </span>ConcreteExecutor&lt;<span class="lifetime">&#39;harness</span>, H, OT, S&gt; = TimeoutExecutor&lt;InProcessExecutor&lt;<span class="lifetime">&#39;harness</span>, H, OT, S&gt;&gt;;
+<span class="kw">type </span>ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, OT, S&gt; = TimeoutExecutor&lt;InProcessExecutor&lt;<span class="lifetime">'harness</span>, H, OT, S&gt;&gt;;
 
 <span class="kw">type </span>ConcreteState&lt;C, R, SC, I&gt; = StdState&lt;I, C, R, SC&gt;;
 
@@ -641,13 +643,13 @@
     }
 }
 
-<span class="kw">struct </span>RunClientBuilder&lt;<span class="lifetime">&#39;harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
+<span class="kw">struct </span>RunClientBuilder&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
 <span class="kw">where
     </span>I: Input,
 {
     config: FuzzerConfig,
 
-    harness_fn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;harness </span><span class="kw-2">mut </span>H,
+    harness_fn: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span><span class="kw-2">mut </span>H,
     existing_state: <span class="prelude-ty">Option</span>&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
     rand: <span class="prelude-ty">Option</span>&lt;R&gt;,
     objective_corpus: <span class="prelude-ty">Option</span>&lt;SC&gt;,
@@ -657,12 +659,12 @@
     observers: <span class="prelude-ty">Option</span>&lt;OT&gt;,
     feedback: <span class="prelude-ty">Option</span>&lt;F&gt;,
     objective: <span class="prelude-ty">Option</span>&lt;OF&gt;,
-    initial_inputs: <span class="prelude-ty">Option</span>&lt;Vec&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt;&gt;,
+    initial_inputs: <span class="prelude-ty">Option</span>&lt;Vec&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;&gt;,
     mutations: <span class="prelude-ty">Option</span>&lt;MT&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
-    RunClientBuilder&lt;<span class="lifetime">&#39;harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
+    RunClientBuilder&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
 <span class="kw">where
     </span>ConcreteState&lt;C, R, SC, I&gt;: UsesInput&lt;Input = I&gt;,
     I: Input + HasLen,
@@ -677,7 +679,7 @@
     EM: EventFirer
         + EventRestarter
         + EventManager&lt;
-            ConcreteExecutor&lt;<span class="lifetime">&#39;harness</span>, H, OT, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+            ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, OT, ConcreteState&lt;C, R, SC, I&gt;&gt;,
             StdFuzzer&lt;CS, F, OF, OT&gt;,
         &gt; + ProgressReporter
         + UsesState&lt;State = ConcreteState&lt;C, R, SC, I&gt;&gt;,
@@ -686,7 +688,7 @@
 {
     <span class="kw">fn </span>new(
         config: FuzzerConfig,
-        harness_fn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;harness </span><span class="kw-2">mut </span>H,
+        harness_fn: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span><span class="kw-2">mut </span>H,
         existing_state: <span class="prelude-ty">Option</span>&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
         event_manager: EM,
     ) -&gt; <span class="self">Self </span>{
@@ -741,7 +743,7 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>with_initial_inputs(<span class="kw-2">mut </span><span class="self">self</span>, initial_inputs: Vec&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>with_initial_inputs(<span class="kw-2">mut </span><span class="self">self</span>, initial_inputs: Vec&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.initial_inputs = <span class="prelude-val">Some</span>(initial_inputs);
         <span class="self">self
     </span>}
@@ -789,7 +791,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>fuzzer: StdFuzzer&lt;CS, F, OF, OT&gt; =
             StdFuzzer::new(<span class="self">self</span>.scheduler.unwrap(), feedback, objective);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>executor: ConcreteExecutor&lt;<span class="lifetime">&#39;harness</span>, H, OT, <span class="kw">_</span>&gt; = TimeoutExecutor::new(
+        <span class="kw">let </span><span class="kw-2">mut </span>executor: ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, OT, <span class="kw">_</span>&gt; = TimeoutExecutor::new(
             InProcessExecutor::new(
                 <span class="self">self</span>.harness_fn,
                 <span class="comment">// hint: edges_observer is expensive to serialize (only noticeable if we add all inputs to the corpus)
@@ -813,19 +815,19 @@
                     )
                     .unwrap_or_else(|err| {
                         <span class="macro">panic!</span>(
-                            <span class="string">&quot;Failed to load initial corpus at {:?}: {}&quot;</span>,
+                            <span class="string">"Failed to load initial corpus at {:?}: {}"</span>,
                             <span class="kw-2">&amp;</span>initial_corpus_dir, err
                         )
                     });
-                <span class="macro">log::info!</span>(<span class="string">&quot;Imported {} inputs from disk.&quot;</span>, state.corpus().count());
+                <span class="macro">log::info!</span>(<span class="string">"Imported {} inputs from disk."</span>, state.corpus().count());
             } <span class="kw">else </span>{
-                <span class="macro">log::info!</span>(<span class="string">&quot;Initial seed corpus not found. Using embedded seeds.&quot;</span>);
+                <span class="macro">log::info!</span>(<span class="string">"Initial seed corpus not found. Using embedded seeds."</span>);
 
                 <span class="kw">for </span>(seed, name) <span class="kw">in </span><span class="self">self</span>.initial_inputs.unwrap() {
-                    <span class="macro">log::info!</span>(<span class="string">&quot;Using seed {}&quot;</span>, name);
+                    <span class="macro">log::info!</span>(<span class="string">"Using seed {}"</span>, name);
                     fuzzer
                         .add_input(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;mut </span>executor, <span class="kw-2">&amp;mut </span><span class="self">self</span>.event_manager, seed)
-                        .expect(<span class="string">&quot;Failed to add input&quot;</span>);
+                        .expect(<span class="string">"Failed to add input"</span>);
                 }
             }
         }
@@ -852,15 +854,15 @@
 
 <span class="kw">type </span>ConcreteMinimizer&lt;S&gt; = IndexesLenTimeMinimizerScheduler&lt;QueueScheduler&lt;S&gt;&gt;;
 
-<span class="kw">type </span>ConcreteObservers&lt;<span class="lifetime">&#39;a</span>&gt; = (
-    HitcountsMapObserver&lt;StdMapObserver&lt;<span class="lifetime">&#39;a</span>, u8, <span class="bool-val">false</span>&gt;&gt;,
+<span class="kw">type </span>ConcreteObservers&lt;<span class="lifetime">'a</span>&gt; = (
+    HitcountsMapObserver&lt;StdMapObserver&lt;<span class="lifetime">'a</span>, u8, <span class="bool-val">false</span>&gt;&gt;,
     (TimeObserver, ()),
 );
 
-<span class="kw">type </span>ConcreteFeedback&lt;<span class="lifetime">&#39;a</span>, S&gt; = CombinedFeedback&lt;
+<span class="kw">type </span>ConcreteFeedback&lt;<span class="lifetime">'a</span>, S&gt; = CombinedFeedback&lt;
     MapFeedback&lt;
         DifferentIsNovel,
-        HitcountsMapObserver&lt;StdMapObserver&lt;<span class="lifetime">&#39;a</span>, u8, <span class="bool-val">false</span>&gt;&gt;,
+        HitcountsMapObserver&lt;StdMapObserver&lt;<span class="lifetime">'a</span>, u8, <span class="bool-val">false</span>&gt;&gt;,
         MaxReducer,
         S,
         u8,
@@ -870,17 +872,17 @@
     S,
 &gt;;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;harness</span>, <span class="lifetime">&#39;a</span>, H, SC, C, R, EM, OF, CS, MT, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'harness</span>, <span class="lifetime">'a</span>, H, SC, C, R, EM, OF, CS, MT, I&gt;
     RunClientBuilder&lt;
-        <span class="lifetime">&#39;harness</span>,
+        <span class="lifetime">'harness</span>,
         H,
         C,
         R,
         SC,
         EM,
-        ConcreteFeedback&lt;<span class="lifetime">&#39;a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
         OF,
-        ConcreteObservers&lt;<span class="lifetime">&#39;a</span>&gt;,
+        ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
         CS,
         MT,
         I,
@@ -897,12 +899,12 @@
     EM: EventFirer
         + EventRestarter
         + EventManager&lt;
-            ConcreteExecutor&lt;<span class="lifetime">&#39;harness</span>, H, ConcreteObservers&lt;<span class="lifetime">&#39;a</span>&gt;, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+            ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;, ConcreteState&lt;C, R, SC, I&gt;&gt;,
             StdFuzzer&lt;
                 ConcreteMinimizer&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
-                ConcreteFeedback&lt;<span class="lifetime">&#39;a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+                ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
                 OF,
-                ConcreteObservers&lt;<span class="lifetime">&#39;a</span>&gt;,
+                ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
             &gt;,
         &gt; + ProgressReporter
         + UsesState&lt;State = ConcreteState&lt;C, R, SC, I&gt;&gt;,
@@ -912,8 +914,8 @@
     <span class="kw">fn </span>create_feedback_observers(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; (
-        ConcreteFeedback&lt;<span class="lifetime">&#39;a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
-        ConcreteObservers&lt;<span class="lifetime">&#39;a</span>&gt;,
+        ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
     ) {
         <span class="attr">#[cfg(not(test))]
         </span><span class="kw">let </span>map = <span class="kw">unsafe </span>{
@@ -938,7 +940,7 @@
         );
 
         <span class="kw">return </span>{
-            <span class="kw">let </span>time_observer = TimeObserver::new(<span class="string">&quot;time&quot;</span>);
+            <span class="kw">let </span>time_observer = TimeObserver::new(<span class="string">"time"</span>);
             <span class="kw">let </span>edges_observer =
                 HitcountsMapObserver::new(<span class="kw">unsafe </span>{ StdMapObserver::new(EDGES_OBSERVER_NAME, map) });
             <span class="kw">let </span>feedback = <span class="macro">feedback_or!</span>(
@@ -962,7 +964,7 @@
     log_handle: Handle,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
 <span class="kw">where
-    </span>PB: ProtocolBehavior + Clone + <span class="lifetime">&#39;static</span>,
+    </span>PB: ProtocolBehavior + Clone + <span class="lifetime">'static</span>,
 {
     <span class="kw">let </span>FuzzerConfig {
         core_definition,
@@ -984,8 +986,8 @@
         ..
     } = <span class="kw-2">&amp;</span>config;
 
-    <span class="macro">log::info!</span>(<span class="string">&quot;Running on cores: {}&quot;</span>, <span class="kw-2">&amp;</span>core_definition);
-    <span class="macro">log::info!</span>(<span class="string">&quot;Config: {:?}\n\nlog_handle: {:?}&quot;</span>, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>log_handle);
+    <span class="macro">log::info!</span>(<span class="string">"Running on cores: {}"</span>, <span class="kw-2">&amp;</span>core_definition);
+    <span class="macro">log::info!</span>(<span class="string">"Config: {:?}\n\nlog_handle: {:?}"</span>, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>log_handle);
     log_handle.set_config(config_fuzzing(log_file));
 
     <span class="kw">let </span><span class="kw-2">mut </span>run_client = |state: <span class="prelude-ty">Option</span>&lt;StdState&lt;Trace&lt;PB::Matcher&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;,
@@ -1014,7 +1016,7 @@
                 </span>CachedOnDiskCorpus::with_meta_format(
                     corpus_dir.clone(),
                     <span class="number">4096</span>, <span class="comment">// mimicking libafl_sugar: https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/lib.rs#L78
-                    </span>OnDiskMetadataFormat::Json,
+                    </span><span class="prelude-val">Some</span>(OnDiskMetadataFormat::Json),
                 )
                 .unwrap(),
             )
@@ -1022,17 +1024,17 @@
                 CachedOnDiskCorpus::with_meta_format(
                     objective_dir.clone(),
                     <span class="number">4096</span>, <span class="comment">// mimicking libafl_sugar: https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/lib.rs#L78
-                    </span>OnDiskMetadataFormat::Json,
+                    </span><span class="prelude-val">Some</span>(OnDiskMetadataFormat::Json),
                 )
                 .unwrap(),
             )
             .with_objective(<span class="macro">feedback_or_fast!</span>(
-                <span class="comment">// don&#39;t execute second if first is conclusive, mimicking https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/inmemory.rs#L164
+                <span class="comment">// don't execute second if first is conclusive, mimicking https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/inmemory.rs#L164
                 </span>CrashFeedback::new(),
                 TimeoutFeedback::new()
             ));
 
-        <span class="comment">//#[cfg(feature = &quot;sancov&quot;)]
+        <span class="comment">//#[cfg(feature = "sancov")]
         //{
         /*            let (feedback, observers) = builder.create_feedback_observers();*/
         /*            builder = builder*/
@@ -1041,10 +1043,10 @@
         /*                .with_scheduler(IndexesLenTimeMinimizerScheduler::new(QueueScheduler::new()));*/
         //}
 
-        //#[cfg(not(feature = &quot;sancov&quot;))]
+        //#[cfg(not(feature = "sancov"))]
         </span>{
             <span class="comment">// FIXME
-            </span><span class="macro">log::error!</span>(<span class="string">&quot;Running without minimizer is unsupported&quot;</span>);
+            </span><span class="macro">log::error!</span>(<span class="string">"Running without minimizer is unsupported"</span>);
             <span class="kw">let </span>(feedback, observer) = builder.create_feedback_observers();
             builder = builder
                 .with_feedback(feedback)
@@ -1064,22 +1066,22 @@
         run_client(state, restarting_mgr, CoreId(<span class="number">0</span>))
     } <span class="kw">else </span>{
         <span class="kw">let </span>cores = Cores::from_cmdline(config.core_definition.as_str()).unwrap();
-        <span class="kw">let </span>configuration: EventConfig = <span class="string">&quot;launcher default&quot;</span>.into();
-        <span class="kw">let </span>sh_mem_provider = StdShMemProvider::new().expect(<span class="string">&quot;Failed to init shared memory&quot;</span>);
+        <span class="kw">let </span>configuration: EventConfig = <span class="string">"launcher default"</span>.into();
+        <span class="kw">let </span>sh_mem_provider = StdShMemProvider::new().expect(<span class="string">"Failed to init shared memory"</span>);
 
-        <span class="comment">// NOTE tlspuffin&#39;s fuzzer should never write to stdout
+        <span class="comment">// NOTE tlspuffin's fuzzer should never write to stdout
         //
         // During fuzzing the logs are redirected to `log_file` (which is
         // usually `tlspuffin.log`) and there should be no reason to print
         // directly to stdout. We should therefore be able to safely discard the
         // log output of clients.
         //
-        // To verify this assumption, we save the clients&#39; output to a file that
+        // To verify this assumption, we save the clients' output to a file that
         // should always be empty.
-        </span><span class="kw">let </span>out_path = log_file.with_extension(<span class="string">&quot;out&quot;</span>);
+        </span><span class="kw">let </span>out_path = log_file.with_extension(<span class="string">"out"</span>);
         <span class="kw">let </span>out_file = out_path
             .to_str()
-            .expect(<span class="string">&quot;failed to create path to redirect fuzzer clients&#39; stdout&quot;</span>);
+            .expect(<span class="string">"failed to create path to redirect fuzzer clients' stdout"</span>);
 
         <span class="kw">if </span><span class="kw-2">*</span>tui {
             <span class="kw">let </span>stats_monitor = StatsMonitor::with_tui_output(stats_file.clone());
@@ -1110,5 +1112,4 @@
         }
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Error","rustls reports protocol errors using this type."]],"fn":[["join",""]],"struct":[["CorruptMessagePayload","Context around a corrupt TLS message payload that resulted in an error."]]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["join"],"struct":["CorruptMessagePayload"]};

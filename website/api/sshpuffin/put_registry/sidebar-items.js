@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["LIBSSH_PUT",""]],"fn":[["ssh_registry",""]]};
+window.SIDEBAR_ITEMS = {"constant":["LIBSSH_PUT"],"fn":["ssh_registry"]};

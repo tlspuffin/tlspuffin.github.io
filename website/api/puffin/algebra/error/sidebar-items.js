@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["FnError",""]]};
+window.SIDEBAR_ITEMS = {"enum":["FnError"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["SshQueryMatcher",""]]};
+window.SIDEBAR_ITEMS = {"enum":["SshQueryMatcher"]};

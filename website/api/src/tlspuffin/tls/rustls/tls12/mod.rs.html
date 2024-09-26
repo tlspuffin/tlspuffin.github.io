@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/rustls/tls12/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../tlspuffin/index.html"><img class="rust-logo" src="../../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/rustls/tls12/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -434,7 +434,7 @@
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>ring::{aead, digest::Digest};
 
@@ -578,11 +578,11 @@
     </span><span class="kw">pub </span>kx: KeyExchangeAlgorithm,
 
     <span class="doccomment">/// How to sign messages for authentication.
-    </span><span class="kw">pub </span>sign: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[SignatureScheme],
+    </span><span class="kw">pub </span>sign: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[SignatureScheme],
 
-    <span class="doccomment">/// How long the fixed part of the &#39;IV&#39; is.
+    <span class="doccomment">/// How long the fixed part of the 'IV' is.
     ///
-    /// This isn&#39;t usually an IV, but we continue the
+    /// This isn't usually an IV, but we continue the
     /// terminology misuse to match the standard.
     </span><span class="kw">pub </span>fixed_iv_len: usize,
 
@@ -592,7 +592,7 @@
     /// chacha20poly1305 works this way by design.
     </span><span class="kw">pub </span>explicit_nonce_len: usize,
 
-    <span class="kw">pub </span>aead_alg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>Tls12AeadAlgorithm,
+    <span class="kw">pub </span>aead_alg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>Tls12AeadAlgorithm,
 }
 
 <span class="kw">impl </span>Tls12CipherSuite {
@@ -608,13 +608,13 @@
     }
 
     <span class="doccomment">/// Which hash function to use with this suite.
-    </span><span class="kw">pub fn </span>hash_algorithm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>ring::digest::Algorithm {
+    </span><span class="kw">pub fn </span>hash_algorithm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>ring::digest::Algorithm {
         <span class="self">self</span>.hmac_algorithm.digest_algorithm()
     }
 }
 
-<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls12CipherSuite&gt; <span class="kw">for </span>SupportedCipherSuite {
-    <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls12CipherSuite) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls12CipherSuite&gt; <span class="kw">for </span>SupportedCipherSuite {
+    <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls12CipherSuite) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Tls12(s)
     }
 }
@@ -626,10 +626,10 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Tls12CipherSuite {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Tls12CipherSuite&quot;</span>)
-            .field(<span class="string">&quot;suite&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.common.suite)
-            .field(<span class="string">&quot;bulk&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.common.bulk)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"Tls12CipherSuite"</span>)
+            .field(<span class="string">"suite"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.common.suite)
+            .field(<span class="string">"bulk"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.common.bulk)
             .finish()
     }
 }
@@ -637,7 +637,7 @@
 <span class="doccomment">/// TLS1.2 per-connection keying material
 </span><span class="kw">pub struct </span>ConnectionSecrets {
     <span class="kw">pub </span>randoms: ConnectionRandoms,
-    suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls12CipherSuite,
+    suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls12CipherSuite,
     <span class="kw">pub </span>master_secret: [u8; <span class="number">48</span>],
 }
 
@@ -647,7 +647,7 @@
         peer_pub_key: <span class="kw-2">&amp;</span>[u8],
         ems_seed: <span class="prelude-ty">Option</span>&lt;Digest&gt;,
         randoms: ConnectionRandoms,
-        suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls12CipherSuite,
+        suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls12CipherSuite,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="self">Self </span>{
             randoms,
@@ -656,9 +656,9 @@
         };
 
         <span class="kw">let </span>(label, seed) = <span class="kw">match </span>ems_seed {
-            <span class="prelude-val">Some</span>(seed) =&gt; (<span class="string">&quot;extended master secret&quot;</span>, Seed::Ems(seed)),
+            <span class="prelude-val">Some</span>(seed) =&gt; (<span class="string">"extended master secret"</span>, Seed::Ems(seed)),
             <span class="prelude-val">None </span>=&gt; (
-                <span class="string">&quot;master secret&quot;</span>,
+                <span class="string">"master secret"</span>,
                 Seed::Randoms(join_randoms(<span class="kw-2">&amp;</span>ret.randoms.client, <span class="kw-2">&amp;</span>ret.randoms.server)),
             ),
         };
@@ -679,7 +679,7 @@
 
     <span class="kw">pub fn </span>new_resume(
         randoms: ConnectionRandoms,
-        suite: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls12CipherSuite,
+        suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls12CipherSuite,
         master_secret: <span class="kw-2">&amp;</span>[u8],
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="self">Self </span>{
@@ -692,21 +692,21 @@
     }
 
     <span class="doccomment">/// Make a `MessageCipherPair` based on the given supported ciphersuite `scs`,
-    /// and the session&#39;s `secrets`.
+    /// and the session's `secrets`.
     </span><span class="kw">pub fn </span>make_cipher_pair(<span class="kw-2">&amp;</span><span class="self">self</span>, side: Side) -&gt; MessageCipherPair {
-        <span class="kw">fn </span>split_key&lt;<span class="lifetime">&#39;a</span>&gt;(
-            key_block: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-            alg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>aead::Algorithm,
-        ) -&gt; (aead::LessSafeKey, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) {
+        <span class="kw">fn </span>split_key&lt;<span class="lifetime">'a</span>&gt;(
+            key_block: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+            alg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>aead::Algorithm,
+        ) -&gt; (aead::LessSafeKey, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) {
             <span class="comment">// Might panic if the key block is too small.
             </span><span class="kw">let </span>(key, rest) = key_block.split_at(alg.key_len());
-            <span class="comment">// Won&#39;t panic because its only prerequisite is that `key` is `alg.key_len()` bytes long.
+            <span class="comment">// Won't panic because its only prerequisite is that `key` is `alg.key_len()` bytes long.
             </span><span class="kw">let </span>key = aead::UnboundKey::new(alg, key).unwrap();
             (aead::LessSafeKey::new(key), rest)
         }
 
         <span class="comment">// Make a key block, and chop it up.
-        // nb. we don&#39;t implement any ciphersuites with nonzero mac_key_len.
+        // nb. we don't implement any ciphersuites with nonzero mac_key_len.
         </span><span class="kw">let </span>key_block = <span class="self">self</span>.make_key_block();
 
         <span class="kw">let </span>suite = <span class="self">self</span>.suite;
@@ -749,20 +749,20 @@
         out.resize(len, <span class="number">0u8</span>);
 
         <span class="comment">// NOTE: opposite order to above for no good reason.
-        // Don&#39;t design security protocols on drugs, kids.
+        // Don't design security protocols on drugs, kids.
         </span><span class="kw">let </span>randoms = join_randoms(<span class="kw-2">&amp;</span><span class="self">self</span>.randoms.server, <span class="kw-2">&amp;</span><span class="self">self</span>.randoms.client);
         prf::prf(
             <span class="kw-2">&amp;mut </span>out,
             <span class="self">self</span>.suite.hmac_algorithm,
             <span class="kw-2">&amp;</span><span class="self">self</span>.master_secret,
-            <span class="string">b&quot;key expansion&quot;</span>,
+            <span class="string">b"key expansion"</span>,
             <span class="kw-2">&amp;</span>randoms,
         );
 
         out
     }
 
-    <span class="kw">pub fn </span>suite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Tls12CipherSuite {
+    <span class="kw">pub fn </span>suite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls12CipherSuite {
         <span class="self">self</span>.suite
     }
 
@@ -787,11 +787,11 @@
     }
 
     <span class="kw">pub fn </span>client_verify_data(<span class="kw-2">&amp;</span><span class="self">self</span>, handshake_hash: <span class="kw-2">&amp;</span>Digest) -&gt; Vec&lt;u8&gt; {
-        <span class="self">self</span>.make_verify_data(handshake_hash, <span class="string">b&quot;client finished&quot;</span>)
+        <span class="self">self</span>.make_verify_data(handshake_hash, <span class="string">b"client finished"</span>)
     }
 
     <span class="kw">pub fn </span>server_verify_data(<span class="kw-2">&amp;</span><span class="self">self</span>, handshake_hash: <span class="kw-2">&amp;</span>Digest) -&gt; Vec&lt;u8&gt; {
-        <span class="self">self</span>.make_verify_data(handshake_hash, <span class="string">b&quot;server finished&quot;</span>)
+        <span class="self">self</span>.make_verify_data(handshake_hash, <span class="string">b"server finished"</span>)
     }
 
     <span class="kw">pub fn </span>export_keying_material(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>[u8], label: <span class="kw-2">&amp;</span>[u8], context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;) {
@@ -870,5 +870,4 @@
         <span class="macro">assert!</span>(decode_ecdh_params_::&lt;ClientECDHParams&gt;(<span class="kw-2">&amp;</span>[<span class="number">34</span>]).is_none());
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

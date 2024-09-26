@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/violation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>violation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tlspuffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/violation.rs`."><title>violation.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -167,7 +167,7 @@
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
-</pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
+</pre></div><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>puffin::{
     agent::{AgentType, TLSVersion},
     claims::SecurityViolationPolicy,
@@ -181,42 +181,42 @@
 <span class="kw">pub struct </span>TlsSecurityViolationPolicy;
 
 <span class="kw">impl </span>SecurityViolationPolicy&lt;TlsClaim&gt; <span class="kw">for </span>TlsSecurityViolationPolicy {
-    <span class="kw">fn </span>check_violation(claims: <span class="kw-2">&amp;</span>[TlsClaim]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="kw">fn </span>check_violation(claims: <span class="kw-2">&amp;</span>[TlsClaim]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>((claim_a, claim_b)) = find_two_finished_messages(claims) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(((client_claim, client), (server_claim, server))) =
                 get_client_server(claim_a, claim_b)
             {
                 <span class="kw">if </span>client_claim.protocol_version != server_claim.protocol_version {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching versions&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching versions"</span>);
                 }
 
                 <span class="kw">if </span>client.master_secret != server.master_secret {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching master secrets&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching master secrets"</span>);
                 }
 
                 <span class="kw">if </span>client.server_random != server.server_random {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching server random&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching server random"</span>);
                 }
                 <span class="kw">if </span>client.client_random != server.client_random {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching client random&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching client random"</span>);
                 }
 
                 <span class="kw">if </span>client.chosen_cipher != server.chosen_cipher {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching ciphers&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching ciphers"</span>);
                 }
 
                 <span class="kw">if </span>client.signature_algorithm != server.peer_signature_algorithm
                     || server.signature_algorithm != client.peer_signature_algorithm
                 {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;mismatching signature algorithms&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"mismatching signature algorithms"</span>);
                 }
 
                 <span class="kw">if </span>server.authenticate_peer &amp;&amp; server.peer_certificate.as_slice() != BOB_CERT.<span class="number">1 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Authentication bypass&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Authentication bypass"</span>);
                 }
 
                 <span class="kw">if </span>client.authenticate_peer &amp;&amp; client.peer_certificate.as_slice() != ALICE_CERT.<span class="number">1 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Authentication bypass&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Authentication bypass"</span>);
                 }
 
                 <span class="kw">match </span>client_claim.protocol_version {
@@ -225,13 +225,13 @@
 
                         // https://datatracker.ietf.org/doc/html/rfc5077#section-3.4
                         </span><span class="kw">if </span>!server.session_id.is_empty() &amp;&amp; client.session_id != server.session_id {
-                            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching session ids&quot;</span>);
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching session ids"</span>);
                         }
                     }
                     TLSVersion::V1_3 =&gt; {
                         <span class="comment">// TLS 1.3 Checks
                         </span><span class="kw">if </span>client.session_id != server.session_id {
-                            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Mismatching session ids&quot;</span>);
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Mismatching session ids"</span>);
                         }
 
                         <span class="kw">if </span>!client.available_ciphers.is_empty()
@@ -251,10 +251,10 @@
 
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(best_cipher) = best_cipher {
                                 <span class="kw">if </span>best_cipher != server.chosen_cipher {
-                                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Not the best cipher choosen&quot;</span>);
+                                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Not the best cipher choosen"</span>);
                                 }
                                 <span class="kw">if </span>best_cipher != client.chosen_cipher {
-                                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Not the best cipher choosen&quot;</span>);
+                                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Not the best cipher choosen"</span>);
                                 }
                             }
                         }
@@ -285,7 +285,7 @@
                     };
 
                 <span class="kw">if </span>violation {
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">&quot;Authentication bypass&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="string">"Authentication bypass"</span>);
                 }
             }
         }
@@ -321,10 +321,10 @@
     two_finishes
 }
 
-<span class="kw">pub fn </span>get_client_server&lt;<span class="lifetime">&#39;a</span>, T&gt;(
-    a: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T),
-    b: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T),
-) -&gt; <span class="prelude-ty">Option</span>&lt;((<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T), (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T))&gt; {
+<span class="kw">pub fn </span>get_client_server&lt;<span class="lifetime">'a</span>, T&gt;(
+    a: (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T),
+    b: (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T),
+) -&gt; <span class="prelude-ty">Option</span>&lt;((<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T), (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TlsClaim, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T))&gt; {
     <span class="kw">match </span>a.<span class="number">0</span>.origin {
         AgentType::Server =&gt; <span class="kw">match </span>b.<span class="number">0</span>.origin {
             AgentType::Server =&gt; <span class="prelude-val">None</span>,
@@ -336,5 +336,4 @@
         },
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

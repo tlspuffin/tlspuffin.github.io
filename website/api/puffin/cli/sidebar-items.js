@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["binary_attack",""],["create_app",""],["execute",""],["main",""],["plot",""],["seed",""]]};
+window.SIDEBAR_ITEMS = {"fn":["binary_attack","create_app","execute","main","plot","seed"]};

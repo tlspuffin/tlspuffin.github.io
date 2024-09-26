@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["TraceExecutor",""],["TraceHelper",""]]};
+window.SIDEBAR_ITEMS = {"trait":["TraceExecutor","TraceHelper"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["PutDescriptor",""],["PutName",""],["PutOptions",""]],"trait":[["Put","Generic trait used to define the interface with a concrete library implementing the protocol."]]};
+window.SIDEBAR_ITEMS = {"struct":["PutDescriptor","PutName","PutOptions"],"trait":["Put"]};

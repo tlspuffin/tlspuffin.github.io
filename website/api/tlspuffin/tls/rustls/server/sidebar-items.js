@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["server_conn",""]]};
+window.SIDEBAR_ITEMS = {"mod":["server_conn"]};

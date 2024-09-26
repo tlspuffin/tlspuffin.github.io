@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/./fn_utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fn_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tlspuffin/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tlspuffin/src/tls/./fn_utils.rs`."><title>fn_utils.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -574,7 +574,7 @@
 <a href="#574" id="574">574</a>
 <a href="#575" id="575">575</a>
 <a href="#576" id="576">576</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
+</pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
 </span><span class="kw">use </span>std::convert::TryFrom;
@@ -706,14 +706,14 @@
     )<span class="question-mark">?</span>;
     <span class="kw">let </span>decrypter = suite
         .tls13()
-        .ok_or_else(|| FnError::Crypto(<span class="string">&quot;No tls 1.3 suite&quot;</span>.to_owned()))<span class="question-mark">?
+        .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_decrypter(<span class="kw-2">&amp;</span>key);
     <span class="kw">let </span>message = decrypter
         .decrypt(
             PlainMessage::from(application_data.clone()).into_unencrypted_opaque(),
             <span class="kw-2">*</span>sequence,
         )
-        .map_err(|_err| FnError::Crypto(<span class="string">&quot;Failed to decrypt it fn_decrypt_handshake&quot;</span>.to_string()))<span class="question-mark">?</span>;
+        .map_err(|_err| FnError::Crypto(<span class="string">"Failed to decrypt it fn_decrypt_handshake"</span>.to_string()))<span class="question-mark">?</span>;
 
     <span class="kw">let </span>payloads =
         MessagePayload::multiple_new(message.typ, message.version, message.payload).unwrap();
@@ -737,7 +737,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">&quot;no server certificate&quot;</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no server certificate"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_ticket(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -748,7 +748,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">&quot;no server tickets&quot;</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no server tickets"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_certificate_request(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -759,7 +759,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">&quot;no server tickets&quot;</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no server tickets"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_encrypted_extensions(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -770,7 +770,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">&quot;no encrypted extensions&quot;</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no encrypted extensions"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_certificate_verify(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -781,7 +781,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">&quot;no certificate verify&quot;</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no certificate verify"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_finished(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -792,7 +792,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">&quot;no finished&quot;</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no finished"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_no_psk() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;, FnError&gt; {
@@ -859,7 +859,7 @@
     )<span class="question-mark">?</span>;
     <span class="kw">let </span>decrypter = suite
         .tls13()
-        .ok_or_else(|| FnError::Crypto(<span class="string">&quot;No tls 1.3 suite&quot;</span>.to_owned()))<span class="question-mark">?
+        .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_decrypter(<span class="kw-2">&amp;</span>key);
     <span class="kw">let </span>message = decrypter
         .decrypt(
@@ -867,10 +867,10 @@
             <span class="kw-2">*</span>sequence,
         )
         .map_err(|_err| {
-            FnError::Crypto(<span class="string">&quot;Failed to decrypt it fn_decrypt_application&quot;</span>.to_string())
+            FnError::Crypto(<span class="string">"Failed to decrypt it fn_decrypt_application"</span>.to_string())
         })<span class="question-mark">?</span>;
     Message::try_from(message)
-        .map_err(|_err| FnError::Crypto(<span class="string">&quot;Failed to create Message from decrypted data&quot;</span>.to_string()))
+        .map_err(|_err| FnError::Crypto(<span class="string">"Failed to create Message from decrypted data"</span>.to_string()))
 }
 
 <span class="kw">pub fn </span>fn_encrypt_handshake(
@@ -886,11 +886,11 @@
         tls13_handshake_traffic_secret(server_hello, server_key_share, psk, <span class="kw-2">*</span>client, group)<span class="question-mark">?</span>;
     <span class="kw">let </span>encrypter = suite
         .tls13()
-        .ok_or_else(|| FnError::Crypto(<span class="string">&quot;No tls 1.3 suite&quot;</span>.to_owned()))<span class="question-mark">?
+        .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_encrypter(<span class="kw-2">&amp;</span>key);
     <span class="kw">let </span>application_data = encrypter
         .encrypt(PlainMessage::from(some_message.clone()).borrow(), <span class="kw-2">*</span>sequence)
-        .map_err(|_err| FnError::Crypto(<span class="string">&quot;Failed to encrypt it fn_encrypt_handshake&quot;</span>.to_string()))<span class="question-mark">?</span>;
+        .map_err(|_err| FnError::Crypto(<span class="string">"Failed to encrypt it fn_encrypt_handshake"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(application_data)
 }
 
@@ -913,12 +913,12 @@
     )<span class="question-mark">?</span>;
     <span class="kw">let </span>encrypter = suite
         .tls13()
-        .ok_or_else(|| FnError::Crypto(<span class="string">&quot;No tls 1.3 suite&quot;</span>.to_owned()))<span class="question-mark">?
+        .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_encrypter(<span class="kw-2">&amp;</span>key);
     <span class="kw">let </span>application_data = encrypter
         .encrypt(PlainMessage::from(some_message.clone()).borrow(), <span class="kw-2">*</span>sequence)
         .map_err(|_err| {
-            FnError::Crypto(<span class="string">&quot;Failed to encrypt it fn_encrypt_application&quot;</span>.to_string())
+            FnError::Crypto(<span class="string">"Failed to encrypt it fn_encrypt_application"</span>.to_string())
         })<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(application_data)
 }
@@ -949,20 +949,20 @@
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
     .ok_or_else(|| {
-        FnError::Unknown(<span class="string">&quot;Only can fill binder in HandshakeMessagePayload&quot;</span>.to_owned())
+        FnError::Unknown(<span class="string">"Only can fill binder in HandshakeMessagePayload"</span>.to_owned())
     })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>suite = <span class="kw-2">&amp;</span><span class="kw">crate</span>::tls::rustls::tls13::TLS13_AES_128_GCM_SHA256; <span class="comment">// todo allow other cipher suites: https://github.com/tlspuffin/tlspuffin/issues/129
     </span><span class="kw">let </span>hkdf_alg = suite
         .tls13()
-        .ok_or_else(|| FnError::Crypto(<span class="string">&quot;No tls 1.3 suite&quot;</span>.to_owned()))<span class="question-mark">?
+        .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.hkdf_algorithm;
     <span class="kw">let </span>suite_hash = suite.hash_algorithm();
 
     <span class="kw">let </span>transcript = HandshakeHash::new(suite_hash);
 
-    <span class="comment">// RFC: The &quot;pre_shared_key&quot; extension MUST be the last extension in the ClientHello
-    // The binder is calculated over the clienthello, but doesn&#39;t include itself or its
+    <span class="comment">// RFC: The "pre_shared_key" extension MUST be the last extension in the ClientHello
+    // The binder is calculated over the clienthello, but doesn't include itself or its
     // length, or the length of its container.
     </span><span class="kw">let </span>binder_plaintext = client_hello_payload.get_encoding_for_binder_signing();
     <span class="kw">let </span>handshake_hash = transcript.get_hash_given(<span class="kw-2">&amp;</span>binder_plaintext);
@@ -993,7 +993,7 @@
         },
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
-    .ok_or_else(|| FnError::Unknown(<span class="string">&quot;Could not find ticket in message&quot;</span>.to_owned()))
+    .ok_or_else(|| FnError::Unknown(<span class="string">"Could not find ticket in message"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_get_ticket(new_ticket: <span class="kw-2">&amp;</span>Message) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
@@ -1004,7 +1004,7 @@
         },
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
-    .ok_or_else(|| FnError::Unknown(<span class="string">&quot;Could not find ticket in message&quot;</span>.to_owned()))
+    .ok_or_else(|| FnError::Unknown(<span class="string">"Could not find ticket in message"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_get_ticket_age_add(new_ticket: <span class="kw-2">&amp;</span>Message) -&gt; <span class="prelude-ty">Result</span>&lt;u64, FnError&gt; {
@@ -1015,7 +1015,7 @@
         },
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
-    .ok_or_else(|| FnError::Unknown(<span class="string">&quot;Could not find ticket in message&quot;</span>.to_owned()))
+    .ok_or_else(|| FnError::Unknown(<span class="string">"Could not find ticket in message"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_get_ticket_nonce(new_ticket: <span class="kw-2">&amp;</span>Message) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
@@ -1026,7 +1026,7 @@
         },
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
-    .ok_or_else(|| FnError::Unknown(<span class="string">&quot;Could not find ticket in message&quot;</span>.to_owned()))
+    .ok_or_else(|| FnError::Unknown(<span class="string">"Could not find ticket in message"</span>.to_owned()))
 }
 
 <span class="comment">// ----
@@ -1043,7 +1043,7 @@
 <span class="kw">pub fn </span>fn_decode_ecdh_pubkey(data: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(data.as_slice());
     <span class="kw">let </span>params = ServerECDHParams::read(<span class="kw-2">&amp;mut </span>rd)
-        .ok_or_else(|| FnError::Unknown(<span class="string">&quot;Failed to parse ecdh public key&quot;</span>.to_string()))<span class="question-mark">?</span>;
+        .ok_or_else(|| FnError::Unknown(<span class="string">"Failed to parse ecdh public key"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(params.public.<span class="number">0</span>)
 }
 
@@ -1076,13 +1076,13 @@
     });
     <span class="kw">let </span>encrypted = encrypter
         .encrypt(PlainMessage::from(message.clone()).borrow(), <span class="kw-2">*</span>sequence)
-        .map_err(|_err| FnError::Crypto(<span class="string">&quot;Failed to encrypt it fn_encrypt12&quot;</span>.to_string()))<span class="question-mark">?</span>;
+        .map_err(|_err| FnError::Crypto(<span class="string">"Failed to encrypt it fn_encrypt12"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(encrypted)
 }
 
 <span class="kw">pub fn </span>fn_new_certificate() -&gt; <span class="prelude-ty">Result</span>&lt;Certificate, FnError&gt; {
     <span class="kw">let </span>der_cert = hex::decode(
-        <span class="string">&quot;308203473082022fa003020102021406f7fb1d20\
+        <span class="string">"308203473082022fa003020102021406f7fb1d20\
     b39f71b9a222e8f03a0ab0a79ec54d300d060\
     92a864886f70d01010b05003033310b30090603550406130241553113301106035504080c0a536f6d652d5374617465\
     310f300d060355040a0c064861636b6572301e170d3231303731393135323135355a170d32323037313931353231353\
@@ -1100,10 +1100,10 @@
     4f58ab901bf269a1b29eb9fc5603dfd67452544ec19fa51c2af29e4ce2667b778262abad12cca57f8c8a6ab1db57309\
     2640eda09ec6a001f48c8fa9996c90f0ae6726b12c69b59e18bc16c9c116a373aabdc4bb62b41c77859d2909eba9936\
     161df1ba38891e9bddec0f196bdcfc9a8801d4e066d4b258a9c072c6f4f13a80da85c75102b7cecae60987997c6b8c3\
-    56bef671e44bc3aceb6e15590befb11b76efb6ee89c69820b91e1ba9d11d0324e961e9b0cb98e38ea2414ae94&quot;</span>,
+    56bef671e44bc3aceb6e15590befb11b76efb6ee89c69820b91e1ba9d11d0324e961e9b0cb98e38ea2414ae94"</span>,
     );
     <span class="prelude-val">Ok</span>(Certificate(der_cert.map_err(|_err| {
-        FnError::Unknown(<span class="string">&quot;Failed to load DER certificate&quot;</span>.to_string())
+        FnError::Unknown(<span class="string">"Failed to load DER certificate"</span>.to_string())
     })<span class="question-mark">?</span>))
 }
 
@@ -1150,5 +1150,4 @@
 <span class="kw">pub fn </span>fn_u64_to_u32(input: <span class="kw-2">&amp;</span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;u32, FnError&gt; {
     <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>input <span class="kw">as </span>u32)
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tlspuffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

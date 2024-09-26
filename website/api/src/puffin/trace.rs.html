@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `puffin/src/trace.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trace.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../puffin/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `puffin/src/trace.rs`."><title>trace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -767,7 +767,7 @@
 <a href="#767" id="767">767</a>
 <a href="#768" id="768">768</a>
 <a href="#769" id="769">769</a>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains [`Trace`]s consisting of several [`Step`]s, of which each has either an
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains [`Trace`]s consisting of several [`Step`]s, of which each has either an
 //! [`OutputAction`] or [`InputAction`]. This is a declarative way of modeling communication between
 //! [`Agent`]s. The [`TraceContext`] holds data, also known as [`VariableData`], which is created by
 //! [`Agent`]s during the concrete execution of the Trace. It also holds the [`Agent`]s with
@@ -823,7 +823,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;({:?}, {})[{:?}]&quot;</span>,
+            <span class="string">"({:?}, {})[{:?}]"</span>,
             <span class="self">self</span>.source, <span class="self">self</span>.counter, <span class="self">self</span>.matcher
         )
     }
@@ -840,8 +840,8 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Source {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Agent(x) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;agent:{}&quot;</span>, x),
-            <span class="self">Self</span>::Label(x) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;label:{}&quot;</span>, x),
+            <span class="self">Self</span>::Agent(x) =&gt; <span class="macro">write!</span>(f, <span class="string">"agent:{}"</span>, x),
+            <span class="self">Self</span>::Label(x) =&gt; <span class="macro">write!</span>(f, <span class="string">"label:{}"</span>, x),
         }
     }
 }
@@ -851,10 +851,10 @@
 /// [Knowledge] is made of the data, the source of the output, the
 /// TLS message type and the internal type.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Knowledge&lt;<span class="lifetime">&#39;a</span>, M: Matcher&gt; {
-    <span class="kw">pub </span>source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Source,
+</span><span class="kw">pub struct </span>Knowledge&lt;<span class="lifetime">'a</span>, M: Matcher&gt; {
+    <span class="kw">pub </span>source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
     <span class="kw">pub </span>matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
-    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>VariableData,
+    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">dyn </span>VariableData,
 }
 
 <span class="doccomment">/// [RawKnowledge] stores
@@ -867,13 +867,13 @@
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>RawKnowledge&lt;M&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;({})/{:?}&quot;</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
+        <span class="macro">write!</span>(f, <span class="string">"({})/{:?}"</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M: Matcher&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RawKnowledge&lt;M&gt; {
-    <span class="kw">type </span>Item = Knowledge&lt;<span class="lifetime">&#39;a</span>, M&gt;;
-    <span class="kw">type </span>IntoIter = IntoIter&lt;Knowledge&lt;<span class="lifetime">&#39;a</span>, M&gt;&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: Matcher&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>RawKnowledge&lt;M&gt; {
+    <span class="kw">type </span>Item = Knowledge&lt;<span class="lifetime">'a</span>, M&gt;;
+    <span class="kw">type </span>IntoIter = IntoIter&lt;Knowledge&lt;<span class="lifetime">'a</span>, M&gt;&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="kw">let </span><span class="kw-2">mut </span>knowledges = <span class="macro">vec!</span>[];
@@ -884,31 +884,31 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;<span class="lifetime">&#39;_</span>, M&gt; {
+<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;<span class="lifetime">'_</span>, M&gt; {
     <span class="kw">pub fn </span>specificity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.matcher.specificity()
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;<span class="lifetime">&#39;_</span>, M&gt; {
+<span class="kw">impl</span>&lt;M: Matcher&gt; Knowledge&lt;<span class="lifetime">'_</span>, M&gt; {
     <span class="kw">pub fn </span>debug_print&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;, source: <span class="kw-2">&amp;</span>Source)
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
     {
         <span class="kw">let </span>data_type_id = <span class="self">self</span>.data.type_id();
         <span class="macro">debug!</span>(
-            <span class="string">&quot;New knowledge {}: {}  (counter: {})&quot;</span>,
+            <span class="string">"New knowledge {}: {}  (counter: {})"</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             remove_prefix(<span class="self">self</span>.data.type_name()),
             ctx.number_matching_message_with_source(source.clone(), data_type_id, <span class="kw-2">&amp;</span><span class="self">self</span>.matcher)
         );
-        <span class="macro">trace!</span>(<span class="string">&quot;Knowledge data: {:?}&quot;</span>, <span class="self">self</span>.data);
+        <span class="macro">trace!</span>(<span class="string">"Knowledge data: {:?}"</span>, <span class="self">self</span>.data);
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Knowledge&lt;<span class="lifetime">&#39;_</span>, M&gt; {
+<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Knowledge&lt;<span class="lifetime">'_</span>, M&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;({})/{:?}&quot;</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
+        <span class="macro">write!</span>(f, <span class="string">"({})/{:?}"</span>, <span class="self">self</span>.source, <span class="self">self</span>.matcher)
     }
 }
 
@@ -924,12 +924,12 @@
         }
     }
 
-    <span class="kw">pub fn </span>add_raw_knowledge&lt;T: ExtractKnowledge&lt;PB::Matcher&gt; + <span class="lifetime">&#39;static</span>&gt;(
+    <span class="kw">pub fn </span>add_raw_knowledge&lt;T: ExtractKnowledge&lt;PB::Matcher&gt; + <span class="lifetime">'static</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         data: T,
         source: Source,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;Adding raw knowledge : {:?}&quot;</span>, <span class="kw-2">&amp;</span>data);
+        <span class="macro">log::trace!</span>(<span class="string">"Adding raw knowledge : {:?}"</span>, <span class="kw-2">&amp;</span>data);
         <span class="self">self</span>.raw_knowledge.push(RawKnowledge {
             source,
             matcher: <span class="prelude-val">None</span>,
@@ -1023,11 +1023,11 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;Knowledge [not displaying other fields] (size={}):&quot;</span>,
+            <span class="string">"Knowledge [not displaying other fields] (size={}):"</span>,
             <span class="self">self</span>.knowledge_store.raw_knowledge.len()
         )<span class="question-mark">?</span>;
         <span class="kw">for </span>k <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge_store.raw_knowledge {
-            <span class="macro">write!</span>(f, <span class="string">&quot;\n   {},          --  {:?}&quot;</span>, k, k)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"\n   {},          --  {:?}"</span>, k, k)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1040,9 +1040,9 @@
             &amp;&amp; <span class="self">self</span>.deterministic_put == other.deterministic_put
             &amp;&amp; <span class="self">self</span>.default_put_options == other.default_put_options
             &amp;&amp; <span class="self">self</span>.non_default_put_descriptors == other.non_default_put_descriptors
-            &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.knowledge_store.raw_knowledge)
-                == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.knowledge_store.raw_knowledge)
-            &amp;&amp; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.claims) == <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, other.claims)
+            &amp;&amp; <span class="macro">format!</span>(<span class="string">"{:?}"</span>, <span class="self">self</span>.knowledge_store.raw_knowledge)
+                == <span class="macro">format!</span>(<span class="string">"{:?}"</span>, other.knowledge_store.raw_knowledge)
+            &amp;&amp; <span class="macro">format!</span>(<span class="string">"{:?}"</span>, <span class="self">self</span>.claims) == <span class="macro">format!</span>(<span class="string">"{:?}"</span>, other.claims)
     }
 }
 
@@ -1124,7 +1124,7 @@
         <span class="self">self</span>.knowledge_store.find_variable(query_type_shape, query)
     }
 
-    <span class="doccomment">/// Adds data to the inbound [`Channel`] of the [`Agent`] referenced by the parameter &quot;agent&quot;.
+    <span class="doccomment">/// Adds data to the inbound [`Channel`] of the [`Agent`] referenced by the parameter "agent".
     </span><span class="kw">pub fn </span>add_to_inbound(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         agent_name: AgentName,
@@ -1139,7 +1139,7 @@
         agent.put_mut().progress(<span class="kw-2">&amp;</span>agent_name)
     }
 
-    <span class="doccomment">/// Takes data from the outbound [`Channel`] of the [`Agent`] referenced by the parameter &quot;agent&quot;.
+    <span class="doccomment">/// Takes data from the outbound [`Channel`] of the [`Agent`] referenced by the parameter "agent".
     /// See [`crate::stream::Stream::take_message_from_outbound`]
     </span><span class="kw">pub fn </span>take_message_from_outbound(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -1165,7 +1165,7 @@
 
         iter.find(|agent| agent.name() == name).ok_or_else(|| {
             Error::Agent(<span class="macro">format!</span>(
-                <span class="string">&quot;Could not find agent {}. Did you forget to call spawn_agents?&quot;</span>,
+                <span class="string">"Could not find agent {}. Did you forget to call spawn_agents?"</span>,
                 name
             ))
         })
@@ -1175,7 +1175,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.agents.iter();
         iter.find(|agent| agent.name() == name).ok_or_else(|| {
             Error::Agent(<span class="macro">format!</span>(
-                <span class="string">&quot;Could not find agent {}. Did you forget to call spawn_agents?&quot;</span>,
+                <span class="string">"Could not find agent {}. Did you forget to call spawn_agents?"</span>,
                 name
             ))
         })
@@ -1227,7 +1227,7 @@
 }
 
 <span class="attr">#[derive(Clone, Deserialize, Serialize, Hash)]
-#[serde(bound = <span class="string">&quot;M: Matcher&quot;</span>)]
+#[serde(bound = <span class="string">"M: Matcher"</span>)]
 </span><span class="kw">pub struct </span>Trace&lt;M: Matcher&gt; {
     <span class="kw">pub </span>descriptors: Vec&lt;AgentDescriptor&gt;,
     <span class="kw">pub </span>steps: Vec&lt;Step&lt;M&gt;&gt;,
@@ -1257,7 +1257,7 @@
             <span class="kw">if </span>ctx.deterministic_put {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(agent) = ctx.find_agent_mut(name) {
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = agent.put_mut().determinism_reseed() {
-                        <span class="macro">warn!</span>(<span class="string">&quot;Unable to make agent {} deterministic: {}&quot;</span>, name, err)
+                        <span class="macro">warn!</span>(<span class="string">"Unable to make agent {} deterministic: {}"</span>, name, err)
                     }
                 }
             }
@@ -1281,7 +1281,7 @@
         <span class="self">self</span>.spawn_agents(ctx)<span class="question-mark">?</span>;
         <span class="kw">let </span>steps = <span class="kw-2">&amp;</span><span class="self">self</span>.steps;
         <span class="kw">for </span>(i, step) <span class="kw">in </span>steps.iter().enumerate() {
-            <span class="macro">debug!</span>(<span class="string">&quot;Executing step #{}&quot;</span>, i);
+            <span class="macro">debug!</span>(<span class="string">"Executing step #{}"</span>, i);
 
             step.action.execute(step, ctx)<span class="question-mark">?</span>;
 
@@ -1343,23 +1343,23 @@
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Debug <span class="kw">for </span>Trace&lt;M&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Trace with {} steps&quot;</span>, <span class="self">self</span>.steps.len())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"Trace with {} steps"</span>, <span class="self">self</span>.steps.len())
     }
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Trace&lt;M&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Trace:&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"Trace:"</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
-            <span class="macro">write!</span>(f, <span class="string">&quot;\n{} -&gt; {}&quot;</span>, step.agent, step.action)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"\n{} -&gt; {}"</span>, step.agent, step.action)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
-#[serde(bound = <span class="string">&quot;M: Matcher&quot;</span>)]
+#[serde(bound = <span class="string">"M: Matcher"</span>)]
 </span><span class="kw">pub struct </span>Step&lt;M: Matcher&gt; {
     <span class="kw">pub </span>agent: AgentName,
     <span class="kw">pub </span>action: Action&lt;M&gt;,
@@ -1375,7 +1375,7 @@
 /// Therefore, the difference is that one step *increases* the knowledge of the attacker,
 /// whereas the other action *uses* the available knowledge.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
-#[serde(bound = <span class="string">&quot;M: Matcher&quot;</span>)]
+#[serde(bound = <span class="string">"M: Matcher"</span>)]
 </span><span class="kw">pub enum </span>Action&lt;M: Matcher&gt; {
     Input(InputAction&lt;M&gt;),
     Output(OutputAction&lt;M&gt;),
@@ -1394,10 +1394,10 @@
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Action&lt;M&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Action::Input(input) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, input),
-            Action::Output(output) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, output),
+            Action::Input(input) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, input),
+            Action::Output(output) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, output),
         }
     }
 }
@@ -1437,12 +1437,12 @@
                 .knowledge_store
                 .add_raw_knowledge(opaque_flight, source.clone())
             {
-                <span class="macro">debug!</span>(<span class="string">&quot;Raw Knowledge increased to {}&quot;</span>, num);
+                <span class="macro">debug!</span>(<span class="string">"Raw Knowledge increased to {}"</span>, num);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(f) = flight {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx.knowledge_store.add_raw_knowledge(f, source.clone()) {
-                    <span class="macro">debug!</span>(<span class="string">&quot;Raw Knowledge increased to {}&quot;</span>, num);
+                    <span class="macro">debug!</span>(<span class="string">"Raw Knowledge increased to {}"</span>, num);
                 }
             }
         }
@@ -1460,8 +1460,8 @@
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>OutputAction&lt;M&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;OutputAction&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"OutputAction"</span>)
     }
 }
 
@@ -1469,7 +1469,7 @@
 /// into the *inbound channel* of the [`Agent`] referenced through the corresponding [`Step`]s
 /// by calling `add_to_inbound(...)` and then drives the state machine forward.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
-#[serde(bound = <span class="string">&quot;M: Matcher&quot;</span>)]
+#[serde(bound = <span class="string">"M: Matcher"</span>)]
 </span><span class="kw">pub struct </span>InputAction&lt;M: Matcher&gt; {
     <span class="kw">pub </span>recipe: Term&lt;M&gt;,
 }
@@ -1499,18 +1499,18 @@
             .as_ref()
             .downcast_ref::&lt;PB::ProtocolMessageFlight&gt;()
         {
-            flight.debug(<span class="string">&quot;Input message flight&quot;</span>);
+            flight.debug(<span class="string">"Input message flight"</span>);
 
             ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>flight.clone().into())<span class="question-mark">?</span>;
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(flight) = evaluated
             .as_ref()
             .downcast_ref::&lt;PB::OpaqueProtocolMessageFlight&gt;()
         {
-            flight.debug(<span class="string">&quot;Input opaque message flight&quot;</span>);
+            flight.debug(<span class="string">"Input opaque message flight"</span>);
 
             ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>flight)<span class="question-mark">?</span>;
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_ref().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
-            msg.debug(<span class="string">&quot;Input message&quot;</span>);
+            msg.debug(<span class="string">"Input message"</span>);
 
             <span class="kw">let </span>message_flight: PB::ProtocolMessageFlight = msg.clone().into();
             ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>message_flight.into())<span class="question-mark">?</span>;
@@ -1518,11 +1518,11 @@
             .as_ref()
             .downcast_ref::&lt;PB::OpaqueProtocolMessage&gt;()
         {
-            opaque_message.debug(<span class="string">&quot;Input opaque message&quot;</span>);
+            opaque_message.debug(<span class="string">"Input opaque message"</span>);
             ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>opaque_message.clone().into())<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(FnError::Unknown(String::from(
-                <span class="string">&quot;Recipe is not a `ProtocolMessage`, `OpaqueProtocolMessage`, `MessageFlight`, `OpaqueMessageFlight` !&quot;</span>,
+                <span class="string">"Recipe is not a `ProtocolMessage`, `OpaqueProtocolMessage`, `MessageFlight`, `OpaqueMessageFlight` !"</span>,
             ))
             .into());
         }
@@ -1532,9 +1532,8 @@
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>InputAction&lt;M&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;InputAction:\n{}&quot;</span>, <span class="self">self</span>.recipe)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"InputAction:\n{}"</span>, <span class="self">self</span>.recipe)
     }
 }
-</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="puffin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

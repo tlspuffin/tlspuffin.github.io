@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["asan","Helpers for asan"]]};
+window.SIDEBAR_ITEMS = {"mod":["asan"]};

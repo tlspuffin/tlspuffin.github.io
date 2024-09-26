@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["puffin",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"enum\" href=\"puffin/algebra/error/enum.FnError.html\" title=\"enum puffin::algebra::error::FnError\">FnError</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"enum\" href=\"puffin/error/enum.Error.html\" title=\"enum puffin::error::Error\">Error</a>"]]],["tlspuffin",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"enum\" href=\"tlspuffin/tls/rustls/error/enum.Error.html\" title=\"enum tlspuffin::tls::rustls::error::Error\">Error</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"struct\" href=\"tlspuffin/tls/rustls/client/client_conn/struct.InvalidDnsNameError.html\" title=\"struct tlspuffin::tls::rustls::client::client_conn::InvalidDnsNameError\">InvalidDnsNameError</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"struct\" href=\"tlspuffin/tls/rustls/sign/struct.SignError.html\" title=\"struct tlspuffin::tls::rustls::sign::SignError\">SignError</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[535,947]}

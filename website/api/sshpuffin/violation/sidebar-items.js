@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SshSecurityViolationPolicy",""]]};
+window.SIDEBAR_ITEMS = {"struct":["SshSecurityViolationPolicy"]};

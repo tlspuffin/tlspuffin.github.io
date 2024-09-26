@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["fn_constants",""],["fn_message",""]]};
+window.SIDEBAR_ITEMS = {"mod":["fn_constants","fn_message"]};

@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["sshpuffin",[["impl <a class=\"trait\" href=\"puffin/protocol/trait.OpaqueProtocolMessageFlight.html\" title=\"trait puffin::protocol::OpaqueProtocolMessageFlight\">OpaqueProtocolMessageFlight</a>&lt;<a class=\"enum\" href=\"sshpuffin/query/enum.SshQueryMatcher.html\" title=\"enum sshpuffin::query::SshQueryMatcher\">SshQueryMatcher</a>, <a class=\"enum\" href=\"sshpuffin/ssh/message/enum.RawSshMessage.html\" title=\"enum sshpuffin::ssh::message::RawSshMessage\">RawSshMessage</a>&gt; for <a class=\"struct\" href=\"sshpuffin/protocol/struct.RawSshMessageFlight.html\" title=\"struct sshpuffin::protocol::RawSshMessageFlight\">RawSshMessageFlight</a>"]]],["tlspuffin",[["impl <a class=\"trait\" href=\"puffin/protocol/trait.OpaqueProtocolMessageFlight.html\" title=\"trait puffin::protocol::OpaqueProtocolMessageFlight\">OpaqueProtocolMessageFlight</a>&lt;<a class=\"enum\" href=\"tlspuffin/query/enum.TlsQueryMatcher.html\" title=\"enum tlspuffin::query::TlsQueryMatcher\">TlsQueryMatcher</a>, <a class=\"struct\" href=\"tlspuffin/tls/rustls/msgs/message/struct.OpaqueMessage.html\" title=\"struct tlspuffin::tls::rustls::msgs::message::OpaqueMessage\">OpaqueMessage</a>&gt; for <a class=\"struct\" href=\"tlspuffin/protocol/struct.OpaqueMessageFlight.html\" title=\"struct tlspuffin::protocol::OpaqueMessageFlight\">OpaqueMessageFlight</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[658,691]}

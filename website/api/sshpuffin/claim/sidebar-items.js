@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SshClaim",""],["SshClaimInner",""]]};
+window.SIDEBAR_ITEMS = {"struct":["SshClaim","SshClaimInner"]};

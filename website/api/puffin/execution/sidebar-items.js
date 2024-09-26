@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ExecutionStatus",""]],"fn":[["forked_execution",""]],"trait":[["AssertExecution",""]]};
+window.SIDEBAR_ITEMS = {"enum":["ExecutionStatus"],"fn":["forked_execution"],"trait":["AssertExecution"]};

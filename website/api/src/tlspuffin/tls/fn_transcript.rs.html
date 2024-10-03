@@ -36,19 +36,17 @@
 <a href="#36" id="36">36</a>
 <a href="#37" id="37">37</a>
 <a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::algebra::error::FnError;
 
-<span class="kw">use crate</span>::{
-    claims::{
-        Transcript, TranscriptCertificate, TranscriptClientFinished, TranscriptServerFinished,
-        TranscriptServerHello,
-    },
-    tls::rustls::{hash_hs::HandshakeHash, tls13},
+<span class="kw">use </span><span class="kw">crate</span>::claims::{
+    Transcript, TranscriptCertificate, TranscriptClientFinished, TranscriptServerFinished,
+    TranscriptServerHello,
 };
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls13;
 
 <span class="kw">pub fn </span>fn_server_hello_transcript(claim: <span class="kw-2">&amp;</span>TranscriptServerHello) -&gt; <span class="prelude-ty">Result</span>&lt;HandshakeHash, FnError&gt; {
     _fn_transcript::&lt;TranscriptServerHello&gt;(claim)

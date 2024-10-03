@@ -574,12 +574,11 @@
 
 <span class="doccomment">/// This module contains optional APIs for implementing QUIC TLS.
 </span><span class="kw">use </span><span class="kw">crate</span>::tls::rustls::cipher::{Iv, IvLen};
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    error::Error,
-    msgs::enums::AlertDescription,
-    suites::BulkAlgorithm,
-    tls13::{key_schedule::hkdf_expand, Tls13CipherSuite, TLS13_AES_128_GCM_SHA256_INTERNAL},
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::AlertDescription;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::suites::BulkAlgorithm;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls13::key_schedule::hkdf_expand;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls13::{Tls13CipherSuite, TLS13_AES_128_GCM_SHA256_INTERNAL};
 
 <span class="doccomment">/// Secrets used to encrypt/decrypt traffic
 </span><span class="attr">#[derive(Clone, Debug)]
@@ -646,7 +645,8 @@
 
     <span class="doccomment">/// Consume unencrypted TLS handshake data.
     ///
-    /// Handshake data obtained from separate encryption levels should be supplied in separate calls.
+    /// Handshake data obtained from separate encryption levels should be supplied in separate
+    /// calls.
     </span><span class="kw">fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
     <span class="doccomment">/// Emit unencrypted TLS handshake data.
@@ -1032,10 +1032,10 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
+</span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>short_packet_header_protection() {
         <span class="comment">// https://www.rfc-editor.org/rfc/rfc9001.html#name-chacha20-poly1305-short-hea
 
@@ -1083,7 +1083,7 @@
         <span class="macro">assert_eq!</span>(plain, <span class="kw-2">&amp;</span>PLAIN[<span class="number">4</span>..]);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>key_update_test_vector() {
         <span class="kw">fn </span>equal_prk(x: <span class="kw-2">&amp;</span>hkdf::Prk, y: <span class="kw-2">&amp;</span>hkdf::Prk) -&gt; bool {
             <span class="kw">let </span><span class="kw-2">mut </span>x_data = [<span class="number">0</span>; <span class="number">16</span>];

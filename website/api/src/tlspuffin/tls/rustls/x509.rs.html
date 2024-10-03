@@ -91,6 +91,11 @@
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
 </pre></div><pre class="rust"><code><span class="comment">// Additional x509/asn1 functions to those provided in webpki/ring.
 
 </span><span class="kw">use </span>ring::io::der;
@@ -118,70 +123,75 @@
     bytes.insert(<span class="number">0</span>, der::Tag::Sequence <span class="kw">as </span>u8);
 }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_empty() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x00</span>], val);
-}
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_small() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    val.insert(<span class="number">0</span>, <span class="number">0x00</span>);
-    val.insert(<span class="number">1</span>, <span class="number">0x11</span>);
-    val.insert(<span class="number">2</span>, <span class="number">0x22</span>);
-    val.insert(<span class="number">3</span>, <span class="number">0x33</span>);
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x11</span>, <span class="number">0x22</span>, <span class="number">0x33</span>], val);
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_empty() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x00</span>], val);
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_medium() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    val.resize(<span class="number">255</span>, <span class="number">0x12</span>);
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x81</span>, <span class="number">0xff</span>, <span class="number">0x12</span>, <span class="number">0x12</span>, <span class="number">0x12</span>], val[..<span class="number">6</span>].to_vec());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_small() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        val.insert(<span class="number">0</span>, <span class="number">0x00</span>);
+        val.insert(<span class="number">1</span>, <span class="number">0x11</span>);
+        val.insert(<span class="number">2</span>, <span class="number">0x22</span>);
+        val.insert(<span class="number">3</span>, <span class="number">0x33</span>);
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x11</span>, <span class="number">0x22</span>, <span class="number">0x33</span>], val);
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_large() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    val.resize(<span class="number">4660</span>, <span class="number">0x12</span>);
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x82</span>, <span class="number">0x12</span>, <span class="number">0x34</span>, <span class="number">0x12</span>, <span class="number">0x12</span>], val[..<span class="number">6</span>].to_vec());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_medium() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        val.resize(<span class="number">255</span>, <span class="number">0x12</span>);
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x81</span>, <span class="number">0xff</span>, <span class="number">0x12</span>, <span class="number">0x12</span>, <span class="number">0x12</span>], val[..<span class="number">6</span>].to_vec());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_huge() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    val.resize(<span class="number">0xffff</span>, <span class="number">0x12</span>);
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x82</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0x12</span>, <span class="number">0x12</span>], val[..<span class="number">6</span>].to_vec());
-    <span class="macro">assert_eq!</span>(val.len(), <span class="number">0xffff </span>+ <span class="number">4</span>);
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_large() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        val.resize(<span class="number">4660</span>, <span class="number">0x12</span>);
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x82</span>, <span class="number">0x12</span>, <span class="number">0x34</span>, <span class="number">0x12</span>, <span class="number">0x12</span>], val[..<span class="number">6</span>].to_vec());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_gigantic() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    val.resize(<span class="number">0x100000</span>, <span class="number">0x12</span>);
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(
-        <span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x83</span>, <span class="number">0x10</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x12</span>, <span class="number">0x12</span>],
-        val[..<span class="number">7</span>].to_vec()
-    );
-    <span class="macro">assert_eq!</span>(val.len(), <span class="number">0x100000 </span>+ <span class="number">5</span>);
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_huge() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        val.resize(<span class="number">0xffff</span>, <span class="number">0x12</span>);
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x82</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0x12</span>, <span class="number">0x12</span>], val[..<span class="number">6</span>].to_vec());
+        <span class="macro">assert_eq!</span>(val.len(), <span class="number">0xffff </span>+ <span class="number">4</span>);
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_ludicrous() {
-    <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
-    val.resize(<span class="number">0x1000000</span>, <span class="number">0x12</span>);
-    wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
-    <span class="macro">assert_eq!</span>(
-        <span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x84</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x12</span>, <span class="number">0x12</span>],
-        val[..<span class="number">8</span>].to_vec()
-    );
-    <span class="macro">assert_eq!</span>(val.len(), <span class="number">0x1000000 </span>+ <span class="number">6</span>);
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_gigantic() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        val.resize(<span class="number">0x100000</span>, <span class="number">0x12</span>);
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x83</span>, <span class="number">0x10</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x12</span>, <span class="number">0x12</span>],
+            val[..<span class="number">7</span>].to_vec()
+        );
+        <span class="macro">assert_eq!</span>(val.len(), <span class="number">0x100000 </span>+ <span class="number">5</span>);
+    }
+
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>test_ludicrous() {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Vec::new();
+        val.resize(<span class="number">0x1000000</span>, <span class="number">0x12</span>);
+        wrap_in_sequence(<span class="kw-2">&amp;mut </span>val);
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">vec!</span>[<span class="number">0x30</span>, <span class="number">0x84</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x12</span>, <span class="number">0x12</span>],
+            val[..<span class="number">8</span>].to_vec()
+        );
+        <span class="macro">assert_eq!</span>(val.len(), <span class="number">0x1000000 </span>+ <span class="number">6</span>);
+    }
 }
 </code></pre></div></section></main></body></html>

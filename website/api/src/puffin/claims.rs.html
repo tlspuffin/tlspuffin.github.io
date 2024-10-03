@@ -101,20 +101,18 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    any::Any,
-    cell::{Ref, RefCell, RefMut},
-    fmt::Debug,
-    ops::Deref,
-    rc::Rc,
-    slice::Iter,
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::Any;
+<span class="kw">use </span>std::cell::{Ref, RefCell, RefMut};
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::ops::Deref;
+<span class="kw">use </span>std::rc::Rc;
+<span class="kw">use </span>std::slice::Iter;
 
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>log::{debug, trace};
 
-<span class="kw">use crate</span>::{agent::AgentName, algebra::dynamic_function::TypeShape, variable_data::VariableData};
+<span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
+<span class="kw">use </span><span class="kw">crate</span>::variable_data::VariableData;
 
 <span class="kw">pub trait </span>Claim: VariableData + Debug {
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName;
@@ -156,7 +154,7 @@
 <span class="kw">impl</span>&lt;C: Claim&gt; ClaimList&lt;C&gt; {
     <span class="kw">pub fn </span>log(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="comment">// TODO: skip logging completely during fuzzing -&gt; more performance
-        </span><span class="macro">debug!</span>(
+        </span><span class="macro">log::debug!</span>(
             <span class="string">"New Claims: {}"</span>,
             <span class="kw-2">&amp;</span><span class="self">self
                 </span>.claims
@@ -165,7 +163,7 @@
                 .join(<span class="string">", "</span>)
         );
         <span class="kw">for </span>claim <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.claims {
-            <span class="macro">trace!</span>(<span class="string">"{:?}"</span>, claim);
+            <span class="macro">log::trace!</span>(<span class="string">"{:?}"</span>, claim);
         }
     }
 }

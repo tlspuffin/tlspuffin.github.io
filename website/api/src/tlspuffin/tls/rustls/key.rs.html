@@ -75,10 +75,10 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
+</span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">super</span>::Certificate;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>certificate_debug() {
         <span class="macro">assert_eq!</span>(
             <span class="string">"Certificate([97, 98])"</span>,

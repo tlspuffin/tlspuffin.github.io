@@ -165,22 +165,12 @@
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    error::Error,
-    msgs::{
-        base::Payload,
-        enums::{ContentType, ProtocolVersion},
-        message::{BorrowedPlainMessage, PlainMessage},
-    },
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::Payload;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{ContentType, ProtocolVersion};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{BorrowedPlainMessage, PlainMessage};
 
 <span class="kw">pub const </span>MAX_FRAGMENT_LEN: usize = <span class="number">16384</span>;
 <span class="kw">pub const </span>PACKET_OVERHEAD: usize = <span class="number">1 </span>+ <span class="number">2 </span>+ <span class="number">2</span>;
@@ -256,11 +246,9 @@
     <span class="kw">use </span>std::collections::VecDeque;
 
     <span class="kw">use super</span>::{MessageFragmenter, PACKET_OVERHEAD};
-    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::{
-        base::Payload,
-        enums::{ContentType, ProtocolVersion},
-        message::PlainMessage,
-    };
+    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::Payload;
+    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{ContentType, ProtocolVersion};
+    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::PlainMessage;
 
     <span class="kw">fn </span>msg_eq(
         mm: <span class="prelude-ty">Option</span>&lt;PlainMessage&gt;,
@@ -279,7 +267,7 @@
         <span class="macro">assert_eq!</span>(total_len, buf.len());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>smoke() {
         <span class="kw">let </span>typ = ContentType::Handshake;
         <span class="kw">let </span>version = ProtocolVersion::TLSv1_2;
@@ -323,7 +311,7 @@
         <span class="macro">assert_eq!</span>(q.len(), <span class="number">0</span>);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>non_fragment() {
         <span class="kw">let </span>m = PlainMessage {
             typ: ContentType::Handshake,

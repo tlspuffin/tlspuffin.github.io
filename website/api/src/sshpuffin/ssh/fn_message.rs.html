@@ -56,7 +56,11 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::algebra::error::FnError;
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+</pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
+
+</span><span class="kw">use </span>puffin::algebra::error::FnError;
 
 <span class="kw">use </span><span class="kw">crate</span>::ssh::message::{
     CompressionAlgorithms, EncryptionAlgorithms, KexAlgorithms, KexEcdhReplyMessage,

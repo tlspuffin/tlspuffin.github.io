@@ -123,26 +123,14 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    collections::HashMap,
-    fmt::{Debug, Formatter},
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use </span>log::debug;
-
-<span class="kw">use crate</span>::{
-    agent::AgentDescriptor,
-    error::Error,
-    protocol::ProtocolBehavior,
-    put::{Put, PutName},
-    trace::TraceContext,
-};
+<span class="kw">use </span><span class="kw">crate</span>::agent::AgentDescriptor;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutName};
+<span class="kw">use </span><span class="kw">crate</span>::trace::TraceContext;
 
 <span class="kw">pub const </span>DUMMY_PUT: PutName = PutName([<span class="string">'D'</span>, <span class="string">'U'</span>, <span class="string">'M'</span>, <span class="string">'Y'</span>, <span class="string">'Y'</span>, <span class="string">'D'</span>, <span class="string">'U'</span>, <span class="string">'M'</span>, <span class="string">'M'</span>, <span class="string">'Y'</span>]);
 
@@ -164,8 +152,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; Debug <span class="kw">for </span>PutRegistry&lt;PB&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; fmt::Debug <span class="kw">for </span>PutRegistry&lt;PB&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         f.debug_struct(<span class="string">"PutRegistry (default only)"</span>)
             .field(<span class="string">"default"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.default().name())
             .finish()
@@ -212,14 +200,14 @@
 
     <span class="doccomment">/// To be called at the beginning of all fuzzing campaigns!
     </span><span class="kw">pub fn </span>determinism_set_reseed_all_factories(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">debug!</span>(<span class="string">"== Set and reseed all ({}):"</span>, <span class="self">self</span>.factories.len());
+        <span class="macro">log::debug!</span>(<span class="string">"== Set and reseed all ({}):"</span>, <span class="self">self</span>.factories.len());
         <span class="kw">for </span>(<span class="kw">_</span>, factory) <span class="kw">in </span><span class="self">self</span>.factories.iter() {
             factory.determinism_set_reseed();
         }
     }
 
     <span class="kw">pub fn </span>determinism_reseed_all_factories(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">debug!</span>(<span class="string">"== Reseed all ({}):"</span>, <span class="self">self</span>.factories.len());
+        <span class="macro">log::debug!</span>(<span class="string">"== Reseed all ({}):"</span>, <span class="self">self</span>.factories.len());
         <span class="kw">for </span>(<span class="kw">_</span>, factory) <span class="kw">in </span><span class="self">self</span>.factories.iter() {
             factory.determinism_reseed();
         }

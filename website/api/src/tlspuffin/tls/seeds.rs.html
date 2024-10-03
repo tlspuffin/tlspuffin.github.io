@@ -2338,34 +2338,20 @@
 <a href="#2338" id="2338">2338</a>
 <a href="#2339" id="2339">2339</a>
 <a href="#2340" id="2340">2340</a>
-<a href="#2341" id="2341">2341</a>
-<a href="#2342" id="2342">2342</a>
-<a href="#2343" id="2343">2343</a>
-<a href="#2344" id="2344">2344</a>
-<a href="#2345" id="2345">2345</a>
-<a href="#2346" id="2346">2346</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Implementation of  special traces. Each may represent a special TLS execution like a full
 //! handshake or an execution which crashes OpenSSL.
 </span><span class="attr">#![allow(dead_code)]
 
-</span><span class="kw">use </span>puffin::{
-    agent::{AgentDescriptor, AgentName, AgentType, TLSVersion},
-    algebra::Term,
-    term,
-    trace::{Action, InputAction, OutputAction, Step, Trace},
-};
+</span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
+<span class="kw">use </span>puffin::algebra::Term;
+<span class="kw">use </span>puffin::term;
+<span class="kw">use </span>puffin::trace::{Action, InputAction, OutputAction, Step, Trace};
 
-<span class="kw">use crate</span>::{
-    protocol::MessageFlight,
-    query::TlsQueryMatcher,
-    tls::{
-        fn_impl::<span class="kw-2">*</span>,
-        rustls::msgs::{
-            enums::{CipherSuite, Compression, HandshakeType, ProtocolVersion},
-            handshake::{Random, ServerExtension, SessionID},
-        },
-    },
-};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::MessageFlight;
+<span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::tls::fn_impl::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{CipherSuite, Compression, HandshakeType, ProtocolVersion};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{Random, ServerExtension, SessionID};
 
 <span class="kw">pub fn </span>seed_successful_client_auth(client: AgentName, server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
     Trace {
@@ -2531,7 +2517,8 @@
                     },
                 }),
             },
-            <span class="comment">// ServerHello/EncryptedExtensions/Certificate/CertificateVerify/ServerFinished -&gt; Client
+            <span class="comment">// ServerHello/EncryptedExtensions/Certificate/CertificateVerify/ServerFinished -&gt;
+            // Client
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
@@ -2582,7 +2569,8 @@
                     },
                 }),
             },
-            <span class="comment">// ServerHello/EncryptedExtensions/Certificate/CertificateVerify/ServerFinished -&gt; Client
+            <span class="comment">// ServerHello/EncryptedExtensions/Certificate/CertificateVerify/ServerFinished -&gt;
+            // Client
             </span>Step {
                 agent: client,
                 action: Action::Input(InputAction {
@@ -3468,7 +3456,8 @@
     (trace, client_verify_data)
 }
 
-<span class="comment">// TODO: `"Unable to find variable (Some(Agent(AgentName(0))), 1)[None]/MessageFlight!"` error with BoringSSL
+<span class="comment">// TODO: `"Unable to find variable (Some(Agent(AgentName(0))), 1)[None]/MessageFlight!"` error with
+// BoringSSL
 </span><span class="kw">pub fn </span>seed_session_resumption_dhe(
     initial_server: AgentName,
     server: AgentName,
@@ -3595,7 +3584,8 @@
     }
 }
 
-<span class="comment">// TODO: `Unable to find variable (Some(Agent(AgentName(0))), 1)[None]/MessageFlight!` error with BoringSSL
+<span class="comment">// TODO: `Unable to find variable (Some(Agent(AgentName(0))), 1)[None]/MessageFlight!` error with
+// BoringSSL
 </span><span class="kw">pub fn </span>seed_session_resumption_ke(
     initial_server: AgentName,
     server: AgentName,
@@ -4144,14 +4134,14 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>tests {
-
-    <span class="kw">use </span>puffin::{agent::AgentName, trace::Action};
-    <span class="kw">use </span>test_log::test;
+    <span class="kw">use </span>puffin::agent::AgentName;
+    <span class="kw">use </span>puffin::trace::Action;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use crate</span>::{put_registry::tls_registry, tls::trace_helper::TraceHelper};
+    <span class="kw">use </span><span class="kw">crate</span>::put_registry::tls_registry;
+    <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceHelper;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_version() {
         <span class="kw">for </span>(id, put) <span class="kw">in </span>tls_registry().puts() {
             <span class="macro">println!</span>(<span class="string">"({:?}) {}:"</span>, put.kind(), id);
@@ -4161,7 +4151,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"tls12"</span>)]
     </span><span class="kw">fn </span>test_seed_client_attacker12() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
@@ -4172,7 +4162,7 @@
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(feature = <span class="string">"transcript-extraction"</span>)] </span><span class="comment">// this depends on extracted transcripts -&gt; claims are required
-    </span><span class="attr">#[test]
+    </span><span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_seed_client_attacker() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4183,7 +4173,7 @@
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
     #[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_client_attacker_auth() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4192,7 +4182,7 @@
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
-    </span><span class="attr">#[test]
+    </span><span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_seed_client_attacker_full() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4202,7 +4192,7 @@
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_server_attacker_full() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4213,7 +4203,7 @@
     <span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(not(feature = <span class="string">"wolfssl-disable-postauth"</span>))]
     #[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_session_resumption_dhe() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4224,7 +4214,7 @@
     <span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(not(feature = <span class="string">"wolfssl-disable-postauth"</span>))]
     #[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_session_resumption_dhe_full() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4235,7 +4225,7 @@
     <span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(not(feature = <span class="string">"wolfssl-disable-postauth"</span>))]
     #[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_session_resumption_ke() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4245,7 +4235,7 @@
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_successful() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4255,7 +4245,7 @@
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_successful_client_auth() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4264,10 +4254,11 @@
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
-    </span><span class="attr">#[test]
+    </span><span class="attr">#[test_log::test]
     </span><span class="comment">// Cases:
-    // expected = "Not the best cipher choosen", // in case MITM attack succeeded because transcript is ignored -&gt; We detect the MITM and error
-    // expected = "decryption failed or bad record mac"  // in case MITM attack did fail
+    // expected = "Not the best cipher choosen", // in case MITM attack succeeded because transcript
+    // is ignored -&gt; We detect the MITM and error expected = "decryption failed or bad record
+    // mac"  // in case MITM attack did fail
     </span><span class="attr">#[should_panic]
     </span><span class="kw">fn </span>test_seed_successful_mitm() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
@@ -4278,7 +4269,7 @@
 
     <span class="attr">#[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_successful_with_ccs() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4290,7 +4281,7 @@
     // LibreSSL does not yet support PSK
     </span><span class="attr">#[cfg(all(feature = <span class="string">"tls13"</span>, feature = <span class="string">"tls13-session-resumption"</span>))]
     #[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_successful_with_tickets() {
         <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
@@ -4298,7 +4289,7 @@
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"tls12"</span>)]
     #[cfg(not(feature = <span class="string">"boringssl-binding"</span>))]
     </span><span class="kw">fn </span>test_seed_successful12() {
@@ -4311,7 +4302,7 @@
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_corpus_file_sizes() {
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>_server = client.next();
@@ -4320,7 +4311,8 @@
             <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span>trace.steps {
                 <span class="kw">match </span><span class="kw-2">&amp;</span>step.action {
                     Action::Input(input) =&gt; {
-                        <span class="comment">// should be below a certain threshold, else we should increase max_term_size in fuzzer setup
+                        <span class="comment">// should be below a certain threshold, else we should increase
+                        // max_term_size in fuzzer setup
                         </span><span class="kw">let </span>terms = input.recipe.size();
                         <span class="macro">assert!</span>(
                             terms &lt; <span class="number">300</span>,
@@ -4335,7 +4327,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_term_sizes() {
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>_server = client.next();
@@ -4360,7 +4352,8 @@
             <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span>trace.steps {
                 <span class="kw">match </span><span class="kw-2">&amp;</span>step.action {
                     Action::Input(input) =&gt; {
-                        <span class="comment">// should be below a certain threshold, else we should increase max_term_size in fuzzer setup
+                        <span class="comment">// should be below a certain threshold, else we should increase
+                        // max_term_size in fuzzer setup
                         </span><span class="kw">let </span>terms = input.recipe.size();
                         <span class="macro">assert!</span>(
                             terms &lt; <span class="number">300</span>,
@@ -4376,13 +4369,12 @@
     }
 
     <span class="kw">pub mod </span>serialization {
-        <span class="kw">use </span>puffin::{
-            algebra::{set_deserialize_signature, Matcher},
-            trace::Trace,
-        };
-        <span class="kw">use </span>test_log::test;
+        <span class="kw">use </span>puffin::algebra::{set_deserialize_signature, Matcher};
+        <span class="kw">use </span>puffin::trace::Trace;
 
-        <span class="kw">use </span><span class="kw">crate</span>::tls::{seeds::<span class="kw-2">*</span>, trace_helper::TraceHelper, TLS_SIGNATURE};
+        <span class="kw">use </span><span class="kw">crate</span>::tls::seeds::<span class="kw-2">*</span>;
+        <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceHelper;
+        <span class="kw">use </span><span class="kw">crate</span>::tls::TLS_SIGNATURE;
 
         <span class="kw">fn </span>test_postcard_serialization&lt;M: Matcher&gt;(trace: Trace&lt;M&gt;) {
             <span class="kw">let _ </span>= set_deserialize_signature(<span class="kw-2">&amp;</span>TLS_SIGNATURE);
@@ -4406,61 +4398,61 @@
             <span class="macro">assert_eq!</span>(serialized1, serialized2);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_seed_session_resumption_dhe_json() {
             <span class="kw">let </span>trace = seed_session_resumption_dhe.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_seed_session_resumption_ke_json() {
             <span class="kw">let </span>trace = seed_session_resumption_ke.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_client_attacker12_json() {
             <span class="kw">let </span>trace = seed_client_attacker12.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_successful_json() {
             <span class="kw">let </span>trace = seed_successful.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_successful_postcard() {
             <span class="kw">let </span>trace = seed_successful.build_trace();
             test_postcard_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_successful12_json() {
             <span class="kw">let </span>trace = seed_successful12.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_client_attacker_auth_json() {
             <span class="kw">let </span>trace = seed_client_attacker_auth.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_client_attacker_auth_postcard() {
             <span class="kw">let </span>trace = seed_client_attacker_auth.build_trace();
             test_postcard_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_server_attacker_full_json() {
             <span class="kw">let </span>trace = seed_server_attacker_full.build_trace();
             test_json_serialization(trace);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_serialisation_seed_server_attacker_full_postcard() {
             <span class="kw">let </span>trace = seed_server_attacker_full.build_trace();
             test_postcard_serialization(trace);
@@ -4468,25 +4460,21 @@
     }
 
     <span class="kw">pub mod </span>rustls {
-        <span class="kw">use </span>std::convert::TryFrom;
-
         <span class="kw">use </span>puffin::codec::Reader;
-        <span class="kw">use </span>test_log::test;
 
-        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::{
-            base::Payload,
-            enums::{ContentType, HandshakeType, ProtocolVersion},
-            handshake::{
-                ClientHelloPayload, HandshakeMessagePayload, HandshakePayload, Random, SessionID,
-            },
-            message::{Message, MessagePayload::Handshake, OpaqueMessage, PlainMessage},
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::Payload;
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{ContentType, HandshakeType, ProtocolVersion};
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
+            ClientHelloPayload, HandshakeMessagePayload, HandshakePayload, Random, SessionID,
         };
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::MessagePayload::Handshake;
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, OpaqueMessage, PlainMessage};
 
         <span class="kw">fn </span>create_message(opaque_message: OpaqueMessage) -&gt; Message {
             Message::try_from(opaque_message.into_plain_message()).unwrap()
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_rustls_message_stability_ch() {
             <span class="kw">let </span>hello_client_hex = <span class="string">"1603010136010001320303aa1795f64f48fcfcd0121368f88f176fe2570b07\
         68bbc85e9f2c80c557553d7d20e1e15d0028932f4f7479cf256302b7847d81a68e708525f9d38d94fc6ef742a30\
@@ -4504,7 +4492,7 @@
             create_message(opaque_message);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_heartbleed_ch() {
             <span class="comment">// Derived from "openssl s_client -msg -connect localhost:44330" and then pressing R
             </span><span class="kw">let </span>hello_client_hex = <span class="string">"
@@ -4533,7 +4521,7 @@
             create_message(opaque_message);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_rustls_message_stability_ch_renegotiation() {
             <span class="comment">// Derived from "openssl s_client -msg -connect localhost:44330" and then pressing R
             </span><span class="kw">let </span>hello_client_hex = <span class="string">"16030300cc\
@@ -4552,7 +4540,7 @@
         }
 
         <span class="doccomment">/// https://github.com/tlspuffin/rustls/commit/d5d26a119f5a0edee43ebcd77f3bbae8bbd1db7d
-        </span><span class="attr">#[test]
+        </span><span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_server_hello_parsing() {
             <span class="kw">let </span>hex = <span class="string">"160303004a020000460303de257a3941501c11fa7898af1b1b2aea4f5e39e521b35dc84ffab\
         e830e9a98ec20e1cb49645b1cd6e2d0aa5c87b5a3837bcf33334e96c37a77a79c9df63413dc15c02f00"</span>;
@@ -4561,7 +4549,7 @@
             create_message(opaque_message);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_encrypted_tls12_messages() {
             <span class="kw">let </span>hexn = <span class="macro">vec!</span>[
                 <span class="string">"1603030028155e38ddd323ca97440b4bb44fe810e9f4d10e5280795ca0660c7d8c8dddcd95355538a3d2cc0256"</span>,
@@ -4581,7 +4569,7 @@
             }
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_rustls_message_stability_cert() {
             <span class="kw">let </span>cert_hex = <span class="string">"16030309b50b0009b1000009ad00053a308205363082041ea00302010202120400ca59\
         61d39c1622093596f2132488f93e300d06092a864886f70d01010b05003032310b3009060355040613025553311\
@@ -4648,7 +4636,7 @@
             create_message(opaque_message);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_encrypted_tls12_into_message() {
             <span class="kw">let </span>opaque_message = OpaqueMessage {
                 typ: ContentType::Handshake,
@@ -4659,7 +4647,7 @@
             create_message(opaque_message);
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         </span><span class="kw">fn </span>test_rustls_message_stability() {
             <span class="kw">let </span>random = [<span class="number">0u8</span>; <span class="number">32</span>];
             <span class="kw">let </span>message = Message {

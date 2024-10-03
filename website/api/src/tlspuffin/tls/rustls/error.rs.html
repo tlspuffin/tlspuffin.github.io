@@ -272,12 +272,12 @@
 <a href="#272" id="272">272</a>
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{error::Error <span class="kw">as </span>StdError, fmt, time::SystemTimeError};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::time::SystemTimeError;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    msgs::enums::{AlertDescription, ContentType, HandshakeType},
-    rand,
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{AlertDescription, ContentType, HandshakeType};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::rand;
 
 <span class="doccomment">/// Context around a corrupt TLS message payload that resulted in
 /// an error.
@@ -483,7 +483,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::{CorruptMessagePayload, Error};
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>smoke() {
         <span class="kw">use </span>sct;
 
@@ -528,14 +528,14 @@
         }*/
     </span>}
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>rand_error_mapping() {
         <span class="kw">use </span><span class="kw">super</span>::rand;
         <span class="kw">let </span>err: Error = rand::GetRandomFailed.into();
         <span class="macro">assert_eq!</span>(err, Error::FailedToGetRandomBytes);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>time_error_mapping() {
         <span class="kw">use </span>std::time::SystemTime;
 

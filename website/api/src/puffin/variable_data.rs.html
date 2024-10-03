@@ -33,15 +33,11 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Definition of the VariableData trait. A VariableData can contain any data which has a `'static`
 //! type.
 
-</span><span class="kw">use </span>std::{
-    any::{Any, TypeId},
-    fmt::Debug,
-};
+</span><span class="kw">use </span>std::any::{Any, TypeId};
+<span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">pub trait </span>VariableData: Debug {
     <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&gt;;

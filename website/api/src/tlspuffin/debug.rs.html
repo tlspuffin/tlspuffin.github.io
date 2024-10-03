@@ -73,13 +73,7 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::convert::TryFrom;
-
-<span class="kw">use </span>log::debug;
-<span class="kw">use </span>puffin::codec::Reader;
+</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::Reader;
 
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage};
 
@@ -95,14 +89,14 @@
                 debug_message_with_info(info, <span class="kw-2">&amp;</span>message);
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">debug!</span>(
+                <span class="macro">log::debug!</span>(
                     <span class="string">"Failed to debug message as decoding to an Message failed: {}"</span>,
                     err
                 );
             }
         },
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">debug!</span>(
+            <span class="macro">log::debug!</span>(
                 <span class="string">"Failed to debug message as decoding to an OpaqueMessage failed: {:?}"</span>,
                 err
             );
@@ -115,7 +109,7 @@
 }
 
 <span class="kw">pub fn </span>debug_opaque_message_with_info(info: <span class="kw-2">&amp;</span>str, message: <span class="kw-2">&amp;</span>OpaqueMessage) {
-    <span class="macro">debug!</span>(
+    <span class="macro">log::debug!</span>(
         <span class="string">"{}Opaque Message  ({} bytes) ({:?}): {:?}"</span>,
         <span class="kw">if </span>info.is_empty() {
             info.to_string()
@@ -143,7 +137,7 @@
         MessagePayload::Heartbeat(<span class="kw">_</span>) =&gt; <span class="string">"Heartbeat"</span>.to_string(),
     };
 
-    <span class="macro">debug!</span>(
+    <span class="macro">log::debug!</span>(
         <span class="string">"{}Message ({:?}): {}"</span>,
         <span class="kw">if </span>info.is_empty() {
             info.to_string()

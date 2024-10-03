@@ -201,15 +201,13 @@
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
 <a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{any::Any, fmt::Debug};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::Any;
+<span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">use </span>puffin::{
-    agent::{AgentName, AgentType, TLSVersion},
-    algebra::dynamic_function::TypeShape,
-    claims::Claim,
-    variable_data::VariableData,
-};
+<span class="kw">use </span>puffin::agent::{AgentName, AgentType, TLSVersion};
+<span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
+<span class="kw">use </span>puffin::claims::Claim;
+<span class="kw">use </span>puffin::variable_data::VariableData;
 <span class="kw">use </span>smallvec::SmallVec;
 
 <span class="attr">#[derive(Debug, Clone)]

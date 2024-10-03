@@ -221,25 +221,21 @@
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! [`Agent`]s represent communication participants like Alice, Bob or Eve. Attackers are usually
-//! not represented by these [`Agent`]s.
-//! Attackers are represented through a recipe term (see [`crate::trace::InputAction`]).
+</pre></div><pre class="rust"><code><span class="doccomment">//! [`Agent`]s represent communication participants like Alice, Bob or Eve.
+//!
+//! Note that attackers are usually not represented by these [`Agent`]s but instead through a recipe
+//! term (see [`crate::trace::InputAction`]).
 //!
 //! Each [`Agent`] has an *inbound* and an *outbound* channel (see [`crate::stream`])
 
 </span><span class="kw">use </span>core::fmt;
-<span class="kw">use </span>std::fmt::{Debug, Formatter};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use crate</span>::{
-    error::Error,
-    protocol::ProtocolBehavior,
-    put::{Put, PutDescriptor},
-    trace::TraceContext,
-};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutDescriptor};
+<span class="kw">use </span><span class="kw">crate</span>::trace::TraceContext;
 
 <span class="doccomment">/// Copyable reference to an [`Agent`]. It identifies exactly one agent.
 </span><span class="attr">#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -377,8 +373,8 @@
     put_descriptor: PutDescriptor,
 }
 
-<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; Debug <span class="kw">for </span>Agent&lt;PB&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; fmt::Debug <span class="kw">for </span>Agent&lt;PB&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"Agent"</span>)
             .field(<span class="string">"name"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.name)
             .field(<span class="string">"put"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.put.describe_state())

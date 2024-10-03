@@ -93,23 +93,15 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Generates a zoo of terms form a [`Signature`]. For each function symbol in the signature
 //! a closed term is generated and added to the zoo.
 
 </span><span class="kw">use </span>libafl_bolts::rands::Rand;
 
-<span class="kw">use crate</span>::{
-    algebra::{
-        atoms::Function,
-        signature::{FunctionDefinition, Signature},
-        Matcher, Term,
-    },
-    fuzzer::mutations::util::Choosable,
-};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Function;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::signature::{FunctionDefinition, Signature};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Term};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::util::Choosable;
 
 <span class="kw">const </span>MAX_DEPTH: u16 = <span class="number">8</span>; <span class="comment">// how deep terms we allow max
 </span><span class="kw">const </span>MAX_TRIES: u16 = <span class="number">100</span>; <span class="comment">// How often we want to try to generate before stopping

@@ -15,11 +15,13 @@
 <a href="#15" id="15">15</a>
 <a href="#16" id="16">16</a>
 <a href="#17" id="17">17</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
+<a href="#18" id="18">18</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>puffin::{
-    agent::AgentDescriptor, algebra::dynamic_function::TypeShape, claims::GlobalClaimList,
-};
+<span class="kw">use </span>puffin::agent::AgentDescriptor;
+<span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
+<span class="kw">use </span>puffin::claims::GlobalClaimList;
 
 <span class="kw">use </span><span class="kw">crate</span>::claims::TlsClaim;
 

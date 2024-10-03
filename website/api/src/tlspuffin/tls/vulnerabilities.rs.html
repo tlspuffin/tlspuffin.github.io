@@ -1359,37 +1359,17 @@
 <a href="#1359" id="1359">1359</a>
 <a href="#1360" id="1360">1360</a>
 <a href="#1361" id="1361">1361</a>
-<a href="#1362" id="1362">1362</a>
-<a href="#1363" id="1363">1363</a>
-<a href="#1364" id="1364">1364</a>
-<a href="#1365" id="1365">1365</a>
-<a href="#1366" id="1366">1366</a>
-<a href="#1367" id="1367">1367</a>
-<a href="#1368" id="1368">1368</a>
-<a href="#1369" id="1369">1369</a>
-<a href="#1370" id="1370">1370</a>
-<a href="#1371" id="1371">1371</a>
-<a href="#1372" id="1372">1372</a>
-<a href="#1373" id="1373">1373</a>
-<a href="#1374" id="1374">1374</a>
-<a href="#1375" id="1375">1375</a>
-<a href="#1376" id="1376">1376</a>
-<a href="#1377" id="1377">1377</a>
-<a href="#1378" id="1378">1378</a>
-<a href="#1379" id="1379">1379</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
-</span><span class="kw">use </span>puffin::{
-    agent::{AgentDescriptor, AgentName, AgentType, TLSVersion},
-    term,
-    trace::{Action, InputAction, OutputAction, Step, Trace},
-};
+</span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
+<span class="kw">use </span>puffin::term;
+<span class="kw">use </span>puffin::trace::{Action, InputAction, OutputAction, Step, Trace};
 
-<span class="kw">use crate</span>::{
-    protocol::MessageFlight,
-    query::TlsQueryMatcher,
-    tls::{fn_impl::<span class="kw-2">*</span>, rustls::msgs::enums::HandshakeType, seeds::<span class="kw-2">*</span>},
-};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::MessageFlight;
+<span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::tls::fn_impl::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::HandshakeType;
+<span class="kw">use </span><span class="kw">crate</span>::tls::seeds::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// &lt;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25638&gt;
 </span><span class="kw">pub fn </span>seed_cve_2022_25638(server: AgentName) -&gt; Trace&lt;TlsQueryMatcher&gt; {
@@ -2193,9 +2173,10 @@
         </span>prior_traces: <span class="macro">vec!</span>[initial_handshake],
         descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
-            <span class="comment">// Step 2: sends a Client Hello (CH2) with a missing support_group_extension that will make the server
-            // enters the state `SERVER_HELLO_RETRY_REQUEST_COMPLETE` and with PSK resuming previous session.
-            // CH2 includes a list of repeated ciphers that will be stored in ssl-&gt;suites-&gt;suites.
+            <span class="comment">// Step 2: sends a Client Hello (CH2) with a missing support_group_extension that will
+            // make the server enters the state `SERVER_HELLO_RETRY_REQUEST_COMPLETE`
+            // and with PSK resuming previous session. CH2 includes a list of repeated
+            // ciphers that will be stored in ssl-&gt;suites-&gt;suites.
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
@@ -2204,12 +2185,14 @@
                     },
                 }),
             },
-            <span class="comment">// Step 3: sends a Client Hello (CH3) with a missing support_group_extension that will keep the server
-            // in the state `SERVER_HELLO_RETRY_REQUEST_COMPLETE` and with PSK resuming previous session.
-            // CH3 includes a list of repeated ciphers that will be matched against ssl-&gt;suites-&gt;suites.
-            // Since ssl-&gt;suites-&gt;suites already contain repeated ciphers, the function refineSuites in tls13.c
-            // will wrongly consider all pairs leading to an explosion of sizeSz and the buffer overflow.
-            // Note: CH3 could also include support_group_extension.
+            <span class="comment">// Step 3: sends a Client Hello (CH3) with a missing support_group_extension that will
+            // keep the server in the state `SERVER_HELLO_RETRY_REQUEST_COMPLETE` and
+            // with PSK resuming previous session. CH3 includes a list of repeated
+            // ciphers that will be matched against ssl-&gt;suites-&gt;suites.
+            // Since ssl-&gt;suites-&gt;suites already contain repeated ciphers, the function
+            // refineSuites in tls13.c will wrongly consider all pairs leading to an
+            // explosion of sizeSz and the buffer overflow. Note: CH3 could also
+            // include support_group_extension.
             </span>Step {
                 agent: server,
                 action: Action::Input(InputAction {
@@ -2451,12 +2434,10 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>tests {
+    <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceHelper;
+    <span class="kw">use </span><span class="kw">crate</span>::tls::vulnerabilities::<span class="kw-2">*</span>;
 
-    <span class="kw">use </span>test_log::test;
-
-    <span class="kw">use </span><span class="kw">crate</span>::tls::{trace_helper::TraceHelper, vulnerabilities::<span class="kw-2">*</span>};
-
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_term_sizes() {
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>_server = client.next();
@@ -2476,7 +2457,8 @@
             <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span>trace.steps {
                 <span class="kw">match </span><span class="kw-2">&amp;</span>step.action {
                     Action::Input(input) =&gt; {
-                        <span class="comment">// should be below a certain threshold, else we should increase max_term_size in fuzzer setup
+                        <span class="comment">// should be below a certain threshold, else we should increase
+                        // max_term_size in fuzzer setup
                         </span><span class="kw">let </span>terms = input.recipe.size();
                         <span class="macro">assert!</span>(
                             terms &lt; <span class="number">300</span>,
@@ -2494,16 +2476,14 @@
     <span class="comment">// Vulnerable up until OpenSSL 1.0.1j
     </span><span class="attr">#[cfg(all(feature = <span class="string">"openssl101-binding"</span>, feature = <span class="string">"asan"</span>))]
     #[cfg(feature = <span class="string">"tls12"</span>)]
-    #[test]
+    #[test_log::test]
     #[ignore] </span><span class="comment">// We cannot check for this vulnerability right now
     </span><span class="kw">fn </span>test_seed_freak() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
         <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
 
         expect_trace_crash(
             seed_freak.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
@@ -2511,37 +2491,33 @@
 
     <span class="attr">#[cfg(all(feature = <span class="string">"openssl101-binding"</span>, feature = <span class="string">"asan"</span>))]
     #[cfg(feature = <span class="string">"tls12"</span>)]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_heartbleed() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
         <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
 
         expect_trace_crash(
             seed_heartbleed.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"openssl111j"</span>)]
     #[cfg(feature = <span class="string">"tls12"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2021_3449() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
         <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
 
         expect_trace_crash(
             seed_cve_2021_3449.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"wolfssl510"</span>)]
     #[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
@@ -2554,7 +2530,7 @@
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"wolfssl510"</span>)]
     #[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
@@ -2567,7 +2543,7 @@
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"wolfssl510"</span>)]
     #[cfg(feature = <span class="string">"tls13"</span>)] </span><span class="comment">// require version which supports TLS 1.3
     </span><span class="attr">#[cfg(feature = <span class="string">"client-authentication-transcript-extraction"</span>)]
@@ -2580,7 +2556,7 @@
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"tls12"</span>)]
     #[cfg(feature = <span class="string">"wolfssl540"</span>)]
     #[cfg(feature = <span class="string">"wolfssl-disable-postauth"</span>)]
@@ -2597,14 +2573,13 @@
         );
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[cfg(feature = <span class="string">"tls12"</span>)]
     #[cfg(feature = <span class="string">"tls12-session-resumption"</span>)]
     #[cfg(feature = <span class="string">"wolfssl530"</span>)]
     </span><span class="kw">fn </span>test_seed_cve_2022_38153() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
-        <span class="kw">use crate</span>::{test_utils::expect_trace_crash, tls::trace_helper::TraceExecutor};
+        <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
+        <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceExecutor;
 
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">50 </span>{
             <span class="kw">crate</span>::tls::seeds::seed_successful12_with_tickets.execute_trace();
@@ -2612,7 +2587,7 @@
 
         expect_trace_crash(
             seed_cve_2022_38153.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
@@ -2624,15 +2599,13 @@
         feature = <span class="string">"asan"
     </span>))]
     #[cfg(not(feature = <span class="string">"fix-CVE-2022-39173"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_cve_2022_39173() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
         <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
 
         expect_trace_crash(
             seed_cve_2022_39173.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
@@ -2644,15 +2617,13 @@
         feature = <span class="string">"asan"
     </span>))]
     #[cfg(not(feature = <span class="string">"fix-CVE-2022-39173"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_cve_2022_39173_full() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
         <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
 
         expect_trace_crash(
             seed_cve_2022_39173_full.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
@@ -2664,35 +2635,28 @@
         feature = <span class="string">"asan"
     </span>))]
     #[cfg(not(feature = <span class="string">"fix-CVE-2022-39173"</span>))]
-    #[test]
+    #[test_log::test]
     </span><span class="kw">fn </span>test_seed_cve_2022_39173_minimized() {
-        <span class="kw">use </span>puffin::put::PutOptions;
-
         <span class="kw">use </span><span class="kw">crate</span>::test_utils::expect_trace_crash;
 
         expect_trace_crash(
             seed_cve_2022_39173_minimized.build_trace(),
-            PutOptions::default(),
+            Default::default(),
             <span class="prelude-val">Some</span>(std::time::Duration::from_secs(<span class="number">20</span>)),
             <span class="prelude-val">Some</span>(<span class="number">20</span>),
         );
     }
 
     <span class="kw">mod </span>tcp {
-        <span class="kw">use </span>log::info;
-        <span class="kw">use </span>puffin::{
-            agent::{AgentName, TLSVersion},
-            put::PutDescriptor,
-        };
-        <span class="kw">use </span>test_log::test;
+        <span class="kw">use </span>puffin::agent::{AgentName, TLSVersion};
+        <span class="kw">use </span>puffin::put::PutDescriptor;
 
-        <span class="kw">use crate</span>::{
-            put_registry::{tls_registry, TCP_PUT},
-            tcp::tcp_puts::{openssl_server, wolfssl_client, wolfssl_server},
-            tls::{trace_helper::TraceHelper, vulnerabilities::<span class="kw-2">*</span>},
-        };
+        <span class="kw">use </span><span class="kw">crate</span>::put_registry::{tls_registry, TCP_PUT};
+        <span class="kw">use </span><span class="kw">crate</span>::tcp::tcp_puts::{openssl_server, wolfssl_client, wolfssl_server};
+        <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceHelper;
+        <span class="kw">use </span><span class="kw">crate</span>::tls::vulnerabilities::<span class="kw-2">*</span>;
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         #[ignore] </span><span class="comment">// wolfssl example server and client are not available in CI
         </span><span class="kw">fn </span>test_wolfssl_openssl_test_seed_cve_2022_38153() {
             <span class="kw">let </span>port = <span class="number">44336</span>;
@@ -2725,11 +2689,11 @@
 
             <span class="kw">let </span>client = AgentName::first();
             <span class="kw">let </span>shutdown = context.find_agent_mut(client).unwrap().put_mut().shutdown();
-            <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+            <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
             <span class="macro">assert!</span>(shutdown.contains(<span class="string">"free(): invalid pointer"</span>));
         }
 
-        <span class="attr">#[test]
+        <span class="attr">#[test_log::test]
         #[ignore] </span><span class="comment">// wolfssl example server and client are not available in CI
         </span><span class="kw">fn </span>test_wolfssl_cve_2022_39173() {
             <span class="kw">let </span>port = <span class="number">44338</span>;
@@ -2752,7 +2716,7 @@
 
             <span class="kw">let </span>server = AgentName::first().next();
             <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-            <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+            <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         }
     }
 }

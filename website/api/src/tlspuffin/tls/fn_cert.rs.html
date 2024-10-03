@@ -185,30 +185,26 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+</pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
+
+</span><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>puffin::algebra::error::FnError;
 <span class="kw">use </span>ring::signature::{RsaKeyPair, ECDSA_P256_SHA256_ASN1_SIGNING};
 
-<span class="kw">use crate</span>::{
-    static_certs::{
-        ALICE_CERT, ALICE_PRIVATE_KEY, BOB_CERT, BOB_PRIVATE_KEY, EVE_CERT, RANDOM_EC_CERT,
-    },
-    tls::rustls::{
-        hash_hs::HandshakeHash,
-        key::{Certificate, PrivateKey},
-        msgs::{
-            enums::SignatureScheme,
-            handshake::{CertificateEntry, CertificateExtensions, HandshakePayload},
-            message::{Message, MessagePayload},
-        },
-        sign::{EcdsaSigningKey, RsaSigner, SigningKey},
-        verify::{
-            construct_tls13_client_verify_message_raw, construct_tls13_server_verify_message_raw,
-        },
-    },
+<span class="kw">use </span><span class="kw">crate</span>::static_certs::{
+    ALICE_CERT, ALICE_PRIVATE_KEY, BOB_CERT, BOB_PRIVATE_KEY, EVE_CERT, RANDOM_EC_CERT,
+};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key::{Certificate, PrivateKey};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::SignatureScheme;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
+    CertificateEntry, CertificateExtensions, HandshakePayload,
+};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::sign::{EcdsaSigningKey, RsaSigner, SigningKey};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::verify::{
+    construct_tls13_client_verify_message_raw, construct_tls13_server_verify_message_raw,
 };
 
 <span class="kw">pub fn </span>fn_bob_cert() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {

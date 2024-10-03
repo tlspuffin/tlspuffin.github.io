@@ -667,22 +667,12 @@
 <a href="#667" id="667">667</a>
 <a href="#668" id="668">668</a>
 <a href="#669" id="669">669</a>
-<a href="#670" id="670">670</a>
-<a href="#671" id="671">671</a>
-<a href="#672" id="672">672</a>
-<a href="#673" id="673">673</a>
-<a href="#674" id="674">674</a>
-<a href="#675" id="675">675</a>
-<a href="#676" id="676">676</a>
-<a href="#677" id="677">677</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    ffi::{c_char, c_void, CStr, CString},
-    mem,
-    os::{raw::c_int, unix::io::RawFd},
-    ptr,
-    ptr::null,
-    time::Duration,
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::{c_char, c_void, CStr, CString};
+<span class="kw">use </span>std::os::raw::c_int;
+<span class="kw">use </span>std::os::unix::io::RawFd;
+<span class="kw">use </span>std::ptr::null;
+<span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>std::{mem, ptr};
 
 <span class="kw">use </span>foreign_types::{foreign_type, ForeignType, ForeignTypeRef};
 <span class="kw">use </span>libssh_sys::{<span class="self">self</span>, ssh_options_e};
@@ -740,6 +730,7 @@
     </span><span class="kw">pub fn </span>session_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SessionState {
         <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.as_ptr()).session_state }
     }
+
     <span class="kw">pub fn </span>auth_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AuthState {
         <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.as_ptr()).auth.state }
     }
@@ -811,11 +802,7 @@
                 <span class="prelude-val">Some</span>(username) =&gt; username.as_ptr(),
             };
             cvt_auth(
-                libssh_sys::ssh_userauth_password(
-                    <span class="self">self</span>.as_ptr(),
-                    username,
-                    password.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>i8,
-                ),
+                libssh_sys::ssh_userauth_password(<span class="self">self</span>.as_ptr(), username, password.as_ptr()),
                 <span class="self">self</span>,
             )
         }
@@ -1020,6 +1007,7 @@
             ))
         }
     }
+
     <span class="doccomment">/// `ssh_message_auth_user`
     </span><span class="kw">pub fn </span>auth_user(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="kw">unsafe </span>{
@@ -1166,13 +1154,9 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>std::{
-        fs,
-        os::unix::{
-            io::IntoRawFd,
-            net::{UnixListener, UnixStream},
-        },
-    };
+    <span class="kw">use </span>std::fs;
+    <span class="kw">use </span>std::os::unix::io::IntoRawFd;
+    <span class="kw">use </span>std::os::unix::net::{UnixListener, UnixStream};
 
     <span class="kw">use </span><span class="kw">crate</span>::libssh::ssh::{
         set_log_level, SessionOption, SshBind, SshBindOption, SshKey, SshSession,
@@ -1217,7 +1201,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
 -----END OPENSSH PRIVATE KEY-----
 "</span>;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test() {
         set_log_level(<span class="number">100</span>);
 

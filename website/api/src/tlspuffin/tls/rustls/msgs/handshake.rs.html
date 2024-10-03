@@ -2332,36 +2332,18 @@
 <a href="#2332" id="2332">2332</a>
 <a href="#2333" id="2333">2333</a>
 <a href="#2334" id="2334">2334</a>
-<a href="#2335" id="2335">2335</a>
-<a href="#2336" id="2336">2336</a>
-<a href="#2337" id="2337">2337</a>
-<a href="#2338" id="2338">2338</a>
-<a href="#2339" id="2339">2339</a>
-<a href="#2340" id="2340">2340</a>
-<a href="#2341" id="2341">2341</a>
-<a href="#2342" id="2342">2342</a>
-<a href="#2343" id="2343">2343</a>
-<a href="#2344" id="2344">2344</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections, fmt};
 
-<span class="kw">use </span>puffin::{
-    codec,
-    codec::{Codec, Reader},
-};
+<span class="kw">use </span>puffin::codec;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    key,
-    msgs::{
-        base::{Payload, PayloadU16, PayloadU24, PayloadU8},
-        enums::{
-            CertificateStatusType, CipherSuite, ClientCertificateType, Compression, ECCurveType,
-            ECPointFormat, ExtensionType, HandshakeType, HashAlgorithm, KeyUpdateRequest,
-            NamedGroup, PSKKeyExchangeMode, ProtocolVersion, ServerNameType, SignatureAlgorithm,
-            SignatureScheme,
-        },
-    },
-    rand,
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::{Payload, PayloadU16, PayloadU24, PayloadU8};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{
+    CertificateStatusType, CipherSuite, ClientCertificateType, Compression, ECCurveType,
+    ECPointFormat, ExtensionType, HandshakeType, HashAlgorithm, KeyUpdateRequest, NamedGroup,
+    PSKKeyExchangeMode, ProtocolVersion, ServerNameType, SignatureAlgorithm, SignatureScheme,
 };
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{key, rand};
 
 <span class="macro">macro_rules!</span> declare_u8_vec (
   (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$itemtype</span>:ty) =&gt; {
@@ -2573,10 +2555,8 @@
     }
 
     <span class="kw">fn </span>make(alg: SignatureAlgorithm, hash: HashAlgorithm) -&gt; SignatureScheme {
-        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{
-            HashAlgorithm::{SHA1, SHA256, SHA384, SHA512},
-            SignatureAlgorithm::{ECDSA, RSA},
-        };
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::HashAlgorithm::{SHA1, SHA256, SHA384, SHA512};
+        <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::SignatureAlgorithm::{ECDSA, RSA};
 
         <span class="kw">match </span>(alg, hash) {
             (RSA, SHA1) =&gt; <span class="self">Self</span>::RSA_PKCS1_SHA1,

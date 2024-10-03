@@ -660,49 +660,33 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
-<a href="#663" id="663">663</a>
-<a href="#664" id="664">664</a>
-<a href="#665" id="665">665</a>
-<a href="#666" id="666">666</a>
-<a href="#667" id="667">667</a>
-<a href="#668" id="668">668</a>
-<a href="#669" id="669">669</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>log::debug;
-<span class="kw">use </span>puffin::{
-    algebra::{signature::Signature, Matcher},
-    codec::{Codec, Reader},
-    error::Error,
-    protocol::{
-        ExtractKnowledge, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
-        ProtocolMessage, ProtocolMessageDeframer, ProtocolMessageFlight,
-    },
-    trace::{Knowledge, Source, Trace},
+</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::algebra::signature::Signature;
+<span class="kw">use </span>puffin::algebra::Matcher;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
+<span class="kw">use </span>puffin::error::Error;
+<span class="kw">use </span>puffin::protocol::{
+    ExtractKnowledge, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
+    ProtocolMessage, ProtocolMessageDeframer, ProtocolMessageFlight,
 };
+<span class="kw">use </span>puffin::trace::{Knowledge, Source, Trace};
 
-<span class="kw">use crate</span>::{
-    claims::TlsClaim,
-    debug::{debug_message_with_info, debug_opaque_message_with_info},
-    query::TlsQueryMatcher,
-    tls::{
-        rustls::msgs::{
-            <span class="self">self</span>,
-            alert::AlertMessagePayload,
-            base::Payload,
-            ccs::ChangeCipherSpecPayload,
-            deframer::MessageDeframer,
-            handshake::{
-                CertificatePayload, ClientHelloPayload, ECDHEServerKeyExchange,
-                HandshakeMessagePayload, HandshakePayload, NewSessionTicketPayload,
-                ServerHelloPayload, ServerKeyExchangePayload,
-            },
-            heartbeat::HeartbeatPayload,
-            message::{Message, MessagePayload, OpaqueMessage},
-        },
-        seeds::create_corpus,
-        violation::TlsSecurityViolationPolicy,
-        TLS_SIGNATURE,
-    },
+<span class="kw">use </span><span class="kw">crate</span>::claims::TlsClaim;
+<span class="kw">use </span><span class="kw">crate</span>::debug::{debug_message_with_info, debug_opaque_message_with_info};
+<span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::alert::AlertMessagePayload;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::Payload;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::ccs::ChangeCipherSpecPayload;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::deframer::MessageDeframer;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
+    CertificatePayload, ClientHelloPayload, ECDHEServerKeyExchange, HandshakeMessagePayload,
+    HandshakePayload, NewSessionTicketPayload, ServerHelloPayload, ServerKeyExchangePayload,
 };
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::heartbeat::HeartbeatPayload;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::{<span class="self">self</span>};
+<span class="kw">use </span><span class="kw">crate</span>::tls::seeds::create_corpus;
+<span class="kw">use </span><span class="kw">crate</span>::tls::violation::TlsSecurityViolationPolicy;
+<span class="kw">use </span><span class="kw">crate</span>::tls::TLS_SIGNATURE;
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>MessageFlight {
@@ -721,7 +705,7 @@
     }
 
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str) {
-        <span class="macro">debug!</span>(<span class="string">"{}: {:?}"</span>, info, <span class="self">self</span>);
+        <span class="macro">log::debug!</span>(<span class="string">"{}: {:?}"</span>, info, <span class="self">self</span>);
     }
 }
 
@@ -748,7 +732,7 @@
     }
 
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str) {
-        <span class="macro">debug!</span>(<span class="string">"{}: {:?}"</span>, info, <span class="self">self</span>);
+        <span class="macro">log::debug!</span>(<span class="string">"{}: {:?}"</span>, info, <span class="self">self</span>);
     }
 }
 
@@ -794,7 +778,7 @@
                 .collect(),
         };
 
-        <span class="kw">if </span>flight.messages.len() == <span class="number">0 </span>{
+        <span class="kw">if </span>flight.messages.is_empty() {
             <span class="prelude-val">Err</span>(())
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(flight)
@@ -814,6 +798,7 @@
     <span class="kw">fn </span>create_opaque(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; OpaqueMessage {
         msgs::message::PlainMessage::from(<span class="self">self</span>.clone()).into_unencrypted_opaque()
     }
+
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str) {
         debug_message_with_info(info, <span class="self">self</span>);
     }
@@ -1279,6 +1264,7 @@
     <span class="kw">fn </span>pop_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;OpaqueMessage&gt; {
         <span class="self">self</span>.frames.pop_front()
     }
+
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>std::io::Read) -&gt; std::io::Result&lt;usize&gt; {
         <span class="self">self</span>.read(rd)
     }
@@ -1321,12 +1307,12 @@
 
 <span class="kw">impl </span>ProtocolBehavior <span class="kw">for </span>TLSProtocolBehavior {
     <span class="kw">type </span>Claim = TlsClaim;
-    <span class="kw">type </span>SecurityViolationPolicy = TlsSecurityViolationPolicy;
-    <span class="kw">type </span>ProtocolMessage = Message;
-    <span class="kw">type </span>OpaqueProtocolMessage = OpaqueMessage;
     <span class="kw">type </span>Matcher = TlsQueryMatcher;
-    <span class="kw">type </span>ProtocolMessageFlight = MessageFlight;
+    <span class="kw">type </span>OpaqueProtocolMessage = OpaqueMessage;
     <span class="kw">type </span>OpaqueProtocolMessageFlight = OpaqueMessageFlight;
+    <span class="kw">type </span>ProtocolMessage = Message;
+    <span class="kw">type </span>ProtocolMessageFlight = MessageFlight;
+    <span class="kw">type </span>SecurityViolationPolicy = TlsSecurityViolationPolicy;
 
     <span class="kw">fn </span>signature() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature {
         <span class="kw-2">&amp;</span>TLS_SIGNATURE

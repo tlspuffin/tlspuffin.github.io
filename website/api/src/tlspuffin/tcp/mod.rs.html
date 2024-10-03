@@ -814,51 +814,29 @@
 <a href="#814" id="814">814</a>
 <a href="#815" id="815">815</a>
 <a href="#816" id="816">816</a>
-<a href="#817" id="817">817</a>
-<a href="#818" id="818">818</a>
-<a href="#819" id="819">819</a>
-<a href="#820" id="820">820</a>
-<a href="#821" id="821">821</a>
-<a href="#822" id="822">822</a>
-<a href="#823" id="823">823</a>
-<a href="#824" id="824">824</a>
-<a href="#825" id="825">825</a>
-<a href="#826" id="826">826</a>
-<a href="#827" id="827">827</a>
-<a href="#828" id="828">828</a>
-<a href="#829" id="829">829</a>
-<a href="#830" id="830">830</a>
-<a href="#831" id="831">831</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    ffi::OsStr,
-    io::{<span class="self">self</span>, ErrorKind, Read, Write},
-    net::{AddrParseError, IpAddr, SocketAddr, TcpListener, TcpStream, ToSocketAddrs},
-    path::Path,
-    process::{Child, Command, Stdio},
-    str::FromStr,
-    sync::mpsc::{<span class="self">self</span>, channel},
-    thread,
-    time::Duration,
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::OsStr;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, ErrorKind, Read, Write};
+<span class="kw">use </span>std::net::{AddrParseError, IpAddr, SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::process::{Child, Command, Stdio};
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>std::sync::mpsc::{<span class="self">self</span>, channel};
+<span class="kw">use </span>std::thread;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use </span>log::{debug, info, warn};
-<span class="kw">use </span>puffin::{
-    agent::{AgentDescriptor, AgentName, AgentType},
-    codec::Codec,
-    error::Error,
-    put::{Put, PutDescriptor, PutName},
-    put_registry::{Factory, PutKind},
-    stream::Stream,
-    trace::TraceContext,
-    VERSION_STR,
-};
+<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType};
+<span class="kw">use </span>puffin::codec::Codec;
+<span class="kw">use </span>puffin::error::Error;
+<span class="kw">use </span>puffin::put::{Put, PutDescriptor, PutName};
+<span class="kw">use </span>puffin::put_registry::{Factory, PutKind};
+<span class="kw">use </span>puffin::stream::Stream;
+<span class="kw">use </span>puffin::trace::TraceContext;
+<span class="kw">use </span>puffin::VERSION_STR;
 
-<span class="kw">use crate</span>::{
-    protocol::{OpaqueMessageFlight, TLSProtocolBehavior},
-    put_registry::TCP_PUT,
-    query::TlsQueryMatcher,
-    tls::rustls::msgs::message::{Message, OpaqueMessage},
-};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior};
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::TCP_PUT;
+<span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, OpaqueMessage};
 
 <span class="kw">pub fn </span>new_tcp_factory() -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TLSProtocolBehavior&gt;&gt; {
     <span class="kw">struct </span>TCPFactory;
@@ -873,7 +851,7 @@
             <span class="kw">let </span>options = <span class="kw-2">&amp;</span>put_descriptor.options;
 
             <span class="kw">if </span>options.get_option(<span class="string">"args"</span>).is_some() {
-                <span class="macro">info!</span>(<span class="string">"Trace contains TCP running information we shall reuse."</span>);
+                <span class="macro">log::info!</span>(<span class="string">"Trace contains TCP running information we shall reuse."</span>);
                 <span class="kw">let </span>args = options
                     .get_option(<span class="string">"args"</span>)
                     .ok_or_else(|| {
@@ -899,7 +877,7 @@
                     <span class="prelude-val">Ok</span>(Box::new(client))
                 }
             } <span class="kw">else </span>{
-                <span class="macro">info!</span>(<span class="string">"Trace contains no TCP running information so we fall back to external TCP client and servers."</span>);
+                <span class="macro">log::info!</span>(<span class="string">"Trace contains no TCP running information so we fall back to external TCP client and servers."</span>);
                 <span class="kw">if </span>agent_descriptor.typ == AgentType::Client {
                     <span class="kw">let </span>server = TcpServerPut::new(agent_descriptor, <span class="kw-2">&amp;</span>put_descriptor)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(Box::new(server))
@@ -926,11 +904,11 @@
         }
 
         <span class="kw">fn </span>determinism_set_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">debug!</span>(<span class="string">" [Determinism] Factory {} has no support for determinism. We cannot set and reseed."</span>, <span class="self">self</span>.name());
+            <span class="macro">log::debug!</span>(<span class="string">" [Determinism] Factory {} has no support for determinism. We cannot set and reseed."</span>, <span class="self">self</span>.name());
         }
 
         <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">debug!</span>(
+            <span class="macro">log::debug!</span>(
                 <span class="string">" [Determinism] Factory {} has no support for determinism. We cannot reseed."</span>,
                 <span class="self">self</span>.name()
             );
@@ -971,7 +949,7 @@
     <span class="kw">fn </span>read_to_flight(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;OpaqueMessageFlight&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[];
         <span class="kw">let _ </span>= <span class="self">self</span>.stream.read_to_end(<span class="kw-2">&amp;mut </span>buf);
-        <span class="kw">let </span>flight = OpaqueMessageFlight::read_bytes(<span class="kw-2">&amp;mut </span>buf);
+        <span class="kw">let </span>flight = OpaqueMessageFlight::read_bytes(<span class="kw-2">&amp;</span>buf);
         <span class="prelude-val">Ok</span>(flight)
     }
 }
@@ -1092,7 +1070,7 @@
         <span class="self">self</span>.receive_stream();
         <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[];
         <span class="kw">let _ </span>= <span class="self">self</span>.stream.as_mut().unwrap().<span class="number">0</span>.read_to_end(<span class="kw-2">&amp;mut </span>buf);
-        <span class="kw">let </span>flight = OpaqueMessageFlight::read_bytes(<span class="kw-2">&amp;mut </span>buf);
+        <span class="kw">let </span>flight = OpaqueMessageFlight::read_bytes(<span class="kw-2">&amp;</span>buf);
         <span class="prelude-val">Ok</span>(flight)
     }
 }
@@ -1133,7 +1111,7 @@
         .and_then(|value| u16::from_str(value).ok())
         .unwrap_or_else(|| {
             <span class="kw">let </span>port = <span class="number">44338</span>;
-            <span class="macro">warn!</span>(
+            <span class="macro">log::warn!</span>(
                 <span class="string">"Failed to parse port option (maybe you executed a trace that was not produced in \
             TCP mode?). We anyway fall back to port {port}."
             </span>);
@@ -1322,7 +1300,8 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>tcp_puts {
-    <span class="kw">use </span>puffin::{agent::TLSVersion, put::PutOptions};
+    <span class="kw">use </span>puffin::agent::TLSVersion;
+    <span class="kw">use </span>puffin::put::PutOptions;
     <span class="kw">use </span>tempfile::{tempdir, TempDir};
 
     <span class="kw">use </span><span class="kw">crate</span>::tcp::{collect_output, execute_command};
@@ -1508,26 +1487,17 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>log::info;
-    <span class="kw">use </span>puffin::{
-        agent::{AgentName, TLSVersion},
-        put::PutDescriptor,
-    };
-    <span class="kw">use </span>test_log::test;
+    <span class="kw">use </span>puffin::agent::{AgentName, TLSVersion};
+    <span class="kw">use </span>puffin::put::PutDescriptor;
 
-    <span class="kw">use crate</span>::{
-        put_registry::{tls_registry, TCP_PUT},
-        tcp::tcp_puts::{openssl_client, openssl_server, wolfssl_client},
-        tls::{
-            seeds::{
-                seed_client_attacker_full, seed_session_resumption_dhe_full,
-                seed_successful12_with_tickets,
-            },
-            trace_helper::TraceHelper,
-        },
+    <span class="kw">use </span><span class="kw">crate</span>::put_registry::{tls_registry, TCP_PUT};
+    <span class="kw">use </span><span class="kw">crate</span>::tcp::tcp_puts::{openssl_client, openssl_server, wolfssl_client};
+    <span class="kw">use </span><span class="kw">crate</span>::tls::seeds::{
+        seed_client_attacker_full, seed_session_resumption_dhe_full, seed_successful12_with_tickets,
     };
+    <span class="kw">use </span><span class="kw">crate</span>::tls::trace_helper::TraceHelper;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_openssl_session_resumption_dhe_full() {
         <span class="kw">let </span>port = <span class="number">44330</span>;
         <span class="kw">let </span>guard = openssl_server(port, TLSVersion::V1_3);
@@ -1549,11 +1519,11 @@
 
         <span class="kw">let </span>server = AgentName::first().next();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         <span class="macro">assert!</span>(shutdown.contains(<span class="string">"Reused session-id"</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_openssl_seed_client_attacker_full() {
         <span class="kw">let </span>port = <span class="number">44331</span>;
 
@@ -1572,12 +1542,12 @@
 
         <span class="kw">let </span>server = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         <span class="macro">assert!</span>(shutdown.contains(<span class="string">"BEGIN SSL SESSION PARAMETERS"</span>));
         <span class="macro">assert!</span>(!shutdown.contains(<span class="string">"Reused session-id"</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_openssl_openssl_seed_successful12() {
         <span class="kw">let </span>port = <span class="number">44332</span>;
 
@@ -1609,16 +1579,16 @@
 
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(client).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         <span class="macro">assert!</span>(shutdown.contains(<span class="string">"Timeout   : 7200 (sec)"</span>));
 
         <span class="kw">let </span>server = client.next();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         <span class="macro">assert!</span>(shutdown.contains(<span class="string">"BEGIN SSL SESSION PARAMETERS"</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     #[ignore] </span><span class="comment">// wolfssl example server and client are not available in CI
     </span><span class="kw">fn </span>test_wolfssl_openssl_seed_successful12() {
         <span class="kw">let </span>port = <span class="number">44334</span>;
@@ -1651,12 +1621,12 @@
 
         <span class="kw">let </span>client = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(client).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         <span class="macro">assert!</span>(!shutdown.contains(<span class="string">"fail"</span>));
 
         <span class="kw">let </span>server = client.next();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
         <span class="macro">assert!</span>(shutdown.contains(<span class="string">"BEGIN SSL SESSION PARAMETERS"</span>));
     }
 }

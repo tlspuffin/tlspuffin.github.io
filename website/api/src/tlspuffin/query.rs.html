@@ -47,8 +47,8 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::HandshakeType;
 
-<span class="doccomment">/// [TlsQueryMatcher] contains TLS-related typing information, this is to be distinguished from the *.typ fields
-/// It uses [rustls::msgs::enums::{ContentType,HandshakeType}].
+<span class="doccomment">/// [TlsQueryMatcher] contains TLS-related typing information, this is to be distinguished from the
+/// *.typ fields It uses [rustls::msgs::enums::{ContentType,HandshakeType}].
 </span><span class="attr">#[derive(Debug, Deserialize, Serialize, Clone, Copy, Hash, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>TlsQueryMatcher {
     ChangeCipherSpec,

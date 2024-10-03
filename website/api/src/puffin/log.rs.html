@@ -97,16 +97,16 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{env, path::Path, str::FromStr};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::env;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">use </span>log::LevelFilter;
-<span class="kw">use </span>log4rs::{
-    <span class="self">self</span>,
-    append::{console::ConsoleAppender, file::FileAppender},
-    config::{Appender, Logger, Root},
-    encode::pattern::PatternEncoder,
-    Config,
-};
+<span class="kw">use </span>log4rs::append::console::ConsoleAppender;
+<span class="kw">use </span>log4rs::append::file::FileAppender;
+<span class="kw">use </span>log4rs::config::{Appender, Logger, Root};
+<span class="kw">use </span>log4rs::encode::pattern::PatternEncoder;
+<span class="kw">use </span>log4rs::{<span class="self">self</span>, Config};
 
 <span class="kw">pub fn </span>config_default() -&gt; log4rs::Config {
     Config::builder()

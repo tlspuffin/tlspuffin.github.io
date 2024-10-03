@@ -94,15 +94,11 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec;
 <span class="kw">use </span>ring::{aead, hkdf};
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    error::Error,
-    msgs::message::{BorrowedPlainMessage, OpaqueMessage, PlainMessage},
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{BorrowedPlainMessage, OpaqueMessage, PlainMessage};
 
 <span class="doccomment">/// Objects with this trait can decrypt TLS messages.
 </span><span class="kw">pub trait </span>MessageDecrypter: Send + Sync {

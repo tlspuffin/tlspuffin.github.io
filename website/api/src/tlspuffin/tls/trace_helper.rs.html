@@ -75,14 +75,14 @@
 <a href="#75" id="75">75</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 
-<span class="kw">use </span>puffin::{
-    agent::AgentName,
-    libafl::inputs::Input,
-    put::PutOptions,
-    trace::{Trace, TraceContext},
-};
+<span class="kw">use </span>puffin::agent::AgentName;
+<span class="kw">use </span>puffin::libafl::inputs::Input;
+<span class="kw">use </span>puffin::put::PutOptions;
+<span class="kw">use </span>puffin::trace::{Trace, TraceContext};
 
-<span class="kw">use crate</span>::{protocol::TLSProtocolBehavior, put_registry::tls_registry, query::TlsQueryMatcher};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::tls_registry;
+<span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
 
 <span class="kw">pub trait </span>TraceHelper&lt;A&gt;: TraceExecutor&lt;A&gt; {
     <span class="kw">fn </span>build_named_trace(<span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Trace&lt;TlsQueryMatcher&gt;);

@@ -122,11 +122,25 @@
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! TODO: Write intro: &lt;https://github.com/tlspuffin/tlspuffin/issues/94&gt;
 //!
 //! ### Used protocol and cryptographic libraries
 //!
-//! In order to easily implement concrete functions, we use several libraries which provide us with predefined encoders for TLS packets, cryptographic primitives, as well as higher level cryptographic operations specific for TLS.
+//! In order to easily implement concrete functions, we use several libraries which provide us with
+//! predefined encoders for TLS packets, cryptographic primitives, as well as higher level
+//! cryptographic operations specific for TLS.
 //!
 //! We forked the [rustls](https://github.com/ctz/rustls) library for cryptographic operations like deriving secrets. We also use it to encode and decode TLS messages.
 //!
@@ -134,14 +148,19 @@
 //! # Example
 //!
 //! ```rust
-//! use puffin::agent::{AgentName, AgentDescriptor, TLSVersion::*};
-//! use puffin::trace::{Step, Source, TraceContext, Trace, Action, InputAction, OutputAction, Query};
-//! use puffin::algebra::{Term, signature::Signature};
-//! use tlspuffin::tls::fn_impl::fn_client_hello;
-//! use tlspuffin::tls::rustls::msgs::handshake::{SessionID, Random, ClientExtension};
-//! use tlspuffin::tls::rustls::msgs::enums::{ProtocolVersion, CipherSuite, Compression, HandshakeType};
+//! use puffin::agent::TLSVersion::*;
+//! use puffin::agent::{AgentDescriptor, AgentName};
+//! use puffin::algebra::signature::Signature;
+//! use puffin::algebra::Term;
+//! use puffin::trace::{
+//!     Action, InputAction, OutputAction, Query, Source, Step, Trace, TraceContext,
+//! };
 //! use tlspuffin::query::TlsQueryMatcher;
-//!
+//! use tlspuffin::tls::fn_impl::fn_client_hello;
+//! use tlspuffin::tls::rustls::msgs::enums::{
+//!     CipherSuite, Compression, HandshakeType, ProtocolVersion,
+//! };
+//! use tlspuffin::tls::rustls::msgs::handshake::{ClientExtension, Random, SessionID};
 //!
 //! let client: AgentName = AgentName::first();
 //! let server: AgentName = client.next();
@@ -153,50 +172,54 @@
 //!         AgentDescriptor::new_server(server, V1_3),
 //!     ],
 //!     steps: vec![
-//!             OutputAction::new_step(client),
-//!             // Client: Hello Client -&gt; Server
-//!             Step {
-//!                 agent: server,
-//!                 action: Action::Input(InputAction {
-//!                     recipe: Term::Application(
-//!                         Signature::new_function(&amp;fn_client_hello),
-//!                         vec![
-//!                             Term::Variable(Signature::new_var_with_type::&lt;ProtocolVersion, _&gt;(
-//!                                     Some(Source::Agent(client)),  
-//!                                     Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                                     0
-//!                             )),
-//!                             Term::Variable(Signature::new_var_with_type::&lt;Random, _&gt;(
-//!                                     Some(Source::Agent(client)),  
-//!                                     Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                                     0
-//!                             )),
-//!                             Term::Variable(Signature::new_var_with_type::&lt;SessionID, _&gt;(
-//!                                     Some(Source::Agent(client)),
-//!                                     Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                                     0
-//!                             )),
-//!                             Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;CipherSuite&gt;, _&gt;(
-//!                                     Some(Source::Agent(client)),
-//!                                     Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                                     0
-//!                             )),
-//!                             Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;Compression&gt;, _&gt;(
-//!                                     Some(Source::Agent(client)),
-//!                                     Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                                     0
-//!                             )),
-//!                             Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;ClientExtension&gt;, _&gt;(
-//!                                     Some(Source::Agent(client)),
-//!                                     Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                                     0
-//!                             )),
-//!                         ],
-//!                     ),
-//!                 }),
-//!             },
-//!     // further steps here
-//!     ]
+//!         OutputAction::new_step(client),
+//!         // Client: Hello Client -&gt; Server
+//!         Step {
+//!             agent: server,
+//!             action: Action::Input(InputAction {
+//!                 recipe: Term::Application(
+//!                     Signature::new_function(&amp;fn_client_hello),
+//!                     vec![
+//!                         Term::Variable(Signature::new_var_with_type::&lt;ProtocolVersion, _&gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         )),
+//!                         Term::Variable(Signature::new_var_with_type::&lt;Random, _&gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         )),
+//!                         Term::Variable(Signature::new_var_with_type::&lt;SessionID, _&gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         )),
+//!                         Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;CipherSuite&gt;, _&gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         )),
+//!                         Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;Compression&gt;, _&gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         )),
+//!                         Term::Variable(
+//!                             Signature::new_var_with_type::&lt;Vec&lt;ClientExtension&gt;, _&gt;(
+//!                                 Some(Source::Agent(client)),
+//!                                 Some(TlsQueryMatcher::Handshake(Some(
+//!                                     HandshakeType::ClientHello,
+//!                                 ))),
+//!                                 0,
+//!                             ),
+//!                         ),
+//!                     ],
+//!                 ),
+//!             }),
+//!         },
+//!         // further steps here
+//!     ],
 //! };
 //! ```
 //!
@@ -204,13 +227,15 @@
 //!
 //! ```rust
 //! use puffin::agent::AgentName;
-//! use puffin::term;
-//! use tlspuffin::tls::fn_impl::fn_client_hello;
-//! use tlspuffin::tls::rustls::msgs::handshake::{SessionID, Random, ClientExtension};
-//! use tlspuffin::tls::rustls::msgs::enums::{Compression, HandshakeType, ProtocolVersion, CipherSuite};
 //! use puffin::algebra::Term;
-//! use tlspuffin::query::TlsQueryMatcher;
+//! use puffin::term;
 //! use puffin::trace::Source;
+//! use tlspuffin::query::TlsQueryMatcher;
+//! use tlspuffin::tls::fn_impl::fn_client_hello;
+//! use tlspuffin::tls::rustls::msgs::enums::{
+//!     CipherSuite, Compression, HandshakeType, ProtocolVersion,
+//! };
+//! use tlspuffin::tls::rustls::msgs::handshake::{ClientExtension, Random, SessionID};
 //!
 //! let client = AgentName::first();
 //! let term: Term&lt;TlsQueryMatcher&gt; = term! {
@@ -224,7 +249,6 @@
 //!     )
 //! };
 //! ```
-//!
 
 </span><span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)]
 </span><span class="kw">pub mod </span>boringssl;

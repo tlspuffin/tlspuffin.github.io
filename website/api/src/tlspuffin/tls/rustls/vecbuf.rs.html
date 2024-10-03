@@ -139,7 +139,11 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{cmp, collections::VecDeque, io, io::Read};
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
+<span class="kw">use </span>std::io::Read;
+<span class="kw">use </span>std::{cmp, io};
 
 <span class="doccomment">/// This is a byte buffer that is built from a vector
 /// of byte vectors.  This avoids extra copies when
@@ -264,10 +268,10 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
+</span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">super</span>::ChunkVecBuffer;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>short_append_copy_with_limit() {
         <span class="kw">let </span><span class="kw-2">mut </span>cvb = ChunkVecBuffer::new(<span class="prelude-val">Some</span>(<span class="number">12</span>));
         <span class="macro">assert_eq!</span>(cvb.append_limited_copy(<span class="string">b"hello"</span>), <span class="number">5</span>);

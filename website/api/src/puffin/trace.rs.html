@@ -763,15 +763,13 @@
 <a href="#763" id="763">763</a>
 <a href="#764" id="764">764</a>
 <a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
-<a href="#769" id="769">769</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains [`Trace`]s consisting of several [`Step`]s, of which each has either an
-//! [`OutputAction`] or [`InputAction`]. This is a declarative way of modeling communication between
-//! [`Agent`]s. The [`TraceContext`] holds data, also known as [`VariableData`], which is created by
-//! [`Agent`]s during the concrete execution of the Trace. It also holds the [`Agent`]s with
-//! the references to concrete PUT.
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module define the execution [`Trace`]s.
+//!
+//! Each [`Trace`]s consist of several [`Step`]s, of which each has either an [`OutputAction`] or
+//! [`InputAction`]. This is a declarative way of modeling communication between [`Agent`]s. The
+//! [`TraceContext`] holds data, also known as [`VariableData`], which is created by [`Agent`]s
+//! during the concrete execution of the Trace. It also holds the [`Agent`]s with the references to
+//! concrete PUT.
 //!
 //! ### Serializability of Traces
 //!
@@ -780,37 +778,33 @@
 //! store it on disk and replay it when investigating the case.
 //! As traces depend on concrete implementations as discussed in the next section we need to link
 //! serialized data like strings or numerical IDs to functions implemented in Rust.
-//!
 
 </span><span class="kw">use </span>core::fmt;
-<span class="kw">use </span>std::{
-    any::{Any, TypeId},
-    collections::HashMap,
-    fmt::Debug,
-    hash::Hash,
-    marker::PhantomData,
-    vec::IntoIter,
-};
+<span class="kw">use </span>std::any::{Any, TypeId};
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::hash::Hash;
+<span class="kw">use </span>std::marker::PhantomData;
+<span class="kw">use </span>std::vec::IntoIter;
 
 <span class="kw">use </span>clap::error::Result;
-<span class="kw">use </span>log::{debug, trace, warn};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
+<span class="kw">use </span><span class="kw">crate</span>::agent::{Agent, AgentDescriptor, AgentName};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_prefix, Matcher, Term};
+<span class="kw">use </span><span class="kw">crate</span>::claims::{Claim, GlobalClaimList, SecurityViolationPolicy};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{
+    ExtractKnowledge, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
+    ProtocolMessage, ProtocolMessageFlight,
+};
+<span class="kw">use </span><span class="kw">crate</span>::put::{PutDescriptor, PutOptions};
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
 <span class="attr">#[allow(unused)] </span><span class="comment">// used in docs
 </span><span class="kw">use </span><span class="kw">crate</span>::stream::Channel;
-<span class="kw">use crate</span>::{
-    agent::{Agent, AgentDescriptor, AgentName},
-    algebra::{dynamic_function::TypeShape, error::FnError, remove_prefix, Matcher, Term},
-    claims::{Claim, GlobalClaimList, SecurityViolationPolicy},
-    error::Error,
-    protocol::{
-        ExtractKnowledge, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
-        ProtocolMessage, ProtocolMessageFlight,
-    },
-    put::{PutDescriptor, PutOptions},
-    put_registry::PutRegistry,
-    variable_data::VariableData,
-};
+<span class="kw">use </span><span class="kw">crate</span>::variable_data::VariableData;
 
 <span class="attr">#[derive(Debug, Deserialize, Serialize, Clone, Hash, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Query&lt;M&gt; {
@@ -872,8 +866,8 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: Matcher&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>RawKnowledge&lt;M&gt; {
-    <span class="kw">type </span>Item = Knowledge&lt;<span class="lifetime">'a</span>, M&gt;;
     <span class="kw">type </span>IntoIter = IntoIter&lt;Knowledge&lt;<span class="lifetime">'a</span>, M&gt;&gt;;
+    <span class="kw">type </span>Item = Knowledge&lt;<span class="lifetime">'a</span>, M&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="kw">let </span><span class="kw-2">mut </span>knowledges = <span class="macro">vec!</span>[];
@@ -896,13 +890,13 @@
         </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
     {
         <span class="kw">let </span>data_type_id = <span class="self">self</span>.data.type_id();
-        <span class="macro">debug!</span>(
+        <span class="macro">log::debug!</span>(
             <span class="string">"New knowledge {}: {}  (counter: {})"</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             remove_prefix(<span class="self">self</span>.data.type_name()),
             ctx.number_matching_message_with_source(source.clone(), data_type_id, <span class="kw-2">&amp;</span><span class="self">self</span>.matcher)
         );
-        <span class="macro">trace!</span>(<span class="string">"Knowledge data: {:?}"</span>, <span class="self">self</span>.data);
+        <span class="macro">log::trace!</span>(<span class="string">"Knowledge data: {:?}"</span>, <span class="self">self</span>.data);
     }
 }
 
@@ -912,7 +906,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug)]
+<span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>KnowledgeStore&lt;PB: ProtocolBehavior&gt; {
     raw_knowledge: Vec&lt;RawKnowledge&lt;PB::Matcher&gt;&gt;,
 }
@@ -982,11 +976,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>possibilities: Vec&lt;Knowledge&lt;PB::Matcher&gt;&gt; = <span class="self">self
             </span>.raw_knowledge
             .iter()
-            .filter(|raw| (query.source == <span class="prelude-val">None </span>|| query.source.as_ref().unwrap() == <span class="kw-2">&amp;</span>raw.source))
+            .filter(|raw| (query.source.is_none() || query.source.as_ref().unwrap() == <span class="kw-2">&amp;</span>raw.source))
             .flatten()
             .filter(|knowledge| {
-                <span class="comment">// let data: &amp;dyn VariableData = knowledge.data;
-                </span>query_type_id == knowledge.data.type_id()
+                query_type_id == knowledge.data.type_id()
                     &amp;&amp; knowledge.matcher.matches(<span class="kw-2">&amp;</span>query.matcher)
             })
             .collect();
@@ -999,7 +992,9 @@
     }
 }
 
-<span class="doccomment">/// The [`TraceContext`] contains a list of [`VariableData`], which is known as the knowledge
+<span class="doccomment">/// The [`TraceContext`] represents the state of an execution.
+///
+/// The [`TraceContext`] contains a list of [`VariableData`], which is known as the knowledge
 /// of the attacker. [`VariableData`] can contain data of various types like for example
 /// client and server extensions, cipher suits or session ID It also holds the concrete
 /// references to the [`Agent`]s and the underlying streams, which contain the messages
@@ -1075,8 +1070,10 @@
     <span class="kw">pub fn </span>verify_security_violations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>claims = <span class="self">self</span>.claims.deref_borrow();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = PB::SecurityViolationPolicy::check_violation(claims.slice()) {
-            <span class="comment">// [TODO] Lucca: versus checking at each step ? Could detect violation earlier, before a blocking state is reached ? [BENCH] benchmark the efficiency loss of doing so
-            // Max: We only check for Finished claims right now, so its fine to check only at the end
+            <span class="comment">// [TODO] Lucca: versus checking at each step ? Could detect violation earlier, before a
+            // blocking state is reached ? [BENCH] benchmark the efficiency loss of doing so
+            // Max: We only check for Finished claims right now, so its fine to check only at the
+            // end
             </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::SecurityClaim(msg));
         }
         <span class="prelude-val">Ok</span>(())
@@ -1139,8 +1136,8 @@
         agent.put_mut().progress(<span class="kw-2">&amp;</span>agent_name)
     }
 
-    <span class="doccomment">/// Takes data from the outbound [`Channel`] of the [`Agent`] referenced by the parameter "agent".
-    /// See [`crate::stream::Stream::take_message_from_outbound`]
+    <span class="doccomment">/// Takes data from the outbound [`Channel`] of the [`Agent`] referenced by the parameter
+    /// "agent". See [`crate::stream::Stream::take_message_from_outbound`]
     </span><span class="kw">pub fn </span>take_message_from_outbound(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         agent_name: AgentName,
@@ -1234,10 +1231,11 @@
     <span class="kw">pub </span>prior_traces: Vec&lt;Trace&lt;M&gt;&gt;,
 }
 
-<span class="doccomment">/// A [`Trace`] consists of several [`Step`]s. Each has either a [`OutputAction`] or an [`InputAction`].
-/// Each [`Step`]s references an [`Agent`] by name. Furthermore, a trace also has a list of
-/// *AgentDescriptors* which act like a blueprint to spawn [`Agent`]s with a corresponding server
-/// or client role and a specific TLs version. Essentially they are an [`Agent`] without a stream.
+<span class="doccomment">/// A [`Trace`] consists of several [`Step`]s. Each has either a [`OutputAction`] or an
+/// [`InputAction`]. Each [`Step`]s references an [`Agent`] by name. Furthermore, a trace also has a
+/// list of *AgentDescriptors* which act like a blueprint to spawn [`Agent`]s with a corresponding
+/// server or client role and a specific TLs version. Essentially they are an [`Agent`] without a
+/// stream.
 </span><span class="kw">impl</span>&lt;M: Matcher&gt; Trace&lt;M&gt; {
     <span class="kw">fn </span>spawn_agents&lt;PB: ProtocolBehavior&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">for </span>descriptor <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.descriptors {
@@ -1257,7 +1255,7 @@
             <span class="kw">if </span>ctx.deterministic_put {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(agent) = ctx.find_agent_mut(name) {
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = agent.put_mut().determinism_reseed() {
-                        <span class="macro">warn!</span>(<span class="string">"Unable to make agent {} deterministic: {}"</span>, name, err)
+                        <span class="macro">log::warn!</span>(<span class="string">"Unable to make agent {} deterministic: {}"</span>, name, err)
                     }
                 }
             }
@@ -1281,7 +1279,7 @@
         <span class="self">self</span>.spawn_agents(ctx)<span class="question-mark">?</span>;
         <span class="kw">let </span>steps = <span class="kw-2">&amp;</span><span class="self">self</span>.steps;
         <span class="kw">for </span>(i, step) <span class="kw">in </span>steps.iter().enumerate() {
-            <span class="macro">debug!</span>(<span class="string">"Executing step #{}"</span>, i);
+            <span class="macro">log::debug!</span>(<span class="string">"Executing step #{}"</span>, i);
 
             step.action.execute(step, ctx)<span class="question-mark">?</span>;
 
@@ -1365,15 +1363,17 @@
     <span class="kw">pub </span>action: Action&lt;M&gt;,
 }
 
-<span class="doccomment">/// There are two action types [`OutputAction`] and [`InputAction`] differ.
-/// Both actions drive the internal state machine of an [`Agent`] forward by calling `next_state()`.
-/// The [`OutputAction`] first forwards the state machine and then extracts knowledge from the
-/// TLS messages produced by the underlying stream by calling  `take_message_from_outbound(...)`.
-/// The [`InputAction`] evaluates the recipe term and injects the newly produced message
-/// into the *inbound channel* of the [`Agent`] referenced through the corresponding [`Step`]s
-/// by calling `add_to_inbound(...)` and then drives the state machine forward.
-/// Therefore, the difference is that one step *increases* the knowledge of the attacker,
-/// whereas the other action *uses* the available knowledge.
+<span class="doccomment">/// The actions performed on an [`Agent`].
+///
+/// There are two action types [`OutputAction`] and [`InputAction`] differ. Both actions drive the
+/// internal state machine of an [`Agent`] forward by calling `next_state()`. The [`OutputAction`]
+/// first forwards the state machine and then extracts knowledge from the TLS messages produced by
+/// the underlying stream by calling  `take_message_from_outbound(...)`. The [`InputAction`]
+/// evaluates the recipe term and injects the newly produced message into the *inbound channel* of
+/// the [`Agent`] referenced through the corresponding [`Step`]s by calling `add_to_inbound(...)`
+/// and then drives the state machine forward. Therefore, the difference is that one step
+/// *increases* the knowledge of the attacker, whereas the other action *uses* the available
+/// knowledge.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
 #[serde(bound = <span class="string">"M: Matcher"</span>)]
 </span><span class="kw">pub enum </span>Action&lt;M: Matcher&gt; {
@@ -1402,9 +1402,11 @@
     }
 }
 
-<span class="doccomment">/// The [`OutputAction`] first forwards the state machine and then extracts knowledge from the
-/// TLS messages produced by the underlying stream by calling  `take_message_from_outbound(...)`.
-/// An output action is automatically called after each input step.
+<span class="doccomment">/// Advance the [`Agent`]'s state and process the produced output.
+///
+/// The [`OutputAction`] first forwards the state machine and then extracts knowledge from the TLS
+/// messages produced by the underlying stream by calling  `take_message_from_outbound(...)`. An
+/// output action is automatically called after each input step.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
 </span><span class="kw">pub struct </span>OutputAction&lt;M&gt; {
     phantom: PhantomData&lt;M&gt;,
@@ -1437,25 +1439,17 @@
                 .knowledge_store
                 .add_raw_knowledge(opaque_flight, source.clone())
             {
-                <span class="macro">debug!</span>(<span class="string">"Raw Knowledge increased to {}"</span>, num);
+                <span class="macro">log::debug!</span>(<span class="string">"Raw Knowledge increased by {}"</span>, num);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(f) = flight {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = ctx.knowledge_store.add_raw_knowledge(f, source.clone()) {
-                    <span class="macro">debug!</span>(<span class="string">"Raw Knowledge increased to {}"</span>, num);
+                    <span class="macro">log::debug!</span>(<span class="string">"Raw Knowledge increased by {}"</span>, num);
                 }
             }
         }
 
-        <span class="comment">// let flight_knowledge = Knowledge::&lt;M&gt; {
-        //     agent_name: step.agent,
-        //     matcher: None,
-        //     data: Box::new(flight),
-        // };
-        // flight_knowledge.debug_print(ctx, &amp;step.agent);
-        // ctx.add_knowledge(flight_knowledge);
-
-        </span><span class="prelude-val">Ok</span>(())
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1465,7 +1459,9 @@
     }
 }
 
-<span class="doccomment">/// The [`InputAction`] evaluates the recipe term and injects the newly produced message
+<span class="doccomment">/// Provide inputs to the [`Agent`].
+///
+/// The [`InputAction`] evaluates the recipe term and injects the newly produced message
 /// into the *inbound channel* of the [`Agent`] referenced through the corresponding [`Step`]s
 /// by calling `add_to_inbound(...)` and then drives the state machine forward.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
@@ -1484,11 +1480,7 @@
         }
     }
 
-    <span class="kw">fn </span>input&lt;PB: ProtocolBehavior&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        step: <span class="kw-2">&amp;</span>Step&lt;M&gt;,
-        ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">fn </span>input&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, step: <span class="kw-2">&amp;</span>Step&lt;M&gt;, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
     {
@@ -1508,7 +1500,7 @@
         {
             flight.debug(<span class="string">"Input opaque message flight"</span>);
 
-            ctx.add_to_inbound(step.agent, <span class="kw-2">&amp;</span>flight)<span class="question-mark">?</span>;
+            ctx.add_to_inbound(step.agent, flight)<span class="question-mark">?</span>;
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_ref().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
             msg.debug(<span class="string">"Input message"</span>);
 

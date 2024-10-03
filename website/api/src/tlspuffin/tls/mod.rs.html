@@ -269,12 +269,19 @@
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *tls* module provides concrete implementations for the functions used in the term.
-//! The module offers a variety of [`DynamicFunction`](puffin::algebra::dynamic_function::DynamicFunction)s
-//! which can be used in the fuzzing.
+//!
+//! The module offers a variety of
+//! [`DynamicFunction`](puffin::algebra::dynamic_function::DynamicFunction)s which can be used in
+//! the fuzzing.
 
 </span><span class="kw">use </span>fn_impl::<span class="kw-2">*</span>;
-<span class="kw">use </span>puffin::{algebra::error::FnError, define_signature, error::Error};
+<span class="kw">use </span>puffin::algebra::error::FnError;
+<span class="kw">use </span>puffin::define_signature;
+<span class="kw">use </span>puffin::error::Error;
 
 <span class="kw">mod </span>key_exchange;
 <span class="kw">mod </span>key_schedule;
@@ -312,7 +319,6 @@
 }
 
 <span class="doccomment">/// Function symbol which can be used for debugging
-///
 </span><span class="attr">#[allow(dead_code)]
 </span><span class="kw">fn </span>fn_debug(
     message: <span class="kw-2">&amp;</span><span class="kw">crate</span>::tls::rustls::msgs::message::Message,

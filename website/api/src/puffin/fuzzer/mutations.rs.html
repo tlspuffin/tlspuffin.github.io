@@ -1028,23 +1028,15 @@
 <a href="#1028" id="1028">1028</a>
 <a href="#1029" id="1029">1029</a>
 <a href="#1030" id="1030">1030</a>
-<a href="#1031" id="1031">1031</a>
-<a href="#1032" id="1032">1032</a>
-<a href="#1033" id="1033">1033</a>
-<a href="#1034" id="1034">1034</a>
-<a href="#1035" id="1035">1035</a>
-<a href="#1036" id="1036">1036</a>
-<a href="#1037" id="1037">1037</a>
-<a href="#1038" id="1038">1038</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>util::{Choosable, <span class="kw-2">*</span>};
 
-<span class="kw">use crate</span>::{
-    algebra::{atoms::Function, signature::Signature, Matcher, Subterms, Term},
-    fuzzer::term_zoo::TermZoo,
-    trace::Trace,
-};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Function;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Subterms, Term};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::term_zoo::TermZoo;
+<span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
 
 <span class="kw">pub fn </span>trace_mutations&lt;S, M: Matcher&gt;(
     min_trace_length: usize,
@@ -1070,7 +1062,9 @@
         ReplaceReuseMutator::new(constraints),
         ReplaceMatchMutator::new(constraints, signature),
         RemoveAndLiftMutator::new(constraints),
-        GenerateMutator::new(<span class="number">0</span>, fresh_zoo_after, constraints, <span class="prelude-val">None</span>, signature), <span class="comment">// Refresh zoo after 100000M mutations
+        GenerateMutator::new(<span class="number">0</span>, fresh_zoo_after, constraints, <span class="prelude-val">None</span>, signature), <span class="comment">/* Refresh zoo
+                                                                                 * after 100000M
+                                                                                 * mutations */
         </span>SwapMutator::new(constraints)
     )
 }
@@ -1221,12 +1215,9 @@
 }
 
 <span class="doccomment">/// REPLACE-MATCH: Replaces a function symbol with a different one (such that types match).
-
-/// An example would be to replace a constant with another constant or the binary function
-
-/// fn_add with fn_sub.
-
-/// It can also replace any variable with a constant.
+///
+/// An example would be to replace a constant with another constant or the binary function fn_add
+/// with fn_sub. It can also replace any variable with a constant.
 </span><span class="kw">pub struct </span>ReplaceMatchMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
@@ -1310,7 +1301,8 @@
 
 <span class="doccomment">/// REPLACE-REUSE: Replaces a sub-term with a different sub-term which is part of the trace
 
-/// (such that types match). The new sub-term could come from another step which has a different recipe term.
+/// (such that types match). The new sub-term could come from another step which has a different
+/// recipe term.
 </span><span class="kw">pub struct </span>ReplaceReuseMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
@@ -1552,10 +1544,8 @@
 <span class="kw">pub mod </span>util {
     <span class="kw">use </span>libafl_bolts::rands::Rand;
 
-    <span class="kw">use crate</span>::{
-        algebra::{Matcher, Term},
-        trace::{Action, Step, Trace},
-    };
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Term};
+    <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Step, Trace};
 
     <span class="attr">#[derive(Copy, Clone, Debug)]
     </span><span class="kw">pub struct </span>TermConstraints {
@@ -1802,23 +1792,17 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span>std::collections::{HashMap, HashSet};
 
-    <span class="kw">use </span>libafl::{
-        corpus::InMemoryCorpus,
-        mutators::{MutationResult, Mutator},
-        state::StdState,
-    };
+    <span class="kw">use </span>libafl::corpus::InMemoryCorpus;
+    <span class="kw">use </span>libafl::mutators::{MutationResult, Mutator};
+    <span class="kw">use </span>libafl::state::StdState;
     <span class="kw">use </span>libafl_bolts::rands::{RomuDuoJrRand, StdRand};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use crate</span>::{
-        agent::AgentName,
-        algebra::{
-            dynamic_function::DescribableFunction,
-            test_signature::{TestTrace, <span class="kw-2">*</span>},
-            AnyMatcher, Term,
-        },
-        trace::{Action, Step},
-    };
+    <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::DescribableFunction;
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::test_signature::{TestTrace, <span class="kw-2">*</span>};
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::{AnyMatcher, Term};
+    <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Step};
 
     <span class="kw">fn </span>create_state(
     ) -&gt; StdState&lt;TestTrace, InMemoryCorpus&lt;TestTrace&gt;, RomuDuoJrRand, InMemoryCorpus&lt;TestTrace&gt;&gt;
@@ -1829,7 +1813,7 @@
     }
 
     <span class="doccomment">/// Checks whether repeat can repeat the last step
-    </span><span class="attr">#[test]
+    </span><span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_repeat_mutator() {
         <span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
 
@@ -1861,7 +1845,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_replace_match_mutator() {
         <span class="kw">let </span>_server = AgentName::first();
         <span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
@@ -1889,7 +1873,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_remove_lift_mutator() {
         <span class="comment">// Should remove an extension
         </span><span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
@@ -1916,7 +1900,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_replace_reuse_mutator() {
         <span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
         <span class="kw">let </span>_server = AgentName::first();
@@ -1945,7 +1929,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_skip_mutator() {
         <span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
         <span class="kw">let </span>_server = AgentName::first();
@@ -1962,7 +1946,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_swap_mutator() {
         <span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
         <span class="kw">let </span><span class="kw-2">mut </span>mutator = SwapMutator::new(TermConstraints::default());
@@ -2001,7 +1985,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_find_term() {
         <span class="kw">let </span><span class="kw-2">mut </span>rand = StdRand::with_seed(<span class="number">45</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>trace = setup_simple_trace();
@@ -2018,7 +2002,7 @@
         <span class="macro">assert_eq!</span>(term_size, stats.len());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_reservoir_sample_randomness() {
         <span class="doccomment">/// https://rust-lang-nursery.github.io/rust-cookbook/science/mathematics/statistics.html#standard-deviation
         </span><span class="kw">fn </span>std_deviation(data: <span class="kw-2">&amp;</span>[u32]) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {

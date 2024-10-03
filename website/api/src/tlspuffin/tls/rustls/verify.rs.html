@@ -755,24 +755,17 @@
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
 <a href="#757" id="757">757</a>
-<a href="#758" id="758">758</a>
-<a href="#759" id="759">759</a>
-<a href="#760" id="760">760</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{convert::TryFrom, sync::Arc, time::SystemTime};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::time::SystemTime;
 
-<span class="kw">use </span>log::{debug, trace, warn};
 <span class="kw">use </span>ring::digest::Digest;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    anchors::{OwnedTrustAnchor, RootCertStore},
-    client::client_conn::ServerName,
-    error::Error,
-    key::Certificate,
-    msgs::{
-        enums::SignatureScheme,
-        handshake::{DigitallySignedStruct, DistinguishedNames},
-    },
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::anchors::{OwnedTrustAnchor, RootCertStore};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::client::client_conn::ServerName;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key::Certificate;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::SignatureScheme;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{DigitallySignedStruct, DistinguishedNames};
 
 <span class="kw">type </span>SignatureAlgorithms = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>webpki::SignatureAlgorithm];
 
@@ -1080,7 +1073,7 @@
         }
 
         <span class="kw">if </span>!ocsp_response.is_empty() {
-            <span class="macro">trace!</span>(<span class="string">"Unvalidated OCSP response: {:?}"</span>, ocsp_response.to_vec());
+            <span class="macro">log::trace!</span>(<span class="string">"Unvalidated OCSP response: {:?}"</span>, ocsp_response.to_vec());
         }
 
         cert.verify_is_valid_for_dns_name(dns_name.<span class="number">0</span>.as_ref())
@@ -1161,7 +1154,7 @@
         <span class="kw">if </span><span class="self">self</span>.logs.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         } <span class="kw">else if </span><span class="self">self</span>.validation_deadline.duration_since(now).is_err() {
-            <span class="macro">warn!</span>(<span class="string">"certificate transparency logs have expired, validation disabled"</span>);
+            <span class="macro">log::warn!</span>(<span class="string">"certificate transparency logs have expired, validation disabled"</span>);
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
@@ -1170,9 +1163,10 @@
         <span class="kw">for </span>sct <span class="kw">in </span>scts {
             <span class="kw">match </span>sct::verify_sct(<span class="kw-2">&amp;</span>cert.<span class="number">0</span>, sct, now, <span class="self">self</span>.logs) {
                 <span class="prelude-val">Ok</span>(index) =&gt; {
-                    <span class="macro">debug!</span>(
+                    <span class="macro">log::debug!</span>(
                         <span class="string">"Valid SCT signed by {} on {}"</span>,
-                        <span class="self">self</span>.logs[index].operated_by, <span class="self">self</span>.logs[index].description
+                        <span class="self">self</span>.logs[index].operated_by,
+                        <span class="self">self</span>.logs[index].description
                     );
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
@@ -1180,7 +1174,7 @@
                     <span class="kw">if </span>e.should_be_fatal() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidSct(e));
                     }
-                    <span class="macro">debug!</span>(<span class="string">"SCT ignored because {:?}"</span>, e);
+                    <span class="macro">log::debug!</span>(<span class="string">"SCT ignored because {:?}"</span>, e);
                     last_sct_error = <span class="prelude-val">Some</span>(e);
                 }
             }
@@ -1189,7 +1183,7 @@
         <span class="comment">/* If we were supplied with some logs, and some SCTs,
          * but couldn't verify any of them, fail the handshake. */
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last_sct_error) = last_sct_error {
-            <span class="macro">warn!</span>(<span class="string">"No valid SCTs provided"</span>);
+            <span class="macro">log::warn!</span>(<span class="string">"No valid SCTs provided"</span>);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidSct(last_sct_error));
         }
 
@@ -1498,7 +1492,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>assertions_are_debug() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(<span class="string">"{:?}"</span>, ClientCertVerified::assertion()),

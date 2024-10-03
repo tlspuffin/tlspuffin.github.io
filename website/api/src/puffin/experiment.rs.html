@@ -54,12 +54,24 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{fmt::Display, fs, fs::File, io, io::Write, path::Path};
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::Write;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::{fs, io};
 
 <span class="kw">use </span>chrono::Local;
 <span class="kw">use </span>itertools::Itertools;
 
-<span class="kw">use crate</span>::{protocol::ProtocolBehavior, put_registry::PutRegistry, GIT_MSG, GIT_REF};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
+<span class="kw">use crate</span>::{GIT_MSG, GIT_REF};
 
 <span class="kw">pub fn </span>format_title(title: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, index: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; String {
     <span class="kw">let </span>date = Local::now().format(<span class="string">"%Y-%m-%d-%H%M%S"</span>);

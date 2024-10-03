@@ -519,46 +519,29 @@
 <a href="#519" id="519">519</a>
 <a href="#520" id="520">520</a>
 <a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
-<a href="#524" id="524">524</a>
-<a href="#525" id="525">525</a>
-<a href="#526" id="526">526</a>
-<a href="#527" id="527">527</a>
-<a href="#528" id="528">528</a>
-<a href="#529" id="529">529</a>
-<a href="#530" id="530">530</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    env, fs,
-    fs::File,
-    io::{Read, Write},
-    path::{Path, PathBuf},
-    process::ExitCode,
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::{Read, Write};
+<span class="kw">use </span>std::path::{Path, PathBuf};
+<span class="kw">use </span>std::process::ExitCode;
+<span class="kw">use </span>std::{env, fs};
 
-<span class="kw">use </span>clap::{
-    arg, crate_authors, crate_name, crate_version, parser::ValuesRef, value_parser, Command,
-};
+<span class="kw">use </span>clap::parser::ValuesRef;
+<span class="kw">use </span>clap::{arg, crate_authors, crate_name, crate_version, value_parser, Command};
 <span class="kw">use </span>libafl::inputs::Input;
-<span class="kw">use </span>log::{error, info};
 
-<span class="kw">use crate</span>::{
-    algebra::set_deserialize_signature,
-    codec::Codec,
-    execution::forked_execution,
-    experiment::<span class="kw-2">*</span>,
-    fuzzer::{
-        harness::{default_put_options, set_default_put_options},
-        sanitizer::asan::{asan_info, setup_asan_env},
-        start, FuzzerConfig,
-    },
-    graphviz::write_graphviz,
-    log::config_default,
-    protocol::{ProtocolBehavior, ProtocolMessage},
-    put::PutOptions,
-    put_registry::PutRegistry,
-    trace::{Action, Trace, TraceContext},
-};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::set_deserialize_signature;
+<span class="kw">use </span><span class="kw">crate</span>::codec::Codec;
+<span class="kw">use </span><span class="kw">crate</span>::execution::forked_execution;
+<span class="kw">use </span><span class="kw">crate</span>::experiment::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::harness::{default_put_options, set_default_put_options};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::sanitizer::asan::{asan_info, setup_asan_env};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::{start, FuzzerConfig};
+<span class="kw">use </span><span class="kw">crate</span>::graphviz::write_graphviz;
+<span class="kw">use </span><span class="kw">crate</span>::log::config_default;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolMessage};
+<span class="kw">use </span><span class="kw">crate</span>::put::PutOptions;
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace, TraceContext};
 
 <span class="kw">fn </span>create_app&lt;S&gt;(title: S) -&gt; Command
 <span class="kw">where
@@ -643,13 +626,13 @@
     <span class="kw">let </span>no_launcher = matches.get_flag(<span class="string">"no-launcher"</span>);
     <span class="kw">let </span>put_use_clear = matches.get_flag(<span class="string">"put-use-clear"</span>);
 
-    <span class="macro">info!</span>(<span class="string">"Git Version: {}"</span>, <span class="kw">crate</span>::GIT_REF);
-    <span class="macro">info!</span>(<span class="string">"Put Versions:"</span>);
+    <span class="macro">log::info!</span>(<span class="string">"Git Version: {}"</span>, <span class="kw">crate</span>::GIT_REF);
+    <span class="macro">log::info!</span>(<span class="string">"Put Versions:"</span>);
 
     <span class="kw">for </span>(id, put) <span class="kw">in </span>put_registry.puts() {
-        <span class="macro">info!</span>(<span class="string">"({:?}) {}:"</span>, put.kind(), id);
+        <span class="macro">log::info!</span>(<span class="string">"({:?}) {}:"</span>, put.kind(), id);
         <span class="kw">for </span>(component, version) <span class="kw">in </span>put.versions().into_iter() {
-            <span class="macro">info!</span>(<span class="string">"    {}: {}"</span>, component, version);
+            <span class="macro">log::info!</span>(<span class="string">"    {}: {}"</span>, component, version);
         }
     }
 
@@ -659,7 +642,7 @@
     <span class="comment">// Initialize global state
 
     </span><span class="kw">if </span>set_deserialize_signature(PB::signature()).is_err() {
-        <span class="macro">error!</span>(<span class="string">"Failed to initialize deserialization"</span>);
+        <span class="macro">log::error!</span>(<span class="string">"Failed to initialize deserialization"</span>);
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>options: Vec&lt;(String, String)&gt; = Vec::new();
@@ -667,12 +650,12 @@
         options.push((<span class="string">"use_clear"</span>.to_string(), put_use_clear.to_string()))
     }
     <span class="kw">if </span>set_default_put_options(PutOptions::new(options)).is_err() {
-        <span class="macro">error!</span>(<span class="string">"Failed to initialize default put options"</span>);
+        <span class="macro">log::error!</span>(<span class="string">"Failed to initialize default put options"</span>);
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(_matches) = matches.subcommand_matches(<span class="string">"seed"</span>) {
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = seed(<span class="kw-2">&amp;</span>put_registry) {
-            <span class="macro">error!</span>(<span class="string">"Failed to create seeds on disk: {:?}"</span>, err);
+            <span class="macro">log::error!</span>(<span class="string">"Failed to create seeds on disk: {:?}"</span>, err);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"plot"</span>) {
@@ -684,7 +667,7 @@
         <span class="kw">let </span>is_tree = matches.get_flag(<span class="string">"tree"</span>);
 
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = plot::&lt;PB&gt;(input, format, output_prefix, is_multiple, is_tree) {
-            <span class="macro">error!</span>(<span class="string">"Failed to plot trace: {:?}"</span>, err);
+            <span class="macro">log::error!</span>(<span class="string">"Failed to plot trace: {:?}"</span>, err);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"execute"</span>) {
@@ -733,8 +716,8 @@
             </span><span class="kw-2">&amp;</span>paths[<span class="number">0</span>..<span class="number">0</span>]
         };
 
-        <span class="macro">info!</span>(<span class="string">"execute: found {} inputs"</span>, paths.len());
-        <span class="macro">info!</span>(
+        <span class="macro">log::info!</span>(<span class="string">"execute: found {} inputs"</span>, paths.len());
+        <span class="macro">log::info!</span>(
             <span class="string">"execute: running on subset [{}..{}] ({} inputs)"</span>,
             index,
             index + n,
@@ -742,7 +725,7 @@
         );
 
         <span class="kw">for </span>path <span class="kw">in </span>lookup_paths {
-            <span class="macro">info!</span>(<span class="string">"Executing: {}"</span>, path.display());
+            <span class="macro">log::info!</span>(<span class="string">"Executing: {}"</span>, path.display());
             execute(path, <span class="kw-2">&amp;</span>put_registry);
         }
 
@@ -792,10 +775,10 @@
                 .unwrap()
         });
 
-        <span class="macro">info!</span>(<span class="string">"execute: found {} inputs"</span>, paths.len());
+        <span class="macro">log::info!</span>(<span class="string">"execute: found {} inputs"</span>, paths.len());
 
         <span class="kw">for </span>path <span class="kw">in </span>paths {
-            <span class="macro">info!</span>(<span class="string">"Executing: {}"</span>, path.display());
+            <span class="macro">log::info!</span>(<span class="string">"Executing: {}"</span>, path.display());
             execute(path, <span class="kw-2">&amp;</span>put_registry);
         }
 
@@ -805,7 +788,7 @@
         <span class="kw">let </span>output: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"output"</span>).unwrap();
 
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = binary_attack(input, output, <span class="kw-2">&amp;</span>put_registry) {
-            <span class="macro">error!</span>(<span class="string">"Failed to create trace output: {:?}"</span>, err);
+            <span class="macro">log::error!</span>(<span class="string">"Failed to create trace output: {:?}"</span>, err);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"tcp"</span>) {
@@ -848,7 +831,7 @@
 
         <span class="kw">let </span>server = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
-        <span class="macro">info!</span>(<span class="string">"{}"</span>, shutdown);
+        <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
 
         <span class="kw">return </span>ExitCode::SUCCESS;
     } <span class="kw">else </span>{
@@ -864,7 +847,7 @@
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
                 write_experiment_markdown(<span class="kw-2">&amp;</span>experiment_path, title, description, <span class="kw-2">&amp;</span>put_registry)
             {
-                <span class="macro">error!</span>(<span class="string">"Failed to write readme: {:?}"</span>, err);
+                <span class="macro">log::error!</span>(<span class="string">"Failed to write readme: {:?}"</span>, err);
                 <span class="kw">return </span>ExitCode::FAILURE;
             }
 
@@ -887,7 +870,7 @@
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
                 write_experiment_markdown(<span class="kw-2">&amp;</span>experiment_path, title, description, <span class="kw-2">&amp;</span>put_registry)
             {
-                <span class="macro">error!</span>(<span class="string">"Failed to write readme: {:?}"</span>, err);
+                <span class="macro">log::error!</span>(<span class="string">"Failed to write readme: {:?}"</span>, err);
                 <span class="kw">return </span>ExitCode::FAILURE;
             }
             experiment_path
@@ -896,7 +879,7 @@
         };
 
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = fs::create_dir_all(<span class="kw-2">&amp;</span>experiment_path) {
-            <span class="macro">error!</span>(<span class="string">"Failed to create directories: {:?}"</span>, err);
+            <span class="macro">log::error!</span>(<span class="string">"Failed to create directories: {:?}"</span>, err);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
 
@@ -966,7 +949,7 @@
         }
     }
 
-    <span class="macro">info!</span>(<span class="string">"Created plots"</span>);
+    <span class="macro">log::info!</span>(<span class="string">"Created plots"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -978,33 +961,32 @@
         trace.to_file(<span class="macro">format!</span>(<span class="string">"./seeds/{}.trace"</span>, name))<span class="question-mark">?</span>;
     }
 
-    <span class="macro">info!</span>(<span class="string">"Generated seed traces into the directory ./seeds"</span>);
+    <span class="macro">log::info!</span>(<span class="string">"Generated seed traces into the directory ./seeds"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">use crate</span>::{
-    agent::AgentName,
-    put::{PutDescriptor, PutName},
-};
+<span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
+<span class="kw">use </span><span class="kw">crate</span>::put::{PutDescriptor, PutName};
 
 <span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(input: P, put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;) {
     <span class="kw">let </span>trace = <span class="kw">match </span>Trace::&lt;PB::Matcher&gt;::from_file(input.as_ref()) {
         <span class="prelude-val">Ok</span>(t) =&gt; t,
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="macro">error!</span>(<span class="string">"Invalid trace file {}"</span>, input.as_ref().display());
+            <span class="macro">log::error!</span>(<span class="string">"Invalid trace file {}"</span>, input.as_ref().display());
             <span class="kw">return</span>;
         }
     };
 
-    <span class="macro">info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
+    <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 
     <span class="comment">// When generating coverage a crash means that no coverage is stored
-    // By executing in a fork, even when that process crashes, the other executed code will still yield coverage
+    // By executing in a fork, even when that process crashes, the other executed code will still
+    // yield coverage
     </span><span class="kw">let </span>status = forked_execution(
         <span class="kw">move </span>|| {
             <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(put_registry, default_put_options().clone());
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = trace.execute(<span class="kw-2">&amp;mut </span>ctx) {
-                <span class="macro">error!</span>(
+                <span class="macro">log::error!</span>(
                     <span class="string">"Failed to execute trace {}: {:?}"</span>,
                     input.as_ref().display(),
                     err
@@ -1016,7 +998,7 @@
     );
 
     <span class="kw">match </span>status {
-        <span class="prelude-val">Ok</span>(s) =&gt; <span class="macro">info!</span>(<span class="string">"execution finished with status {s:?}"</span>),
+        <span class="prelude-val">Ok</span>(s) =&gt; <span class="macro">log::info!</span>(<span class="string">"execution finished with status {s:?}"</span>),
         <span class="prelude-val">Err</span>(reason) =&gt; <span class="macro">panic!</span>(<span class="string">"failed to execute trace: {reason}"</span>),
     }
 }
@@ -1029,7 +1011,7 @@
     <span class="kw">let </span>trace = Trace::&lt;PB::Matcher&gt;::from_file(input)<span class="question-mark">?</span>;
     <span class="kw">let </span>ctx = TraceContext::new(put_registry, default_put_options().clone());
 
-    <span class="macro">info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
+    <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 
     <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(output).expect(<span class="string">"Unable to create file"</span>);
 
@@ -1049,7 +1031,7 @@
                         opaque_message.encode(<span class="kw-2">&amp;mut </span>data);
                         f.write_all(<span class="kw-2">&amp;</span>data).expect(<span class="string">"Unable to write data"</span>);
                     } <span class="kw">else </span>{
-                        <span class="macro">error!</span>(<span class="string">"Recipe is not a `ProtocolMessage` or `OpaqueProtocolMessage`!"</span>)
+                        <span class="macro">log::error!</span>(<span class="string">"Recipe is not a `ProtocolMessage` or `OpaqueProtocolMessage`!"</span>)
                     }
                 }
             }

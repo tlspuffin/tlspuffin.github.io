@@ -34,13 +34,11 @@
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{ffi::c_void, mem};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::c_void;
+<span class="kw">use </span>std::mem;
 
-<span class="kw">use crate</span>::{
-    ffi,
-    ffi::{Claim, TLSLike},
-};
+<span class="kw">use </span><span class="kw">crate</span>::ffi;
+<span class="kw">use </span><span class="kw">crate</span>::ffi::{Claim, TLSLike};
 
 <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>handle_claim_c(x: Claim, ctx: <span class="kw-2">*mut </span>c_void) {
     <span class="kw">let </span>closure: <span class="kw-2">&amp;mut </span>Box&lt;Claimer&gt; =

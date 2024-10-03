@@ -168,12 +168,10 @@
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
 <a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    borrow::Borrow,
-    collections::{hash_map::Entry, HashMap, VecDeque},
-    hash::Hash,
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Borrow;
+<span class="kw">use </span>std::collections::hash_map::Entry;
+<span class="kw">use </span>std::collections::{HashMap, VecDeque};
+<span class="kw">use </span>std::hash::Hash;
 
 <span class="doccomment">/// A HashMap-alike, which never gets larger than a specified
 /// capacity, and evicts the oldest insertion to maintain this.
@@ -225,18 +223,18 @@
         }
     }
 
-    <span class="kw">pub fn </span>get&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt;
+    <span class="kw">pub fn </span>get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Hash + Eq,
+        Q: <span class="question-mark">?</span>Sized + Hash + Eq,
     {
         <span class="self">self</span>.map.get(k)
     }
 
-    <span class="kw">pub fn </span>remove&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
+    <span class="kw">pub fn </span>remove&lt;Q&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Hash + Eq,
+        Q: <span class="question-mark">?</span>Sized + Hash + Eq,
     {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.map.remove(k) {
             <span class="comment">// O(N) search, followed by O(N) removal
@@ -251,10 +249,10 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
+</span><span class="kw">mod </span>tests {
     <span class="kw">type </span>Test = <span class="kw">super</span>::LimitedCache&lt;String, usize&gt;;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_updates_existing_item() {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Test::new(<span class="number">3</span>);
         t.insert(<span class="string">"abc"</span>.into(), <span class="number">1</span>);
@@ -262,7 +260,7 @@
         <span class="macro">assert_eq!</span>(t.get(<span class="string">"abc"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">2</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_evicts_oldest_item() {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Test::new(<span class="number">3</span>);
         t.insert(<span class="string">"abc"</span>.into(), <span class="number">1</span>);
@@ -274,7 +272,7 @@
         <span class="macro">assert_eq!</span>(t.get(<span class="string">"ghi"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">3</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_evicts_second_oldest_item_if_first_removed() {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Test::new(<span class="number">3</span>);
         t.insert(<span class="string">"abc"</span>.into(), <span class="number">1</span>);
@@ -291,7 +289,7 @@
         <span class="macro">assert_eq!</span>(t.get(<span class="string">"jkl"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">4</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_evicts_after_second_oldest_item_removed() {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Test::new(<span class="number">3</span>);
         t.insert(<span class="string">"abc"</span>.into(), <span class="number">1</span>);
@@ -309,7 +307,7 @@
         <span class="macro">assert_eq!</span>(t.get(<span class="string">"jkl"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">4</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_removes_all_items() {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Test::new(<span class="number">3</span>);
         t.insert(<span class="string">"abc"</span>.into(), <span class="number">1</span>);
@@ -329,7 +327,7 @@
         <span class="macro">assert_eq!</span>(t.get(<span class="string">"mno"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5</span>));
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_inserts_many_items() {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Test::new(<span class="number">3</span>);
 

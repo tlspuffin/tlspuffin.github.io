@@ -802,9 +802,9 @@
 </span><span class="kw">use </span>puffin::codec::{Codec, Reader};
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ProtocolVersion` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ProtocolVersion` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
     EnumName: ProtocolVersion;
     EnumVal{
@@ -820,9 +820,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `HashAlgorithm` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `HashAlgorithm` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: HashAlgorithm;
     EnumVal{
@@ -837,9 +837,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `SignatureAlgorithm` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `SignatureAlgorithm` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: SignatureAlgorithm;
     EnumVal{
@@ -853,9 +853,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ClientCertificateType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ClientCertificateType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: ClientCertificateType;
     EnumVal{
@@ -873,9 +873,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `Compression` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `Compression` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: Compression;
     EnumVal{
@@ -886,9 +886,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ContentType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ContentType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: ContentType;
     EnumVal{
@@ -901,9 +901,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `HandshakeType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `HandshakeType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: HandshakeType;
     EnumVal{
@@ -930,9 +930,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `AlertLevel` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `AlertLevel` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: AlertLevel;
     EnumVal{
@@ -942,9 +942,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `AlertDescription` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `AlertDescription` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: AlertDescription;
     EnumVal{
@@ -986,9 +986,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `HeartbeatMessageType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `HeartbeatMessageType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: HeartbeatMessageType;
     EnumVal{
@@ -998,9 +998,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ExtensionType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ExtensionType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
     EnumName: ExtensionType;
     EnumVal{
@@ -1045,9 +1045,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ServerNameType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ServerNameType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: ServerNameType;
     EnumVal{
@@ -1056,9 +1056,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `NamedCurve` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `NamedCurve` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
     EnumName: NamedCurve;
     EnumVal{
@@ -1098,9 +1098,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `NamedGroup` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `NamedGroup` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
     EnumName: NamedGroup;
     EnumVal{
@@ -1118,9 +1118,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `CipherSuite` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `CipherSuite` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
     EnumName: CipherSuite;
     EnumVal{
@@ -1504,9 +1504,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ECPointFormat` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ECPointFormat` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: ECPointFormat;
     EnumVal{
@@ -1517,9 +1517,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `HeartbeatMode` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `HeartbeatMode` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: HeartbeatMode;
     EnumVal{
@@ -1529,9 +1529,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `ECCurveType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `ECCurveType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: ECCurveType;
     EnumVal{
@@ -1542,9 +1542,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `SignatureScheme` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `SignatureScheme` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
     EnumName: SignatureScheme;
     EnumVal{
@@ -1565,9 +1565,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `PSKKeyExchangeMode` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `PSKKeyExchangeMode` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: PSKKeyExchangeMode;
     EnumVal{
@@ -1577,9 +1577,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `KeyUpdateRequest` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `KeyUpdateRequest` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: KeyUpdateRequest;
     EnumVal{
@@ -1589,9 +1589,9 @@
 }
 
 <span class="macro">enum_builder!</span> {
-    <span class="doccomment">/// The `CertificateStatusType` TLS protocol enum.  Values in this enum are taken
-    /// from the various RFCs covering TLS, and are listed by IANA.
-    /// The `Unknown` item is used when processing unrecognised ordinals.
+    <span class="doccomment">/// The `CertificateStatusType` TLS protocol enum.
+    ///
+    /// Values in this enum are taken from the various RFCs covering TLS, and are listed by IANA. The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     EnumName: CertificateStatusType;
     EnumVal{

@@ -262,21 +262,21 @@
 <a href="#262" id="262">262</a>
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`Term`]sas well as iterators over them.
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`Term`]s as well as iterators over them.
 
-</span><span class="kw">use </span>std::{any::Any, fmt, fmt::Formatter};
+</span><span class="kw">use </span>std::any::Any;
+<span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">super</span>::atoms::{Function, Variable};
-<span class="kw">use crate</span>::{
-    algebra::{dynamic_function::TypeShape, error::FnError, Matcher},
-    error::Error,
-    protocol::ProtocolBehavior,
-    trace::{Source, TraceContext},
-};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Source, TraceContext};
 
 <span class="doccomment">/// A first-order term: either a [`Variable`] or an application of an [`Function`].
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
@@ -284,17 +284,16 @@
 </span><span class="kw">pub enum </span>Term&lt;M: Matcher&gt; {
     <span class="doccomment">/// A concrete but unspecified `Term` (e.g. `x`, `y`).
     /// See [`Variable`] for more information.
-    ///
     </span>Variable(Variable&lt;M&gt;),
     <span class="doccomment">/// An [`Function`] applied to zero or more `Term`s (e.g. (`f(x, y)`, `g()`).
     ///
-    /// A `Term` that is an application of an [`Function`] with arity 0 applied to 0 `Term`s can be considered a constant.
-    ///
+    /// A `Term` that is an application of an [`Function`] with arity 0 applied to 0 `Term`s can be
+    /// considered a constant.
     </span>Application(Function, Vec&lt;Term&lt;M&gt;&gt;),
 }
 
 <span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Term&lt;M&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.display_at_depth(<span class="number">0</span>))
     }
 }
@@ -368,10 +367,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>evaluate&lt;PB: ProtocolBehavior&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;, Error&gt;
+    <span class="kw">pub fn </span>evaluate&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;, Error&gt;
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
     {
@@ -380,8 +376,8 @@
                 .find_variable(variable.typ, <span class="kw-2">&amp;</span>variable.query)
                 .map(|data| data.boxed_any())
                 .or_else(|| {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(Source::Agent(agent_name)) = variable.query.source {
-                        context.find_claim(agent_name, variable.typ)
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(Source::Agent(agent_name)) = <span class="kw-2">&amp;</span>variable.query.source {
+                        context.find_claim(<span class="kw-2">*</span>agent_name, variable.typ)
                     } <span class="kw">else </span>{
                         <span class="macro">todo!</span>(<span class="string">"Implement querying by label"</span>);
                     }
@@ -424,8 +420,8 @@
 /// * &lt;https://stackoverflow.com/questions/49057270/is-there-a-way-to-iterate-over-a-mutable-tree-to-get-a-random-node&gt;
 /// * &lt;https://sachanganesh.com/programming/graph-tree-traversals-in-rust/&gt;
 </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: Matcher&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;;
     <span class="kw">type </span>IntoIter = std::vec::IntoIter&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;&gt;;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="macro">vec!</span>[];
@@ -460,7 +456,8 @@
     ///
     /// A grand subterm is defined as a subterm of a term in `self`.
     ///
-    /// Each grand subterm is returned together with its parent and the index of the parent in `self`.
+    /// Each grand subterm is returned together with its parent and the index of the parent in
+    /// `self`.
     </span><span class="kw">fn </span>filter_grand_subterms&lt;P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;, <span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         predicate: P,
@@ -486,7 +483,8 @@
 }
 
 <span class="doccomment">/// `tlspuffin::term::op_impl::op_protocol_version` -&gt; `op_protocol_version`
-/// `alloc::Vec&lt;rustls::msgs::handshake::ServerExtension&gt;` -&gt; `Vec&lt;rustls::msgs::handshake::ServerExtension&gt;`
+/// `alloc::Vec&lt;rustls::msgs::handshake::ServerExtension&gt;` -&gt;
+/// `Vec&lt;rustls::msgs::handshake::ServerExtension&gt;`
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>remove_prefix(str: <span class="kw-2">&amp;</span>str) -&gt; String {
     <span class="kw">let </span>split: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = str.split(<span class="string">'&lt;'</span>).collect_tuple();
 
@@ -513,17 +511,17 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">crate</span>::algebra::remove_prefix;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_normal() {
         <span class="macro">assert_eq!</span>(remove_prefix(<span class="string">"test::test::Test"</span>), <span class="string">"Test"</span>);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_generic() {
         <span class="macro">assert_eq!</span>(remove_prefix(<span class="string">"test::test::Test&lt;Asdf&gt;"</span>), <span class="string">"Test&lt;Asdf&gt;"</span>);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_generic_recursive() {
         <span class="macro">assert_eq!</span>(remove_prefix(<span class="string">"test::test::Test&lt;asdf::Asdf&gt;"</span>), <span class="string">"Test&lt;Asdf&gt;"</span>);
     }

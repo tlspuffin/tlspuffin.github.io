@@ -745,12 +745,10 @@
     hmac,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    cipher::{Iv, IvLen},
-    error::Error,
-    key_log::KeyLog,
-    msgs::base::PayloadU8,
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::cipher::{Iv, IvLen};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key_log::KeyLog;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::PayloadU8;
 
 <span class="doccomment">/// The kinds of secret we can extract from `KeySchedule`.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
@@ -850,7 +848,8 @@
 <span class="doccomment">/// Pre-handshake key schedule
 ///
 /// The inner `KeySchedule` is either constructed without any secrets based on ths HKDF algorithm
-/// or is extracted from a `KeyScheduleEarly`. This can then be used to derive the `KeyScheduleHandshakeStart`.
+/// or is extracted from a `KeyScheduleEarly`. This can then be used to derive the
+/// `KeyScheduleHandshakeStart`.
 </span><span class="kw">pub struct </span>KeySchedulePreHandshake {
     ks: KeySchedule,
 }
@@ -968,9 +967,10 @@
     }
 }
 
-<span class="doccomment">/// KeySchedule during traffic stage, retaining the ability to calculate the client's
-/// finished verify_data. The traffic stage key schedule can be extracted from it
-/// through signing the client finished hash.
+<span class="doccomment">/// KeySchedule during traffic stage.
+///
+/// Note: Retains the ability to calculate the client's finished verify_data. The traffic stage key
+/// schedule can be extracted from it through signing the client finished hash.
 </span><span class="kw">pub struct </span>KeyScheduleTrafficWithClientFinishedPending {
     handshake_client_traffic_secret: hkdf::Prk,
     traffic: KeyScheduleTraffic,
@@ -1300,13 +1300,13 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
+</span><span class="kw">mod </span>tests {
     <span class="kw">use </span>ring::{aead, hkdf};
 
     <span class="kw">use super</span>::{derive_traffic_iv, derive_traffic_key, KeySchedule, SecretKind};
     <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key_log::KeyLog;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_vectors() {
         <span class="comment">/* These test vectors generated with OpenSSL. */
         </span><span class="kw">let </span>hs_start_hash = [

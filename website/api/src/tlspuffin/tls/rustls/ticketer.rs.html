@@ -332,15 +332,17 @@
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    mem,
-    sync::{Arc, Mutex, MutexGuard},
-    time,
-};
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::{Arc, Mutex, MutexGuard};
+<span class="kw">use </span>std::{mem, time};
 
 <span class="kw">use </span>ring::aead;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{error::Error, rand, server::server_conn::ProducesTickets};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::rand;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::server::server_conn::ProducesTickets;
 
 <span class="doccomment">/// The timebase for expiring and rolling tickets and ticketing
 /// keys.  This is UNIX wall time in seconds.
@@ -394,6 +396,7 @@
     <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="bool-val">true
     </span>}
+
     <span class="kw">fn </span>lifetime(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.lifetime
     }
@@ -493,9 +496,8 @@
         // in the common case that the generator never fails. To achieve this
         // we run the following steps:
         //  1. If no switch is necessary, just return the mutexguard
-        //  2. Shift over all of the ticketers (so current becomes previous,
-        //     and next becomes current). After this, other threads can
-        //     start using the new current ticketer.
+        //  2. Shift over all of the ticketers (so current becomes previous, and next becomes
+        //     current). After this, other threads can start using the new current ticketer.
         //  3. unlock mutex and generate new ticketer.
         //  4. Place new ticketer in next and return current
         //
@@ -605,65 +607,69 @@
     }
 }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>basic_pairwise_test() {
-    <span class="kw">let </span>t = Ticketer::new().unwrap();
-    <span class="macro">assert!</span>(t.enabled());
-    <span class="kw">let </span>cipher = t.encrypt(<span class="string">b"hello world"</span>).unwrap();
-    <span class="kw">let </span>plain = t.decrypt(<span class="kw-2">&amp;</span>cipher).unwrap();
-    <span class="macro">assert_eq!</span>(plain, <span class="string">b"hello world"</span>);
-}
-
-<span class="attr">#[test]
-</span><span class="kw">fn </span>ticketswitcher_switching_test() {
-    <span class="kw">let </span>t = Arc::new(TicketSwitcher::new(<span class="number">1</span>, generate_inner).unwrap());
-    <span class="kw">let </span>now = TimeBase::now().unwrap();
-    <span class="kw">let </span>cipher1 = t.encrypt(<span class="string">b"ticket 1"</span>).unwrap();
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
-    {
-        <span class="comment">// Trigger new ticketer
-        </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">10</span>)));
-    }
-    <span class="kw">let </span>cipher2 = t.encrypt(<span class="string">b"ticket 2"</span>).unwrap();
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
-    {
-        <span class="comment">// Trigger new ticketer
-        </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">20</span>)));
-    }
-    <span class="kw">let </span>cipher3 = t.encrypt(<span class="string">b"ticket 3"</span>).unwrap();
-    <span class="macro">assert!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).is_none());
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher3).unwrap(), <span class="string">b"ticket 3"</span>);
-}
-
 <span class="attr">#[cfg(test)]
-</span><span class="kw">fn </span>fail_generator() -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ProducesTickets&gt;, rand::GetRandomFailed&gt; {
-    <span class="prelude-val">Err</span>(rand::GetRandomFailed)
-}
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>ticketswitcher_recover_test() {
-    <span class="kw">let </span><span class="kw-2">mut </span>t = TicketSwitcher::new(<span class="number">1</span>, generate_inner).unwrap();
-    <span class="kw">let </span>now = TimeBase::now().unwrap();
-    <span class="kw">let </span>cipher1 = t.encrypt(<span class="string">b"ticket 1"</span>).unwrap();
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
-    t.generator = fail_generator;
-    {
-        <span class="comment">// Failed new ticketer
-        </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">10</span>)));
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>basic_pairwise_test() {
+        <span class="kw">let </span>t = Ticketer::new().unwrap();
+        <span class="macro">assert!</span>(t.enabled());
+        <span class="kw">let </span>cipher = t.encrypt(<span class="string">b"hello world"</span>).unwrap();
+        <span class="kw">let </span>plain = t.decrypt(<span class="kw-2">&amp;</span>cipher).unwrap();
+        <span class="macro">assert_eq!</span>(plain, <span class="string">b"hello world"</span>);
     }
-    t.generator = generate_inner;
-    <span class="kw">let </span>cipher2 = t.encrypt(<span class="string">b"ticket 2"</span>).unwrap();
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
-    {
-        <span class="comment">// recover
-        </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">20</span>)));
+
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>ticketswitcher_switching_test() {
+        <span class="kw">let </span>t = Arc::new(TicketSwitcher::new(<span class="number">1</span>, generate_inner).unwrap());
+        <span class="kw">let </span>now = TimeBase::now().unwrap();
+        <span class="kw">let </span>cipher1 = t.encrypt(<span class="string">b"ticket 1"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
+        {
+            <span class="comment">// Trigger new ticketer
+            </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">10</span>)));
+        }
+        <span class="kw">let </span>cipher2 = t.encrypt(<span class="string">b"ticket 2"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
+        {
+            <span class="comment">// Trigger new ticketer
+            </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">20</span>)));
+        }
+        <span class="kw">let </span>cipher3 = t.encrypt(<span class="string">b"ticket 3"</span>).unwrap();
+        <span class="macro">assert!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).is_none());
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher3).unwrap(), <span class="string">b"ticket 3"</span>);
     }
-    <span class="kw">let </span>cipher3 = t.encrypt(<span class="string">b"ticket 3"</span>).unwrap();
-    <span class="macro">assert!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).is_none());
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
-    <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher3).unwrap(), <span class="string">b"ticket 3"</span>);
+
+    <span class="kw">fn </span>fail_generator() -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ProducesTickets&gt;, rand::GetRandomFailed&gt; {
+        <span class="prelude-val">Err</span>(rand::GetRandomFailed)
+    }
+
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>ticketswitcher_recover_test() {
+        <span class="kw">let </span><span class="kw-2">mut </span>t = TicketSwitcher::new(<span class="number">1</span>, generate_inner).unwrap();
+        <span class="kw">let </span>now = TimeBase::now().unwrap();
+        <span class="kw">let </span>cipher1 = t.encrypt(<span class="string">b"ticket 1"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
+        t.generator = fail_generator;
+        {
+            <span class="comment">// Failed new ticketer
+            </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">10</span>)));
+        }
+        t.generator = generate_inner;
+        <span class="kw">let </span>cipher2 = t.encrypt(<span class="string">b"ticket 2"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).unwrap(), <span class="string">b"ticket 1"</span>);
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
+        {
+            <span class="comment">// recover
+            </span>t.maybe_roll(TimeBase(now.<span class="number">0 </span>+ std::time::Duration::from_secs(<span class="number">20</span>)));
+        }
+        <span class="kw">let </span>cipher3 = t.encrypt(<span class="string">b"ticket 3"</span>).unwrap();
+        <span class="macro">assert!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher1).is_none());
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher2).unwrap(), <span class="string">b"ticket 2"</span>);
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher3).unwrap(), <span class="string">b"ticket 3"</span>);
+    }
 }
 </code></pre></div></section></main></body></html>

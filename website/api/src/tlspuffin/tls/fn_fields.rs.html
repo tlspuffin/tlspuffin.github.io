@@ -226,29 +226,21 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
-</span><span class="kw">use </span>puffin::{
-    algebra::error::FnError,
-    codec::{Codec, Reader},
-};
+</span><span class="kw">use </span>puffin::algebra::error::FnError;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::{
-    key_exchange::tls12_new_secrets,
-    key_schedule::dhe_key_schedule,
-    rustls::{
-        hash_hs::HandshakeHash,
-        key_log::NoKeyLog,
-        msgs::{
-            enums::{CipherSuite, Compression, ExtensionType, NamedGroup, ProtocolVersion},
-            handshake::{ClientExtension, HasServerExtensions, Random, ServerExtension, SessionID},
-        },
-    },
+<span class="kw">use </span><span class="kw">crate</span>::tls::key_exchange::tls12_new_secrets;
+<span class="kw">use </span><span class="kw">crate</span>::tls::key_schedule::dhe_key_schedule;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key_log::NoKeyLog;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{
+    CipherSuite, Compression, ExtensionType, NamedGroup, ProtocolVersion,
+};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
+    ClientExtension, HasServerExtensions, Random, ServerExtension, SessionID,
 };
 
 <span class="kw">pub fn </span>fn_protocol_version13() -&gt; <span class="prelude-ty">Result</span>&lt;ProtocolVersion, FnError&gt; {
@@ -337,7 +329,7 @@
     <span class="kw">if let </span>ClientExtension::KeyShare(keyshares) = client_extension {
         <span class="prelude-val">Ok</span>(keyshares
             .<span class="number">0
-            </span>.get(<span class="number">0</span>)
+            </span>.first()
             .ok_or(FnError::Unknown(<span class="string">"Keyshare not found"</span>.to_string()))<span class="question-mark">?
             </span>.group)
     } <span class="kw">else </span>{

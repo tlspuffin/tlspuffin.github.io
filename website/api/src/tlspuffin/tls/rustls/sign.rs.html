@@ -539,20 +539,20 @@
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
 <a href="#541" id="541">541</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{convert::TryFrom, error::Error <span class="kw">as </span>StdError, fmt, sync::Arc};
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use </span>ring::{
-    io::der,
-    rand::SecureRandom,
-    signature::{<span class="self">self</span>, EcdsaKeyPair, Ed25519KeyPair, RsaKeyPair},
-};
+<span class="kw">use </span>ring::io::der;
+<span class="kw">use </span>ring::rand::SecureRandom;
+<span class="kw">use </span>ring::signature::{<span class="self">self</span>, EcdsaKeyPair, Ed25519KeyPair, RsaKeyPair};
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    error::Error,
-    key,
-    msgs::enums::{SignatureAlgorithm, SignatureScheme},
-    x509::{wrap_in_asn1_len, wrap_in_sequence},
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{SignatureAlgorithm, SignatureScheme};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::x509::{wrap_in_asn1_len, wrap_in_sequence};
 
 <span class="doccomment">/// An abstract signing key.
 </span><span class="kw">pub trait </span>SigningKey: Send + Sync {
@@ -615,14 +615,13 @@
 
     <span class="doccomment">/// The end-entity certificate.
     </span><span class="kw">pub fn </span>end_entity_cert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>key::Certificate, SignError&gt; {
-        <span class="self">self</span>.cert.get(<span class="number">0</span>).ok_or(SignError(()))
+        <span class="self">self</span>.cert.first().ok_or(SignError(()))
     }
 
     <span class="doccomment">/// Check the certificate chain for validity:
     /// - it should be non-empty list
     /// - the first certificate should be parsable as a x509v3,
-    /// - the first certificate should quote the given server name
-    ///   (if provided)
+    /// - the first certificate should quote the given server name (if provided)
     ///
     /// These checks are not security-sensitive.  They are the
     /// *server* attempting to detect accidental misconfiguration.
@@ -1025,59 +1024,64 @@
 
 <span class="kw">impl </span>StdError <span class="kw">for </span>SignError {}
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_ecdsa_nistp256_pkcs8() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp256key.pkcs8.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
-}
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_ecdsa_nistp256_sec1() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp256key.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_ecdsa_nistp256_pkcs8() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp256key.pkcs8.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_ecdsa_nistp384_pkcs8() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp384key.pkcs8.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_ecdsa_nistp256_sec1() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp256key.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_ecdsa_nistp384_sec1() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp384key.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_ecdsa_nistp384_pkcs8() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp384key.pkcs8.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_eddsa_pkcs8() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/eddsakey.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_err());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_ecdsa_nistp384_sec1() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/nistp384key.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_rsa2048_pkcs8() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/rsa2048key.pkcs8.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_err());
-}
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_eddsa_pkcs8() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/eddsakey.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
 
-<span class="attr">#[test]
-</span><span class="kw">fn </span>can_load_rsa2048_pkcs1() {
-    <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/rsa2048key.pkcs1.der"</span>).to_vec());
-    <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
-    <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
-    <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_rsa2048_pkcs8() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/rsa2048key.pkcs8.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
+
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>can_load_rsa2048_pkcs1() {
+        <span class="kw">let </span>key = key::PrivateKey(<span class="macro">include_bytes!</span>(<span class="string">"testdata/rsa2048key.pkcs1.der"</span>).to_vec());
+        <span class="macro">assert!</span>(any_supported_type(<span class="kw-2">&amp;</span>key).is_ok());
+        <span class="macro">assert!</span>(any_eddsa_type(<span class="kw-2">&amp;</span>key).is_err());
+        <span class="macro">assert!</span>(any_ecdsa_type(<span class="kw-2">&amp;</span>key).is_err());
+    }
 }
 </code></pre></div></section></main></body></html>

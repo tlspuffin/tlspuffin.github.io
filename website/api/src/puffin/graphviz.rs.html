@@ -212,25 +212,17 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module adds plotting capabilities to[`Term`]sand Traces. The output of the functions in
 //! this module can be passed to the command line utility `dot` which is part of graphviz.
 
-</span><span class="kw">use </span>std::{
-    fmt, io,
-    io::{ErrorKind, Write},
-    process::{Command, Stdio},
-};
+</span><span class="kw">use </span>std::io::{ErrorKind, Write};
+<span class="kw">use </span>std::process::{Command, Stdio};
+<span class="kw">use </span>std::{fmt, io};
 
 <span class="kw">use </span>itertools::Itertools;
 
-<span class="kw">use crate</span>::{
-    algebra::{remove_fn_prefix, remove_prefix, Matcher, Term},
-    trace::{Action, Trace},
-};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_fn_prefix, remove_prefix, Matcher, Term};
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace};
 
 <span class="comment">// Colorful theme
 /*const FONT: &amp;'static str = "Latin Modern Roman";
@@ -427,7 +419,7 @@ const SHOW_LABELS: bool = false */
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">crate</span>::algebra::test_signature::setup_simple_trace;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_dot_graph() {
         <span class="kw">let </span>trace = setup_simple_trace();
         <span class="kw">let </span>_string = trace.dot_graph(<span class="bool-val">true</span>);

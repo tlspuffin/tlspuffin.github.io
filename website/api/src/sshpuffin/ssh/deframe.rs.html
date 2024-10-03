@@ -157,14 +157,16 @@
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::VecDeque, io};
+<a href="#160" id="160">160</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
+<span class="kw">use </span>std::io;
 
-<span class="kw">use </span>puffin::{codec, codec::Codec, protocol::ProtocolMessageDeframer};
+<span class="kw">use </span>puffin::codec;
+<span class="kw">use </span>puffin::codec::Codec;
+<span class="kw">use </span>puffin::protocol::ProtocolMessageDeframer;
 
-<span class="kw">use crate</span>::{
-    query::SshQueryMatcher,
-    ssh::message::{OnWireData, RawSshMessage},
-};
+<span class="kw">use </span><span class="kw">crate</span>::query::SshQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::ssh::message::{OnWireData, RawSshMessage};
 
 <span class="kw">const </span>MAX_WIRE_SIZE: usize = <span class="number">35000</span>;
 

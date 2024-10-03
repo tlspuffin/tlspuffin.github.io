@@ -334,9 +334,8 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides traits for calling rust functions dynamically.
+//!
 //! All functions which implement the DynamicFunction trait can be called by passing an array of
 //! [`Any`]s to it. The return value is again of type [`Any`].
 //!
@@ -362,11 +361,11 @@
 //! typed function we can generate dynamically types ones which implement the following trait:
 //!
 //! ```rust
-//! use puffin::algebra::error::FnError;
 //! use std::any::Any;
 //!
-//! pub trait DynamicFunction: Fn(&amp;Vec&lt;Box&lt;dyn Any&gt;&gt;) -&gt; Result&lt;Box&lt;dyn Any&gt;, FnError&gt; {
-//! }
+//! use puffin::algebra::error::FnError;
+//!
+//! pub trait DynamicFunction: Fn(&amp;Vec&lt;Box&lt;dyn Any&gt;&gt;) -&gt; Result&lt;Box&lt;dyn Any&gt;, FnError&gt; {}
 //! ```
 //!
 //! Note, that both functions return a `Result` and therefore can gracefully fail.
@@ -387,18 +386,17 @@
 //! ```
 //!
 //! It returns one possibility for the cipher suites which could be sent during a `ClientHello`.
-</span><span class="kw">use </span>std::{
-    any::{type_name, Any, TypeId},
-    collections::hash_map::DefaultHasher,
-    fmt,
-    fmt::Formatter,
-    hash::{Hash, Hasher},
-};
+</span><span class="kw">use </span>std::any::{type_name, Any, TypeId};
+<span class="kw">use </span>std::collections::hash_map::DefaultHasher;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::hash::{Hash, Hasher};
 
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
+<span class="kw">use </span>serde::de::Visitor;
+<span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{deserialize_signature, error::FnError};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::deserialize_signature;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
 
 <span class="doccomment">/// Describes the shape of a [`DynamicFunction`]
 </span><span class="attr">#[derive(Serialize, Deserialize, Debug, Clone)]
@@ -489,7 +487,7 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"DynamicFunction"</span>)
     }
 }
@@ -587,11 +585,9 @@
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 =&gt; R);
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 T9 =&gt; R);
 
-<span class="kw">pub fn </span>make_dynamic&lt;F: <span class="lifetime">'static</span>, Types&gt;(
-    f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F,
-) -&gt; (DynamicFunctionShape, Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;)
+<span class="kw">pub fn </span>make_dynamic&lt;F, Types&gt;(f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F) -&gt; (DynamicFunctionShape, Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;)
 <span class="kw">where
-    </span>F: DescribableFunction&lt;Types&gt;,
+    </span>F: <span class="lifetime">'static </span>+ DescribableFunction&lt;Types&gt;,
 {
     (F::shape(), f.make_dynamic())
 }
@@ -631,7 +627,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TypeShape {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.name)
     }
 }

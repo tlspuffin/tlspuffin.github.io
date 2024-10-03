@@ -431,29 +431,24 @@
 <a href="#431" id="431">431</a>
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
-<span class="kw">use </span>ring::{aead, digest::Digest};
+<span class="kw">use </span>ring::aead;
+<span class="kw">use </span>ring::digest::Digest;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{
-    cipher::{MessageDecrypter, MessageEncrypter},
-    conn::ConnectionRandoms,
-    kx,
-    msgs::{
-        enums::{CipherSuite, SignatureScheme},
-        handshake::KeyExchangeAlgorithm,
-    },
-    suites::{BulkAlgorithm, CipherSuiteCommon, SupportedCipherSuite},
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::cipher::{MessageDecrypter, MessageEncrypter};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::conn::ConnectionRandoms;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::kx;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{CipherSuite, SignatureScheme};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::KeyExchangeAlgorithm;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::suites::{BulkAlgorithm, CipherSuiteCommon, SupportedCipherSuite};
 
 <span class="kw">mod </span>cipher;
 <span class="kw">pub use </span>cipher::{AesGcm, ChaCha20Poly1305, Tls12AeadAlgorithm};
 <span class="kw">use </span>puffin::codec::Codec;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{conn::Side, error::Error};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::conn::Side;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::error::Error;
 
 <span class="kw">pub mod </span>prf;
 
@@ -700,7 +695,8 @@
         ) -&gt; (aead::LessSafeKey, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) {
             <span class="comment">// Might panic if the key block is too small.
             </span><span class="kw">let </span>(key, rest) = key_block.split_at(alg.key_len());
-            <span class="comment">// Won't panic because its only prerequisite is that `key` is `alg.key_len()` bytes long.
+            <span class="comment">// Won't panic because its only prerequisite is that `key` is `alg.key_len()` bytes
+            // long.
             </span><span class="kw">let </span>key = aead::UnboundKey::new(alg, key).unwrap();
             (aead::LessSafeKey::new(key), rest)
         }
@@ -745,8 +741,7 @@
         <span class="kw">let </span>len =
             (common.aead_algorithm.key_len() + suite.fixed_iv_len) * <span class="number">2 </span>+ suite.explicit_nonce_len;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
-        out.resize(len, <span class="number">0u8</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="macro">vec!</span>[<span class="number">0</span>; len];
 
         <span class="comment">// NOTE: opposite order to above for no good reason.
         // Don't design security protocols on drugs, kids.
@@ -773,8 +768,7 @@
     }
 
     <span class="kw">fn </span>make_verify_data(<span class="kw-2">&amp;</span><span class="self">self</span>, handshake_hash: <span class="kw-2">&amp;</span>Digest, label: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
-        out.resize(<span class="number">12</span>, <span class="number">0u8</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">12</span>];
 
         prf::prf(
             <span class="kw-2">&amp;mut </span>out,
@@ -855,7 +849,7 @@
         }
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>server_ecdhe_remaining_bytes() {
         <span class="kw">let </span>key = kx::KeyExchange::start(<span class="kw-2">&amp;</span>kx::X25519).unwrap();
         <span class="kw">let </span>server_params = ServerECDHParams::new(key.group(), key.pubkey.as_ref());
@@ -865,7 +859,7 @@
         <span class="macro">assert!</span>(decode_ecdh_params_::&lt;ServerECDHParams&gt;(<span class="kw-2">&amp;</span>server_buf).is_none());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>client_ecdhe_invalid() {
         <span class="macro">assert!</span>(decode_ecdh_params_::&lt;ClientECDHParams&gt;(<span class="kw-2">&amp;</span>[<span class="number">34</span>]).is_none());
     }

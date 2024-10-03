@@ -555,24 +555,26 @@
 <a href="#555" id="555">555</a>
 <a href="#556" id="556">556</a>
 <a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
-<span class="kw">use </span>std::{fmt, path::PathBuf};
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="kw">use </span>libafl::{corpus::ondisk::OnDiskMetadataFormat, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>libafl::corpus::ondisk::OnDiskMetadataFormat;
+<span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>log4rs::Handle;
 
 <span class="kw">use </span><span class="kw">super</span>::harness;
-<span class="kw">use crate</span>::{
-    fuzzer::{
-        mutations::{trace_mutations, util::TermConstraints},
-        stats_monitor::StatsMonitor,
-    },
-    log::{config_fuzzing, config_fuzzing_client},
-    protocol::ProtocolBehavior,
-    put_registry::PutRegistry,
-    trace::Trace,
-};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::trace_mutations;
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::util::TermConstraints;
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_monitor::StatsMonitor;
+<span class="kw">use </span><span class="kw">crate</span>::log::{config_fuzzing, config_fuzzing_client};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
+<span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
 
 <span class="kw">pub const </span>MAP_FEEDBACK_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges"</span>;
 <span class="kw">const </span>EDGES_OBSERVER_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges_observer"</span>;
@@ -708,6 +710,7 @@
             mutations: <span class="prelude-val">None</span>,
         }
     }
+
     <span class="kw">fn </span>with_rand(<span class="kw-2">mut </span><span class="self">self</span>, rand: R) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.rand = <span class="prelude-val">Some</span>(rand);
         <span class="self">self
@@ -780,7 +783,8 @@
             ..
         } = <span class="self">self</span>.config;
 
-        <span class="comment">// FIXME let mutator = PuffinScheduledMutator::new(self.mutations.unwrap(), max_mutations_per_iteration);
+        <span class="comment">// FIXME let mutator = PuffinScheduledMutator::new(self.mutations.unwrap(),
+        // max_mutations_per_iteration);
         </span><span class="kw">let </span>mutator = StdScheduledMutator::new(<span class="self">self</span>.mutations.unwrap());
         <span class="kw">let </span><span class="kw-2">mut </span>stages = <span class="macro">tuple_list!</span>(
             <span class="comment">// FIXMEPuffinMutationalStage::new(mutator, max_iterations_per_stage),
@@ -794,7 +798,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>executor: ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, OT, <span class="kw">_</span>&gt; = TimeoutExecutor::new(
             InProcessExecutor::new(
                 <span class="self">self</span>.harness_fn,
-                <span class="comment">// hint: edges_observer is expensive to serialize (only noticeable if we add all inputs to the corpus)
+                <span class="comment">// hint: edges_observer is expensive to serialize (only noticeable if we add all
+                // inputs to the corpus)
                 </span><span class="self">self</span>.observers.unwrap(),
                 <span class="kw-2">&amp;mut </span>fuzzer,
                 <span class="kw-2">&amp;mut </span>state,
@@ -944,8 +949,9 @@
             <span class="kw">let </span>edges_observer =
                 HitcountsMapObserver::new(<span class="kw">unsafe </span>{ StdMapObserver::new(EDGES_OBSERVER_NAME, map) });
             <span class="kw">let </span>feedback = <span class="macro">feedback_or!</span>(
-                <span class="comment">// New maximization map feedback linked to the edges observer and the feedback state
-                // `track_indexes` needed because of IndexesLenTimeMinimizerCorpusScheduler
+                <span class="comment">// New maximization map feedback linked to the edges observer and the feedback
+                // state `track_indexes` needed because of
+                // IndexesLenTimeMinimizerCorpusScheduler
                 </span>map_feedback,
                 <span class="comment">// Time feedback, this one does not need a feedback state
                 // needed for IndexesLenTimeMinimizerCorpusScheduler
@@ -1036,11 +1042,11 @@
 
         <span class="comment">//#[cfg(feature = "sancov")]
         //{
-        /*            let (feedback, observers) = builder.create_feedback_observers();*/
-        /*            builder = builder*/
-        /*                .with_feedback(feedback)*/
-        /*                .with_observers(observers)*/
-        /*                .with_scheduler(IndexesLenTimeMinimizerScheduler::new(QueueScheduler::new()));*/
+        /* let (feedback, observers) = builder.create_feedback_observers(); */
+        /* builder = builder */
+        /* .with_feedback(feedback) */
+        /* .with_observers(observers) */
+        /* .with_scheduler(IndexesLenTimeMinimizerScheduler::new(QueueScheduler::new())); */
         //}
 
         //#[cfg(not(feature = "sancov"))]

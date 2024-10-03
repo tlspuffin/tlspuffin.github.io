@@ -650,15 +650,6 @@
 <a href="#650" id="650">650</a>
 <a href="#651" id="651">651</a>
 <a href="#652" id="652">652</a>
-<a href="#653" id="653">653</a>
-<a href="#654" id="654">654</a>
-<a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a>
-<a href="#657" id="657">657</a>
-<a href="#658" id="658">658</a>
-<a href="#659" id="659">659</a>
-<a href="#660" id="660">660</a>
-<a href="#661" id="661">661</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -666,28 +657,19 @@
 //! &lt;https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml&gt;
 //!
 //! In the source code all IDs are available, but implementations are missing.
-//!
 
 </span><span class="kw">use </span>puffin::algebra::error::FnError;
 <span class="kw">use </span>webpki::DnsNameRef;
 
-<span class="kw">use crate</span>::{
-    nyi_fn,
-    tls::{
-        fn_impl::fn_get_ticket_age_add,
-        fn_utils::fn_get_ticket,
-        key_exchange::deterministic_key_share,
-        rustls::{
-            msgs::{
-                base::{Payload, PayloadU16, PayloadU24, PayloadU8},
-                enums::<span class="kw-2">*</span>,
-                handshake::<span class="kw-2">*</span>,
-                message::Message,
-            },
-            x509,
-        },
-    },
-};
+<span class="kw">use </span><span class="kw">crate</span>::nyi_fn;
+<span class="kw">use </span><span class="kw">crate</span>::tls::fn_impl::fn_get_ticket_age_add;
+<span class="kw">use </span><span class="kw">crate</span>::tls::fn_utils::fn_get_ticket;
+<span class="kw">use </span><span class="kw">crate</span>::tls::key_exchange::deterministic_key_share;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::{Payload, PayloadU16, PayloadU24, PayloadU8};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::Message;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::x509;
 
 <span class="kw">pub fn </span>fn_client_extensions_new() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ClientExtension&gt;, FnError&gt; {
     <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])

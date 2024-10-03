@@ -73,22 +73,16 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::executors::ExitKind;
-<span class="kw">use </span>log::{info, trace, warn};
 <span class="kw">use </span>once_cell::sync::OnceCell;
 <span class="kw">use </span>rand::Rng;
 
-<span class="kw">use crate</span>::{
-    error::Error,
-    fuzzer::stats_stage::<span class="kw-2">*</span>,
-    protocol::ProtocolBehavior,
-    put::PutOptions,
-    put_registry::PutRegistry,
-    trace::{Action, Trace, TraceContext},
-};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_stage::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::put::PutOptions;
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace, TraceContext};
 
 <span class="kw">static </span>DEFAULT_PUT_OPTIONS: OnceCell&lt;PutOptions&gt; = OnceCell::new();
 
@@ -132,12 +126,12 @@
             Error::Stream(<span class="kw">_</span>) =&gt; STREAM.increment(),
             Error::Extraction() =&gt; EXTRACTION.increment(),
             Error::SecurityClaim(msg) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">"{}"</span>, msg);
+                <span class="macro">log::warn!</span>(<span class="string">"{}"</span>, msg);
                 std::process::abort()
             }
         }
 
-        <span class="macro">trace!</span>(<span class="string">"{}"</span>, err);
+        <span class="macro">log::trace!</span>(<span class="string">"{}"</span>, err);
     }
 
     ExitKind::Ok
@@ -148,7 +142,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
 
     <span class="kw">let </span>n1 = rng.gen_range(<span class="number">0</span>..<span class="number">10</span>);
-    <span class="macro">info!</span>(<span class="string">"Run {}"</span>, n1);
+    <span class="macro">log::info!</span>(<span class="string">"Run {}"</span>, n1);
     <span class="kw">if </span>n1 &lt;= <span class="number">5 </span>{
         <span class="kw">return </span>ExitKind::Timeout;
     }

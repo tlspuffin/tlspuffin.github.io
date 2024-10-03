@@ -324,14 +324,6 @@
 <a href="#324" id="324">324</a>
 <a href="#325" id="325">325</a>
 <a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
 </pre></div><pre class="rust"><code><span class="comment">// FIXME stabilize sshpuffin and reactivate the dead_code lint
 //
 //     Currently sshpuffin contains many functions that are unused but will be
@@ -343,37 +335,28 @@
 //     should reactivate the dead_code lint, as it provides valuable insights.
 </span><span class="attr">#![allow(dead_code)]
 
-</span><span class="kw">use </span>std::{
-    fs,
-    io::{Read, Write},
-    os::unix::{
-        io::{IntoRawFd, RawFd},
-        net::{UnixListener, UnixStream},
-    },
-};
+</span><span class="kw">use </span>std::fs;
+<span class="kw">use </span>std::io::{Read, Write};
+<span class="kw">use </span>std::os::unix::io::{IntoRawFd, RawFd};
+<span class="kw">use </span>std::os::unix::net::{UnixListener, UnixStream};
 
-<span class="kw">use </span>log::debug;
-<span class="kw">use </span>puffin::{
-    agent::{AgentDescriptor, AgentName, AgentType},
-    codec::Codec,
-    error::Error,
-    put::{Put, PutName},
-    put_registry::{Factory, PutKind},
-    stream::Stream,
-    trace::TraceContext,
-    VERSION_STR,
-};
+<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType};
+<span class="kw">use </span>puffin::codec::Codec;
+<span class="kw">use </span>puffin::error::Error;
+<span class="kw">use </span>puffin::put::{Put, PutName};
+<span class="kw">use </span>puffin::put_registry::{Factory, PutKind};
+<span class="kw">use </span>puffin::stream::Stream;
+<span class="kw">use </span>puffin::trace::TraceContext;
+<span class="kw">use </span>puffin::VERSION_STR;
 
-<span class="kw">use crate</span>::{
-    libssh::ssh::{
-        SessionOption, SessionState, SshAuthResult, SshBind, SshBindOption, SshKey, SshRequest,
-        SshResult, SshSession,
-    },
-    protocol::{RawSshMessageFlight, SshProtocolBehavior},
-    put_registry::LIBSSH_PUT,
-    query::SshQueryMatcher,
-    ssh::message::{RawSshMessage, SshMessage},
+<span class="kw">use </span><span class="kw">crate</span>::libssh::ssh::{
+    SessionOption, SessionState, SshAuthResult, SshBind, SshBindOption, SshKey, SshRequest,
+    SshResult, SshSession,
 };
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{RawSshMessageFlight, SshProtocolBehavior};
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::LIBSSH_PUT;
+<span class="kw">use </span><span class="kw">crate</span>::query::SshQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::ssh::message::{RawSshMessage, SshMessage};
 
 <span class="kw">pub mod </span>ssh;
 
@@ -504,11 +487,11 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
         }
 
         <span class="kw">fn </span>determinism_set_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">debug!</span>(<span class="string">" [Determinism] Factory {} has no support for determinism. We cannot set and reseed."</span>, <span class="self">self</span>.name());
+            <span class="macro">log::debug!</span>(<span class="string">" [Determinism] Factory {} has no support for determinism. We cannot set and reseed."</span>, <span class="self">self</span>.name());
         }
 
         <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">debug!</span>(
+            <span class="macro">log::debug!</span>(
                 <span class="string">" [Determinism] Factory {} has no support for determinism. We cannot reseed."</span>,
                 <span class="self">self</span>.name()
             );
@@ -552,7 +535,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
         <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[];
         <span class="kw">let _ </span>= <span class="self">self</span>.fuzz_stream.read_to_end(<span class="kw-2">&amp;mut </span>buf);
 
-        <span class="prelude-val">Ok</span>(RawSshMessageFlight::read_bytes(<span class="kw-2">&amp;mut </span>buf))
+        <span class="prelude-val">Ok</span>(RawSshMessageFlight::read_bytes(<span class="kw-2">&amp;</span>buf))
     }
 }
 
@@ -660,6 +643,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
     <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
         <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
+
     <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), puffin::error::Error&gt; {
         <span class="prelude-val">Err</span>(Error::Put(
             <span class="string">"libssh does not support determinism"</span>.to_string(),

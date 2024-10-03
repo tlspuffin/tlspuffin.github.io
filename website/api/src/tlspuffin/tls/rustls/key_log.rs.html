@@ -49,7 +49,6 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/// This trait represents the ability to do something useful
 /// with key material, such as logging it to a file for debugging.
 ///
@@ -65,18 +64,16 @@
     /// `secret` means:
     ///
     /// - `CLIENT_RANDOM`: `secret` is the master secret for a TLSv1.2 session.
-    /// - `CLIENT_EARLY_TRAFFIC_SECRET`: `secret` encrypts early data
-    ///   transmitted by a client
-    /// - `SERVER_HANDSHAKE_TRAFFIC_SECRET`: `secret` encrypts
-    ///   handshake messages from the server during a TLSv1.3 handshake.
-    /// - `CLIENT_HANDSHAKE_TRAFFIC_SECRET`: `secret` encrypts
-    ///   handshake messages from the client during a TLSv1.3 handshake.
-    /// - `SERVER_TRAFFIC_SECRET_0`: `secret` encrypts post-handshake data
-    ///   from the server in a TLSv1.3 session.
-    /// - `CLIENT_TRAFFIC_SECRET_0`: `secret` encrypts post-handshake data
-    ///   from the client in a TLSv1.3 session.
-    /// - `EXPORTER_SECRET`: `secret` is the post-handshake exporter secret
-    ///   in a TLSv1.3 session.
+    /// - `CLIENT_EARLY_TRAFFIC_SECRET`: `secret` encrypts early data transmitted by a client
+    /// - `SERVER_HANDSHAKE_TRAFFIC_SECRET`: `secret` encrypts handshake messages from the server
+    ///   during a TLSv1.3 handshake.
+    /// - `CLIENT_HANDSHAKE_TRAFFIC_SECRET`: `secret` encrypts handshake messages from the client
+    ///   during a TLSv1.3 handshake.
+    /// - `SERVER_TRAFFIC_SECRET_0`: `secret` encrypts post-handshake data from the server in a
+    ///   TLSv1.3 session.
+    /// - `CLIENT_TRAFFIC_SECRET_0`: `secret` encrypts post-handshake data from the client in a
+    ///   TLSv1.3 session.
+    /// - `EXPORTER_SECRET`: `secret` is the post-handshake exporter secret in a TLSv1.3 session.
     ///
     /// These strings are selected to match the NSS key log format:
     /// &lt;https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format&gt;
@@ -97,6 +94,7 @@
 
 <span class="kw">impl </span>KeyLog <span class="kw">for </span>NoKeyLog {
     <span class="kw">fn </span>log(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>str, <span class="kw">_</span>: <span class="kw-2">&amp;</span>[u8], <span class="kw">_</span>: <span class="kw-2">&amp;</span>[u8]) {}
+
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>will_log(<span class="kw-2">&amp;</span><span class="self">self</span>, _label: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="bool-val">false

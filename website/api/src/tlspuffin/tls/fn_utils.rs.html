@@ -562,52 +562,28 @@
 <a href="#562" id="562">562</a>
 <a href="#563" id="563">563</a>
 <a href="#564" id="564">564</a>
-<a href="#565" id="565">565</a>
-<a href="#566" id="566">566</a>
-<a href="#567" id="567">567</a>
-<a href="#568" id="568">568</a>
-<a href="#569" id="569">569</a>
-<a href="#570" id="570">570</a>
-<a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
-</span><span class="kw">use </span>std::convert::TryFrom;
+</span><span class="kw">use </span>puffin::algebra::error::FnError;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
+<span class="kw">use </span>puffin::protocol::{OpaqueProtocolMessageFlight, ProtocolMessageFlight};
 
-<span class="kw">use </span>puffin::{
-    algebra::error::FnError,
-    codec::{Codec, Reader},
-    protocol::{OpaqueProtocolMessageFlight, ProtocolMessageFlight},
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{MessageFlight, OpaqueMessageFlight};
+<span class="kw">use </span><span class="kw">crate</span>::tls::key_exchange::{tls12_key_exchange, tls12_new_secrets};
+<span class="kw">use </span><span class="kw">crate</span>::tls::key_schedule::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::conn::Side;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key::Certificate;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::PayloadU8;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{HandshakeType, NamedGroup};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
+    CertificateEntry, CertificateExtension, CertificateExtensions, HandshakeMessagePayload,
+    HandshakePayload, Random, ServerECDHParams,
 };
-
-<span class="kw">use crate</span>::{
-    protocol::{MessageFlight, OpaqueMessageFlight},
-    tls::{
-        key_exchange::{tls12_key_exchange, tls12_new_secrets},
-        key_schedule::<span class="kw-2">*</span>,
-        rustls::{
-            conn::Side,
-            hash_hs::HandshakeHash,
-            key::Certificate,
-            msgs::{
-                base::PayloadU8,
-                enums::{HandshakeType, NamedGroup},
-                handshake::{
-                    CertificateEntry, CertificateExtension, CertificateExtensions,
-                    HandshakeMessagePayload, HandshakePayload, Random, ServerECDHParams,
-                },
-                message::{Message, MessagePayload, OpaqueMessage, PlainMessage},
-            },
-            tls12,
-            tls13::key_schedule::KeyScheduleEarly,
-        },
-    },
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage, PlainMessage};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls12;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls13::key_schedule::KeyScheduleEarly;
 
 <span class="comment">// ----
 // seed_client_attacker()
@@ -669,7 +645,7 @@
     <span class="kw">for </span>msg <span class="kw">in </span><span class="kw-2">&amp;</span>flight.messages {
         <span class="kw">if let </span>MessagePayload::ApplicationData(<span class="kw">_</span>) = <span class="kw-2">&amp;</span>msg.payload {
             <span class="kw">let </span>decrypted_msg = fn_decrypt_multiple_handshake_messages(
-                <span class="kw-2">&amp;</span>msg,
+                msg,
                 server_hello_transcript,
                 server_key_share,
                 psk,
@@ -821,7 +797,7 @@
     <span class="kw">for </span>msg <span class="kw">in </span><span class="kw-2">&amp;</span>flight.messages {
         <span class="kw">if let </span>MessagePayload::ApplicationData(<span class="kw">_</span>) = <span class="kw-2">&amp;</span>msg.payload {
             <span class="kw">let </span>decrypted_msg = fn_decrypt_application(
-                <span class="kw-2">&amp;</span>msg,
+                msg,
                 server_hello_transcript,
                 server_finished_transcript,
                 server_key_share,

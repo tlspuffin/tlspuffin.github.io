@@ -252,17 +252,13 @@
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::mem;
 
 <span class="kw">use </span>puffin::codec::Codec;
 <span class="kw">use </span>ring::digest;
 
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::{
-    handshake::HandshakeMessagePayload,
-    message::{Message, MessagePayload},
-};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::HandshakeMessagePayload;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload};
 
 <span class="doccomment">/// Early stage buffering of handshake payloads.
 ///
@@ -449,12 +445,12 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
+</span><span class="kw">mod </span>tests {
     <span class="kw">use </span>ring::digest;
 
     <span class="kw">use </span><span class="kw">super</span>::HandshakeHashBuffer;
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>hashes_correctly() {
         <span class="kw">let </span><span class="kw-2">mut </span>hhb = HandshakeHashBuffer::new();
         hhb.update_raw(<span class="string">b"hello"</span>);
@@ -470,7 +466,7 @@
         <span class="macro">assert_eq!</span>(h[<span class="number">3</span>], <span class="number">0x5c</span>);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>buffers_correctly() {
         <span class="kw">let </span><span class="kw-2">mut </span>hhb = HandshakeHashBuffer::new();
         hhb.set_client_auth_enabled();
@@ -490,7 +486,7 @@
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">b"helloworld"</span>.to_vec()), buf);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>abandon() {
         <span class="kw">let </span><span class="kw-2">mut </span>hhb = HandshakeHashBuffer::new();
         hhb.set_client_auth_enabled();

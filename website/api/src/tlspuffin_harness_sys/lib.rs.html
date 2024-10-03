@@ -109,7 +109,6 @@
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>bindings {
     <span class="attr">#![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
@@ -134,7 +133,7 @@
 <span class="kw">pub type </span>FnRegister = <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(put: <span class="kw-2">*const </span>C_PUT_TYPE) -&gt; ();
 
 <span class="macro">macro_rules!</span> define_extern_c_log {
-    ( <span class="macro-nonterminal">$level</span>:ident, <span class="macro-nonterminal">$name</span>:ident ) =&gt; {
+    (<span class="macro-nonterminal">$level</span>:ident, <span class="macro-nonterminal">$name</span>:ident) =&gt; {
         <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span><span class="macro-nonterminal">$name</span>(message: <span class="kw-2">*const </span>c_char) {
             <span class="macro">log::log!</span>(log::Level::<span class="macro-nonterminal">$level</span>, <span class="string">"{}"</span>, to_string(message));
         }
@@ -161,9 +160,8 @@
 ///
 /// * Passing a NULL pointer is allowed and will return an empty [String].
 ///
-/// * When `ptr` is non-NULL, the pointed memory must respect the same
-///   constraints as a memory buffer passed to [std::ffi::CStr::from_ptr].
-///
+/// * When `ptr` is non-NULL, the pointed memory must respect the same constraints as a memory
+///   buffer passed to [std::ffi::CStr::from_ptr].
 </span><span class="kw">pub unsafe fn </span>to_string(ptr: <span class="kw-2">*const </span>c_char) -&gt; String {
     <span class="kw">use </span>std::ffi::CStr;
 

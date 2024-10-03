@@ -260,7 +260,8 @@
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{convert::TryInto, fmt::Debug};
+<a href="#263" id="263">263</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="doccomment">/// Read from a byte slice.
 </span><span class="kw">pub struct </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
@@ -352,6 +353,7 @@
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         bytes.push(<span class="kw-2">*</span><span class="self">self</span>);
     }
+
     <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         r.take(<span class="number">1</span>).and_then(decode_u8)
     }

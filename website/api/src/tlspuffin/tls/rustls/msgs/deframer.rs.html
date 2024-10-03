@@ -411,7 +411,10 @@
 <a href="#411" id="411">411</a>
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::VecDeque, io};
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
+<span class="kw">use </span>std::io;
 
 <span class="kw">use </span>puffin::codec;
 
@@ -546,10 +549,11 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>std::{convert::TryFrom, io};
+    <span class="kw">use </span>std::io;
 
     <span class="kw">use </span><span class="kw">super</span>::MessageDeframer;
-    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::{msgs, msgs::message::Message};
+    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs;
+    <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::Message;
 
     <span class="kw">const </span>FIRST_MESSAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-test.1.bin"</span>);
     <span class="kw">const </span>SECOND_MESSAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-test.2.bin"</span>);
@@ -672,7 +676,7 @@
         Message::try_from(m.into_plain_message()).unwrap();
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>check_incremental() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         <span class="macro">assert!</span>(!d.has_pending());
@@ -684,7 +688,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>check_incremental_2() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         <span class="macro">assert!</span>(!d.has_pending());
@@ -700,7 +704,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>check_whole() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         <span class="macro">assert!</span>(!d.has_pending());
@@ -712,7 +716,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>check_whole_2() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         <span class="macro">assert!</span>(!d.has_pending());
@@ -725,7 +729,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_two_in_one_read() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         <span class="macro">assert!</span>(!d.has_pending());
@@ -740,7 +744,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_two_in_one_read_shortest_first() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         <span class="macro">assert!</span>(!d.has_pending());
@@ -755,7 +759,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_incremental_with_nonfatal_read_error() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(<span class="number">3</span>, input_bytes(<span class="kw-2">&amp;mut </span>d, <span class="kw-2">&amp;</span>FIRST_MESSAGE[..<span class="number">3</span>]));
@@ -770,7 +774,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_invalid_contenttype_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -780,7 +784,7 @@
         <span class="macro">assert!</span>(d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_invalid_version_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -790,7 +794,7 @@
         <span class="macro">assert!</span>(d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_invalid_length_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -800,7 +804,7 @@
         <span class="macro">assert!</span>(d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_empty_applicationdata() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -814,7 +818,7 @@
         <span class="macro">assert!</span>(!d.desynced);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_invalid_empty_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(

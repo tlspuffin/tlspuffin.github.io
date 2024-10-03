@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["PutDescriptor","PutName","PutOptions"],"trait":["Put"]};
+window.SIDEBAR_ITEMS = {"struct":["PutDescriptor","PutOptions"],"trait":["Put"]};

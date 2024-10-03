@@ -123,16 +123,29 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentDescriptor;
+<span class="kw">use </span><span class="kw">crate</span>::claims::GlobalClaimList;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
-<span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutName};
-<span class="kw">use </span><span class="kw">crate</span>::trace::TraceContext;
+<span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutOptions};
 
-<span class="kw">pub const </span>DUMMY_PUT: PutName = PutName([<span class="string">'D'</span>, <span class="string">'U'</span>, <span class="string">'M'</span>, <span class="string">'Y'</span>, <span class="string">'Y'</span>, <span class="string">'D'</span>, <span class="string">'U'</span>, <span class="string">'M'</span>, <span class="string">'M'</span>, <span class="string">'Y'</span>]);
+<span class="comment">// FIXME TCP_PUT should be defined in the tlspuffin package
+//
+//     The TCP PUT is specific to TLS and is therefore defined in the `tlspuffin` package. However,
+//     we expose it here in `puffin` so that the generic CLI is able to provide the `tcp` command.
+//
+//     Once we factor out the `tcp` command, we can move this definition into `tlspuffin`.
+</span><span class="kw">pub const </span>TCP_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"tcp"</span>;
 
 <span class="doccomment">/// Registry for [Factories](Factory). An instance of this is usually defined statically and then
 /// used throughout the fuzzer.
@@ -235,12 +248,13 @@
 </span><span class="kw">pub trait </span>Factory&lt;PB: ProtocolBehavior&gt; {
     <span class="kw">fn </span>create(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
         agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::Claim&gt;,
+        options: <span class="kw-2">&amp;</span>PutOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;, Error&gt;;
 
     <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutKind;
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutName;
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String;
     <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(String, String)&gt;;
 
     <span class="kw">fn </span>determinism_set_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>);

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["BORINGSSL_PUT","OPENSSL111_PUT","TCP_PUT","WOLFSSL520_PUT"],"fn":["tls_registry"]};
+window.SIDEBAR_ITEMS = {"constant":["BORINGSSL_RUST_PUT","OPENSSL_RUST_PUT","WOLFSSL_RUST_PUT"],"fn":["tls_registry"]};

@@ -113,31 +113,16 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::hash::Hash;
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::hash::Hash;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
-<span class="kw">use </span><span class="kw">crate</span>::put_registry::DUMMY_PUT;
 <span class="kw">use </span><span class="kw">crate</span>::stream::Stream;
-
-<span class="attr">#[derive(Debug, Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash)]
-</span><span class="kw">pub struct </span>PutName(<span class="kw">pub </span>[char; <span class="number">10</span>]);
-
-<span class="kw">impl </span>Default <span class="kw">for </span>PutName {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        DUMMY_PUT
-    }
-}
-
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>PutName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, String::from_iter(<span class="self">self</span>.<span class="number">0</span>))
-    }
-}
 
 <span class="attr">#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
 </span><span class="kw">pub struct </span>PutOptions {
@@ -147,16 +132,6 @@
 <span class="kw">impl </span>PutOptions {
     <span class="kw">pub fn </span>new(options: Vec&lt;(String, String)&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ options }
-    }
-
-    <span class="kw">pub fn </span>from_slice_vec(options: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            options: Vec::from_iter(
-                options
-                    .iter()
-                    .map(|(key, value)| (key.to_string(), value.to_string())),
-            ),
-        }
     }
 }
 
@@ -169,10 +144,42 @@
     }
 }
 
+<span class="kw">impl</span>&lt;S&gt; From&lt;Vec&lt;(S, S)&gt;&gt; <span class="kw">for </span>PutOptions
+<span class="kw">where
+    </span>S: Into&lt;String&gt;,
+{
+    <span class="kw">fn </span>from(value: Vec&lt;(S, S)&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            options: value
+                .into_iter()
+                .map(|(key, value)| (key.into(), value.into()))
+                .collect(),
+        }
+    }
+}
+
 <span class="attr">#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
 </span><span class="kw">pub struct </span>PutDescriptor {
-    <span class="kw">pub </span>name: PutName,
+    <span class="kw">pub </span>factory: String,
     <span class="kw">pub </span>options: PutOptions,
+}
+
+<span class="kw">impl </span>PutDescriptor {
+    <span class="kw">pub fn </span>new(factory: <span class="kw">impl </span>Into&lt;String&gt;, options: <span class="kw">impl </span>Into&lt;PutOptions&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            factory: factory.into(),
+            options: options.into(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;S&gt; From&lt;S&gt; <span class="kw">for </span>PutDescriptor
+<span class="kw">where
+    </span>S: Into&lt;String&gt;,
+{
+    <span class="kw">fn </span>from(name: S) -&gt; <span class="self">Self </span>{
+        PutDescriptor::new(name, PutOptions::default())
+    }
 }
 
 <span class="doccomment">/// Generic trait used to define the interface with a concrete library
@@ -186,23 +193,20 @@
     &gt; + <span class="lifetime">'static
 </span>{
     <span class="doccomment">/// Process incoming buffer, internal progress, can fill in the output buffer
-    </span><span class="kw">fn </span>progress(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: <span class="kw-2">&amp;</span>AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
+    </span><span class="kw">fn </span>progress(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
     <span class="doccomment">/// In-place reset of the state
-    </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
+    </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
     <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor;
 
-    <span class="doccomment">/// Register a new claim for agent_name
+    <span class="doccomment">/// Register a new claim for the agent
     </span><span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
-    </span><span class="kw">fn </span>register_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: AgentName);
+    </span><span class="kw">fn </span>register_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
     <span class="doccomment">/// Remove all claims in self
     </span><span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
     </span><span class="kw">fn </span>deregister_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
-
-    <span class="doccomment">/// Propagate agent changes to the PUT
-    </span><span class="kw">fn </span>rename_agent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
     <span class="doccomment">/// Returns a textual representation of the state in which self is
     </span><span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str;

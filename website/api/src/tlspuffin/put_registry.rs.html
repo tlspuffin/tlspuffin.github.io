@@ -50,17 +50,71 @@
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::put::PutName;
-<span class="kw">use </span>puffin::put_registry::PutRegistry;
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::put_registry::PutRegistry;
 <span class="attr">#[cfg(feature = <span class="string">"cputs"</span>)]
 </span><span class="kw">use </span>tls_harness::C_PUT_TYPE;
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolBehavior;
 
-<span class="kw">pub const </span>OPENSSL111_PUT: PutName = PutName([<span class="string">'O'</span>, <span class="string">'P'</span>, <span class="string">'E'</span>, <span class="string">'N'</span>, <span class="string">'S'</span>, <span class="string">'S'</span>, <span class="string">'L'</span>, <span class="string">'1'</span>, <span class="string">'1'</span>, <span class="string">'1'</span>]);
-<span class="kw">pub const </span>WOLFSSL520_PUT: PutName = PutName([<span class="string">'W'</span>, <span class="string">'O'</span>, <span class="string">'L'</span>, <span class="string">'F'</span>, <span class="string">'S'</span>, <span class="string">'S'</span>, <span class="string">'L'</span>, <span class="string">'5'</span>, <span class="string">'2'</span>, <span class="string">'0'</span>]);
-<span class="kw">pub const </span>BORINGSSL_PUT: PutName = PutName([<span class="string">'B'</span>, <span class="string">'O'</span>, <span class="string">'R'</span>, <span class="string">'I'</span>, <span class="string">'N'</span>, <span class="string">'G'</span>, <span class="string">'S'</span>, <span class="string">'S'</span>, <span class="string">'L'</span>, <span class="string">'_'</span>]);
-<span class="kw">pub const </span>TCP_PUT: PutName = PutName([<span class="string">'T'</span>, <span class="string">'C'</span>, <span class="string">'P'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>]);
+<span class="kw">pub const </span>OPENSSL_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-openssl"</span>;
+<span class="kw">pub const </span>WOLFSSL_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-wolfssl"</span>;
+<span class="kw">pub const </span>BORINGSSL_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-boringssl"</span>;
 
 <span class="kw">pub fn </span>tls_registry() -&gt; PutRegistry&lt;TLSProtocolBehavior&gt; {
     <span class="attr">#[cfg(feature = <span class="string">"cputs"</span>)]
@@ -78,28 +132,86 @@
     <span class="kw">let </span>default = {
         <span class="macro">cfg_if::cfg_if!</span> {
             <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"openssl-binding"</span>)] </span>{
-                <span class="string">"rust-openssl"
-            </span>} <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)] </span>{
-                <span class="string">"rust-wolfssl"
-            </span>} <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)] </span>{
-                <span class="string">"rust-boringssl"
-            </span>} <span class="kw">else </span>{
-                <span class="string">"rust-tcp"
-            </span>}
+                OPENSSL_RUST_PUT
+            } <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)] </span>{
+                WOLFSSL_RUST_PUT
+            } <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)] </span>{
+                BORINGSSL_RUST_PUT
+            } <span class="kw">else </span>{
+                puffin::put_registry::TCP_PUT
+            }
         }
     };
 
     PutRegistry::new(
         [
-            (<span class="string">"rust-tcp"</span>, <span class="kw">crate</span>::tcp::new_tcp_factory()),
             <span class="attr">#[cfg(feature = <span class="string">"openssl-binding"</span>)]
-            </span>(<span class="string">"rust-openssl"</span>, <span class="kw">crate</span>::openssl::new_openssl_factory()),
+            </span>{
+                <span class="kw">let </span>put = <span class="kw">crate</span>::openssl::new_openssl_factory();
+                (put.name(), put)
+            },
             <span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)]
-            </span>(<span class="string">"rust-wolfssl"</span>, <span class="kw">crate</span>::wolfssl::new_wolfssl_factory()),
+            </span>{
+                <span class="kw">let </span>put = <span class="kw">crate</span>::wolfssl::new_wolfssl_factory();
+                (put.name(), put)
+            },
             <span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)]
-            </span>(<span class="string">"rust-boringssl"</span>, <span class="kw">crate</span>::boringssl::new_boringssl_factory()),
+            </span>{
+                <span class="kw">let </span>put = <span class="kw">crate</span>::boringssl::new_boringssl_factory();
+                (put.name(), put)
+            },
+            {
+                <span class="kw">let </span>put = <span class="kw">crate</span>::tcp::new_tcp_factory();
+                (put.name(), put)
+            },
         ],
         default,
     )
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="attr">#[test_log::test]
+    </span><span class="kw">fn </span>version_test() {
+        <span class="kw">let </span>registry = tls_registry();
+        <span class="kw">let </span>versions = registry.default().versions();
+
+        <span class="macro">println!</span>(<span class="string">"Default tls PUT components:"</span>);
+        <span class="kw">for </span>(component, version) <span class="kw">in </span>versions.iter() {
+            <span class="macro">println!</span>(<span class="string">"    {}: {}"</span>, component, version);
+        }
+
+        <span class="attr">#[allow(unused_variables)]
+        </span><span class="kw">let </span>version = versions
+            .iter()
+            .find(|(c, <span class="kw">_</span>)| c == <span class="string">"library"</span>)
+            .map(|(<span class="kw">_</span>, v)| v);
+
+        <span class="attr">#[cfg(feature = <span class="string">"openssl101f"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"1.0.1f"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"openssl102u"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"1.0.2u"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"openssl111k"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"1.1.1k"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"openssl111j"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"1.1.1j"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"openssl111u"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"1.1.1u"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"openssl312"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"3.1.2"</span>));
+
+        <span class="attr">#[cfg(feature = <span class="string">"wolfssl510"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"5.1.0"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"wolfssl520"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"5.2.0"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"wolfssl530"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"5.3.0"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"wolfssl540"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"5.4.0"</span>));
+        <span class="attr">#[cfg(feature = <span class="string">"wolfssl430"</span>)]
+        </span><span class="macro">assert!</span>(version.expect(<span class="string">"missing version string"</span>).contains(<span class="string">"4.3.0"</span>));
+    }
 }
 </code></pre></div></section></main></body></html>

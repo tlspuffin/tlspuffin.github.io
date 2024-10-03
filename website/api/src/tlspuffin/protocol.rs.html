@@ -660,6 +660,9 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::algebra::signature::Signature;
 <span class="kw">use </span>puffin::algebra::Matcher;
 <span class="kw">use </span>puffin::codec::{Codec, Reader};
@@ -1005,7 +1008,7 @@
             data: <span class="self">self</span>,
         });
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
-            HandshakePayload::HelloRequest =&gt; {}
+            HandshakePayload::HelloRequest | HandshakePayload::HelloRetryRequest(<span class="kw">_</span>) =&gt; {}
             HandshakePayload::ClientHello(ch) =&gt; {
                 ch.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
             }
@@ -1025,7 +1028,10 @@
             HandshakePayload::NewSessionTicket(ticket) =&gt; {
                 ticket.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
             }
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Extraction()),
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">log::error!</span>(<span class="string">"failed extraction: {self:?}"</span>);
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Extraction());
+            }
         }
         <span class="prelude-val">Ok</span>(())
     }

@@ -57,53 +57,21 @@
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::executors::ExitKind;
-<span class="kw">use </span>once_cell::sync::OnceCell;
 <span class="kw">use </span>rand::Rng;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::execution::{Runner, TraceRunner};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_stage::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
-<span class="kw">use </span><span class="kw">crate</span>::put::PutOptions;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace, TraceContext};
-
-<span class="kw">static </span>DEFAULT_PUT_OPTIONS: OnceCell&lt;PutOptions&gt; = OnceCell::new();
-
-<span class="doccomment">/// Returns the current default put options which are used
-</span><span class="kw">pub fn </span>default_put_options() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>PutOptions {
-    DEFAULT_PUT_OPTIONS
-        .get()
-        .expect(<span class="string">"current default put options needs to be set"</span>)
-}
-
-<span class="kw">pub fn </span>set_default_put_options(default_put_options: PutOptions) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-    DEFAULT_PUT_OPTIONS
-        .set(default_put_options)
-        .map_err(|_err| ())
-}
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Spawner, Trace};
 
 <span class="kw">pub fn </span>harness&lt;PB: ProtocolBehavior + <span class="lifetime">'static</span>&gt;(
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
     input: <span class="kw-2">&amp;</span>Trace&lt;PB::Matcher&gt;,
 ) -&gt; ExitKind {
-    <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(put_registry, default_put_options().clone());
+    <span class="kw">let </span>runner = Runner::new(put_registry.clone(), Spawner::new(put_registry.clone()));
 
     TRACE_LENGTH.update(input.steps.len());
 
@@ -116,7 +84,7 @@
         }
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = input.execute(<span class="kw-2">&amp;mut </span>ctx) {
+    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = runner.execute(input) {
         <span class="kw">match </span><span class="kw-2">&amp;</span>err {
             Error::Fn(<span class="kw">_</span>) =&gt; FN_ERROR.increment(),
             Error::Term(_e) =&gt; TERM.increment(),

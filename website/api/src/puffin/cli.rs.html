@@ -512,13 +512,6 @@
 <a href="#512" id="512">512</a>
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
-<a href="#515" id="515">515</a>
-<a href="#516" id="516">516</a>
-<a href="#517" id="517">517</a>
-<a href="#518" id="518">518</a>
-<a href="#519" id="519">519</a>
-<a href="#520" id="520">520</a>
-<a href="#521" id="521">521</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -529,19 +522,19 @@
 <span class="kw">use </span>clap::{arg, crate_authors, crate_name, crate_version, value_parser, Command};
 <span class="kw">use </span>libafl::inputs::Input;
 
+<span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::set_deserialize_signature;
 <span class="kw">use </span><span class="kw">crate</span>::codec::Codec;
-<span class="kw">use </span><span class="kw">crate</span>::execution::forked_execution;
+<span class="kw">use </span><span class="kw">crate</span>::execution::{ForkedRunner, Runner, TraceRunner};
 <span class="kw">use </span><span class="kw">crate</span>::experiment::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::fuzzer::harness::{default_put_options, set_default_put_options};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::sanitizer::asan::{asan_info, setup_asan_env};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::{start, FuzzerConfig};
 <span class="kw">use </span><span class="kw">crate</span>::graphviz::write_graphviz;
 <span class="kw">use </span><span class="kw">crate</span>::log::config_default;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolMessage};
-<span class="kw">use </span><span class="kw">crate</span>::put::PutOptions;
-<span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace, TraceContext};
+<span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
+<span class="kw">use </span><span class="kw">crate</span>::put_registry::{PutRegistry, TCP_PUT};
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Spawner, Trace, TraceContext};
 
 <span class="kw">fn </span>create_app&lt;S&gt;(title: S) -&gt; Command
 <span class="kw">where
@@ -649,9 +642,8 @@
     <span class="kw">if </span>put_use_clear {
         options.push((<span class="string">"use_clear"</span>.to_string(), put_use_clear.to_string()))
     }
-    <span class="kw">if </span>set_default_put_options(PutOptions::new(options)).is_err() {
-        <span class="macro">log::error!</span>(<span class="string">"Failed to initialize default put options"</span>);
-    }
+
+    <span class="kw">let </span>default_put = PutDescriptor::new(put_registry.default().name(), options);
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(_matches) = matches.subcommand_matches(<span class="string">"seed"</span>) {
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = seed(<span class="kw-2">&amp;</span>put_registry) {
@@ -724,9 +716,14 @@
             lookup_paths.len()
         );
 
+        <span class="kw">let </span>runner = Runner::new(
+            put_registry.clone(),
+            Spawner::new(put_registry).with_default(default_put),
+        );
+
         <span class="kw">for </span>path <span class="kw">in </span>lookup_paths {
             <span class="macro">log::info!</span>(<span class="string">"Executing: {}"</span>, path.display());
-            execute(path, <span class="kw-2">&amp;</span>put_registry);
+            execute(<span class="kw-2">&amp;</span>runner, path);
         }
 
         <span class="kw">if </span>!lookup_paths.is_empty() {
@@ -777,9 +774,14 @@
 
         <span class="macro">log::info!</span>(<span class="string">"execute: found {} inputs"</span>, paths.len());
 
+        <span class="kw">let </span>runner = Runner::new(
+            put_registry.clone(),
+            Spawner::new(put_registry).with_default(default_put),
+        );
+
         <span class="kw">for </span>path <span class="kw">in </span>paths {
             <span class="macro">log::info!</span>(<span class="string">"Executing: {}"</span>, path.display());
-            execute(path, <span class="kw-2">&amp;</span>put_registry);
+            execute(<span class="kw-2">&amp;</span>runner, path);
         }
 
         <span class="kw">return </span>ExitCode::SUCCESS;
@@ -787,7 +789,7 @@
         <span class="kw">let </span>input: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"input"</span>).unwrap();
         <span class="kw">let </span>output: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"output"</span>).unwrap();
 
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = binary_attack(input, output, <span class="kw-2">&amp;</span>put_registry) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = binary_attack(input, output, <span class="kw-2">&amp;</span>put_registry, default_put) {
             <span class="macro">log::error!</span>(<span class="string">"Failed to create trace output: {:?}"</span>, err);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
@@ -819,18 +821,16 @@
             options.push((<span class="string">"cwd"</span>, cwd))
         }
 
-        <span class="kw">let </span>put = PutDescriptor {
-            name: PutName([<span class="string">'T'</span>, <span class="string">'C'</span>, <span class="string">'P'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>]),
-            options: PutOptions::from_slice_vec(options),
-        };
-
         <span class="kw">let </span>server = trace.descriptors[<span class="number">0</span>].name;
-        <span class="kw">let </span><span class="kw-2">mut </span>context = trace
-            .execute_with_non_default_puts(<span class="kw-2">&amp;</span>put_registry, <span class="kw-2">&amp;</span>[(server, put)])
-            .unwrap();
+        <span class="kw">let </span>put = PutDescriptor::new(TCP_PUT, options);
+        <span class="kw">let </span>runner = Runner::new(
+            put_registry.clone(),
+            Spawner::new(put_registry).with_mapping(<span class="kw-2">&amp;</span>[(server, put)]),
+        );
+        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace).unwrap();
 
         <span class="kw">let </span>server = AgentName::first();
-        <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().put_mut().shutdown();
+        <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().shutdown();
         <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
 
         <span class="kw">return </span>ExitCode::SUCCESS;
@@ -965,10 +965,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
-<span class="kw">use </span><span class="kw">crate</span>::put::{PutDescriptor, PutName};
-
-<span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(input: P, put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;) {
+<span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(runner: <span class="kw-2">&amp;</span>Runner&lt;PB&gt;, input: P) {
     <span class="kw">let </span>trace = <span class="kw">match </span>Trace::&lt;PB::Matcher&gt;::from_file(input.as_ref()) {
         <span class="prelude-val">Ok</span>(t) =&gt; t,
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -982,20 +979,7 @@
     <span class="comment">// When generating coverage a crash means that no coverage is stored
     // By executing in a fork, even when that process crashes, the other executed code will still
     // yield coverage
-    </span><span class="kw">let </span>status = forked_execution(
-        <span class="kw">move </span>|| {
-            <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(put_registry, default_put_options().clone());
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = trace.execute(<span class="kw-2">&amp;mut </span>ctx) {
-                <span class="macro">log::error!</span>(
-                    <span class="string">"Failed to execute trace {}: {:?}"</span>,
-                    input.as_ref().display(),
-                    err
-                );
-                std::process::exit(<span class="number">1</span>);
-            }
-        },
-        <span class="prelude-val">None</span>,
-    );
+    </span><span class="kw">let </span>status = ForkedRunner::new(runner).execute(trace);
 
     <span class="kw">match </span>status {
         <span class="prelude-val">Ok</span>(s) =&gt; <span class="macro">log::info!</span>(<span class="string">"execution finished with status {s:?}"</span>),
@@ -1007,9 +991,11 @@
     input: <span class="kw-2">&amp;</span>str,
     output: <span class="kw-2">&amp;</span>str,
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
+    default_put: <span class="kw">impl </span>Into&lt;PutDescriptor&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+    <span class="kw">let </span>spawner = Spawner::new(put_registry.clone()).with_default(default_put);
+    <span class="kw">let </span>ctx = TraceContext::new(spawner);
     <span class="kw">let </span>trace = Trace::&lt;PB::Matcher&gt;::from_file(input)<span class="question-mark">?</span>;
-    <span class="kw">let </span>ctx = TraceContext::new(put_registry, default_put_options().clone());
 
     <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 

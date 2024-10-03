@@ -185,6 +185,7 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
 <span class="kw">use </span>puffin::term;
 <span class="kw">use </span>puffin::trace::{InputAction, OutputAction, Trace};
@@ -352,6 +353,9 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>puffin::execution::{Runner, TraceRunner};
+    <span class="kw">use </span>puffin::trace::Spawner;
+
     <span class="kw">use </span><span class="kw">crate</span>::libssh::ssh::set_log_level;
     <span class="kw">use </span><span class="kw">crate</span>::ssh::seeds::seed_successful;
     <span class="kw">use </span><span class="kw">crate</span>::ssh_registry;
@@ -359,17 +363,15 @@
     <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_seed_successful() {
         set_log_level(<span class="number">100</span>);
+
+        <span class="kw">let </span>registry = ssh_registry();
+        <span class="kw">let </span>runner = Runner::new(registry.clone(), Spawner::new(registry));
         <span class="kw">let </span>client = puffin::agent::AgentName::first();
         <span class="kw">let </span>trace = seed_successful(client, client.next());
-        <span class="kw">let </span>context = trace
-            .execute_deterministic(<span class="kw-2">&amp;</span>ssh_registry(), Default::default())
-            .unwrap();
 
-        <span class="macro">assert!</span>(context
-            .find_agent(client)
-            .unwrap()
-            .put()
-            .is_state_successful())
+        <span class="kw">let </span>context = runner.execute(trace).unwrap();
+
+        <span class="macro">assert!</span>(context.find_agent(client).unwrap().is_state_successful())
     }
 }
 </code></pre></div></section></main></body></html>

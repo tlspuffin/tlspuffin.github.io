@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["fn_debug"],"mod":["fn_impl","key_exchange","key_schedule","rustls","seeds","trace_helper","violation","vulnerabilities"],"static":["TLS_SIGNATURE"]};
+window.SIDEBAR_ITEMS = {"fn":["fn_debug"],"mod":["fn_impl","key_exchange","key_schedule","rustls","seeds","violation","vulnerabilities"],"static":["TLS_SIGNATURE"]};

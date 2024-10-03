@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["default_put_options","dummy_harness","harness","set_default_put_options"],"static":["DEFAULT_PUT_OPTIONS"]};
+window.SIDEBAR_ITEMS = {"fn":["dummy_harness","harness"]};

@@ -221,6 +221,9 @@
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [`Agent`]s represent communication participants like Alice, Bob or Eve.
 //!
 //! Note that attackers are usually not represented by these [`Agent`]s but instead through a recipe
@@ -234,8 +237,8 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
-<span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutDescriptor};
-<span class="kw">use </span><span class="kw">crate</span>::trace::TraceContext;
+<span class="kw">use </span><span class="kw">crate</span>::put::Put;
+<span class="kw">use </span><span class="kw">crate</span>::stream::Stream;
 
 <span class="doccomment">/// Copyable reference to an [`Agent`]. It identifies exactly one agent.
 </span><span class="attr">#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -274,13 +277,13 @@
     }
 }
 
-<span class="doccomment">/// AgentDescriptors act like a blueprint to spawn [`Agent`]s with a corresponding server or
+<span class="doccomment">/// [`AgentDescriptor`]s act like a blueprint to spawn [`Agent`]s with a corresponding server or
 /// client role and a specific TLs version. Essentially they are an [`Agent`] without a stream.
 ///
-/// The difference between an [`AgentDescriptor`] and a [`PutDescriptor`] is that values of
-/// the [`AgentDescriptor`] are required for seed traces to succeed. They are the same for every
-/// invocation of the seed. Values in the [`PutDescriptor`] are supposed to differ between
-/// invocations.
+/// The difference between an [`AgentDescriptor`] and a [`crate::put::PutDescriptor`] is that
+/// values of the [`AgentDescriptor`] are required for seed traces to succeed. They are the same for
+/// every invocation of the seed. Values in the [`crate::put::PutDescriptor`] are supposed to
+/// differ between invocations.
 </span><span class="attr">#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>AgentDescriptor {
     <span class="kw">pub </span>name: AgentName,
@@ -367,73 +370,57 @@
 
 <span class="doccomment">/// An [`Agent`] holds a non-cloneable reference to a Stream.
 </span><span class="kw">pub struct </span>Agent&lt;PB: ProtocolBehavior&gt; {
-    name: AgentName,
-
+    descriptor: AgentDescriptor,
     put: Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;,
-    put_descriptor: PutDescriptor,
 }
 
 <span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; fmt::Debug <span class="kw">for </span>Agent&lt;PB&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"Agent"</span>)
-            .field(<span class="string">"name"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.name)
+            .field(<span class="string">"descriptor"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.descriptor)
             .field(<span class="string">"put"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.put.describe_state())
-            .field(<span class="string">"put_descriptor"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.put_descriptor)
             .finish()
     }
 }
 
 <span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; PartialEq <span class="kw">for </span>Agent&lt;PB&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
-        <span class="self">self</span>.name.eq(<span class="kw-2">&amp;</span>other.name)
+        <span class="self">self</span>.descriptor.name.eq(<span class="kw-2">&amp;</span>other.descriptor.name)
             &amp;&amp; <span class="self">self</span>.put.describe_state() == other.put.describe_state()
-            &amp;&amp; <span class="self">self</span>.put_descriptor.eq(<span class="kw-2">&amp;</span>other.put_descriptor)
     }
 }
 
 <span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; Agent&lt;PB&gt; {
-    <span class="kw">pub fn </span>new(
-        context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
-        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="kw">let </span>put_descriptor = context.put_descriptor(agent_descriptor);
-
-        <span class="kw">let </span>(<span class="kw">_</span>, factory) = context
-            .put_registry()
-            .puts()
-            .find(|(<span class="kw">_</span>, factory)| factory.name() == put_descriptor.name)
-            .ok_or_else(|| {
-                Error::Agent(<span class="macro">format!</span>(
-                    <span class="string">"unable to find PUT {} factory in binary"</span>,
-                    <span class="kw-2">&amp;</span>put_descriptor.name
-                ))
-            })<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>stream = factory.create(context, agent_descriptor)<span class="question-mark">?</span>;
-        <span class="kw">let </span>agent = Agent {
-            name: agent_descriptor.name,
-            put: stream,
-            put_descriptor,
-        };
-
-        <span class="prelude-val">Ok</span>(agent)
+    <span class="kw">pub fn </span>new(descriptor: AgentDescriptor, put: Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ descriptor, put }
     }
 
-    <span class="kw">pub fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PutDescriptor {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.put_descriptor
+    <span class="kw">pub fn </span>progress(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="self">self</span>.put.progress()
     }
 
-    <span class="kw">pub fn </span>rename(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.name = new_name;
-        <span class="self">self</span>.put.rename_agent(new_name)
+    <span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="self">self</span>.descriptor.name = new_name;
+        <span class="self">self</span>.put.reset(new_name)
     }
 
-    <span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.put.reset(agent_name)
+    <span class="doccomment">/// Shut down the agent by consuming it and returning a string that summarizes the execution.
+    </span><span class="kw">pub fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.put.shutdown()
+    }
+
+    <span class="doccomment">/// Checks whether the agent is in a good state.
+    </span><span class="kw">pub fn </span>is_state_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.put.is_state_successful()
+    }
+
+    <span class="doccomment">/// Checks whether the agent is reusable with the descriptor.
+    </span><span class="kw">pub fn </span>is_reusable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>AgentDescriptor) -&gt; bool {
+        <span class="self">self</span>.descriptor.typ == other.typ &amp;&amp; <span class="self">self</span>.descriptor.tls_version == other.tls_version
     }
 
     <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
-        <span class="self">self</span>.name
+        <span class="self">self</span>.descriptor.name
     }
 
     <span class="kw">pub fn </span>put(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Put&lt;PB&gt; {
@@ -442,6 +429,25 @@
 
     <span class="kw">pub fn </span>put_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Put&lt;PB&gt; {
         <span class="self">self</span>.put.as_mut()
+    }
+}
+
+<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt;
+    Stream&lt;
+        PB::Matcher,
+        PB::ProtocolMessage,
+        PB::OpaqueProtocolMessage,
+        PB::OpaqueProtocolMessageFlight,
+    &gt; <span class="kw">for </span>Agent&lt;PB&gt;
+{
+    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>PB::OpaqueProtocolMessageFlight) {
+        <span class="self">self</span>.put.add_to_inbound(message_flight)
+    }
+
+    <span class="kw">fn </span>take_message_from_outbound(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PB::OpaqueProtocolMessageFlight&gt;, Error&gt; {
+        <span class="self">self</span>.put.take_message_from_outbound()
     }
 }
 </code></pre></div></section></main></body></html>

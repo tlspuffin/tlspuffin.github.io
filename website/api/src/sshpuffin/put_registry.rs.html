@@ -10,18 +10,16 @@
 <a href="#10" id="10">10</a>
 <a href="#11" id="11">11</a>
 <a href="#12" id="12">12</a>
-<a href="#13" id="13">13</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::put::PutName;
-<span class="kw">use </span>puffin::put_registry::PutRegistry;
+</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::put_registry::PutRegistry;
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::SshProtocolBehavior;
 
-<span class="kw">pub const </span>LIBSSH_PUT: PutName = PutName([<span class="string">'L'</span>, <span class="string">'I'</span>, <span class="string">'B'</span>, <span class="string">'S'</span>, <span class="string">'S'</span>, <span class="string">'H'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>, <span class="string">'_'</span>]);
+<span class="kw">pub const </span>LIBSSH_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-libssh"</span>;
 
 <span class="kw">pub fn </span>ssh_registry() -&gt; PutRegistry&lt;SshProtocolBehavior&gt; {
     PutRegistry::new(
-        [(<span class="string">"rust-libssh"</span>, <span class="kw">crate</span>::libssh::new_libssh_factory())],
-        <span class="string">"rust-libssh"</span>,
+        [(LIBSSH_RUST_PUT, <span class="kw">crate</span>::libssh::new_libssh_factory())],
+        LIBSSH_RUST_PUT,
     )
 }
 </code></pre></div></section></main></body></html>

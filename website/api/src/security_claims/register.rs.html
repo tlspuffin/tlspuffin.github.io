@@ -34,6 +34,10 @@
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::c_void;
 <span class="kw">use </span>std::mem;
 
@@ -66,6 +70,10 @@
     <span class="comment">// drop the callback
     </span><span class="kw">let _</span>: Box&lt;Box&lt;Claimer&gt;&gt; = {
         <span class="kw">let </span>ptr = ffi::deregister_claimer(ssl_like_ptr);
+        <span class="kw">if </span>ptr.is_null() {
+            <span class="kw">return</span>;
+        }
+
         <span class="kw">let </span>raw: Box&lt;Box&lt;Claimer&gt;&gt; = Box::from_raw(ptr <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
         raw
     };

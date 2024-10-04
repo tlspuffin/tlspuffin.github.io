@@ -83,29 +83,6 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::put_registry::PutRegistry;
 <span class="attr">#[cfg(feature = <span class="string">"cputs"</span>)]
 </span><span class="kw">use </span>tls_harness::C_PUT_TYPE;
@@ -115,6 +92,11 @@
 <span class="kw">pub const </span>OPENSSL_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-openssl"</span>;
 <span class="kw">pub const </span>WOLFSSL_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-wolfssl"</span>;
 <span class="kw">pub const </span>BORINGSSL_RUST_PUT: <span class="kw-2">&amp;</span>str = <span class="string">"rust-put-boringssl"</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">"rust-put"</span>)]
+</span><span class="kw">pub mod </span>rust_put {
+    <span class="macro">include!</span>(<span class="macro">env!</span>(<span class="string">"RUST_PUT_BINDINGS"</span>));
+}
 
 <span class="kw">pub fn </span>tls_registry() -&gt; PutRegistry&lt;TLSProtocolBehavior&gt; {
     <span class="attr">#[cfg(feature = <span class="string">"cputs"</span>)]
@@ -129,44 +111,16 @@
     <span class="attr">#[cfg(feature = <span class="string">"cputs"</span>)]
     </span>tls_harness::register(callback);
 
-    <span class="kw">let </span>default = {
-        <span class="macro">cfg_if::cfg_if!</span> {
-            <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"openssl-binding"</span>)] </span>{
-                OPENSSL_RUST_PUT
-            } <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)] </span>{
-                WOLFSSL_RUST_PUT
-            } <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)] </span>{
-                BORINGSSL_RUST_PUT
-            } <span class="kw">else </span>{
-                puffin::put_registry::TCP_PUT
-            }
-        }
-    };
+    <span class="kw">let </span>puts = [
+        <span class="attr">#[cfg(feature = <span class="string">"rust-put"</span>)]
+        </span>rust_put::new_factory(),
+        <span class="kw">crate</span>::tcp::new_tcp_factory(),
+    ]
+    .map(|f| (f.name(), f));
 
-    PutRegistry::new(
-        [
-            <span class="attr">#[cfg(feature = <span class="string">"openssl-binding"</span>)]
-            </span>{
-                <span class="kw">let </span>put = <span class="kw">crate</span>::openssl::new_openssl_factory();
-                (put.name(), put)
-            },
-            <span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)]
-            </span>{
-                <span class="kw">let </span>put = <span class="kw">crate</span>::wolfssl::new_wolfssl_factory();
-                (put.name(), put)
-            },
-            <span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)]
-            </span>{
-                <span class="kw">let </span>put = <span class="kw">crate</span>::boringssl::new_boringssl_factory();
-                (put.name(), put)
-            },
-            {
-                <span class="kw">let </span>put = <span class="kw">crate</span>::tcp::new_tcp_factory();
-                (put.name(), put)
-            },
-        ],
-        default,
-    )
+    <span class="kw">let </span>default = puts.first().unwrap().<span class="number">0</span>.clone();
+
+    PutRegistry::new(puts, default)
 }
 
 <span class="attr">#[cfg(test)]

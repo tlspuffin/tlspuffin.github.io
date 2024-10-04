@@ -296,33 +296,6 @@
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
 </pre></div><pre class="rust"><code><span class="comment">// FIXME stabilize sshpuffin and reactivate the dead_code lint
 //
 //     Currently sshpuffin contains many functions that are unused but will be
@@ -488,17 +461,6 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
             ]
         }
 
-        <span class="kw">fn </span>determinism_set_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">log::debug!</span>(<span class="string">" [Determinism] Factory {} has no support for determinism. We cannot set and reseed."</span>, <span class="self">self</span>.name());
-        }
-
-        <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">log::debug!</span>(
-                <span class="string">" [Determinism] Factory {} has no support for determinism. We cannot reseed."</span>,
-                <span class="self">self</span>.name()
-            );
-        }
-
         <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;SshProtocolBehavior&gt;&gt; {
             Box::new(LibSSLFactory)
         }
@@ -607,16 +569,6 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
-    </span><span class="kw">fn </span>register_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
-    }
-
-    <span class="attr">#[cfg(feature = <span class="string">"claims"</span>)]
-    </span><span class="kw">fn </span>deregister_claimer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
-    }
-
     <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="comment">// TODO: We can use internal state
         </span><span class="kw">match </span><span class="self">self</span>.state {
@@ -640,12 +592,6 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
 
     <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
         <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
-    }
-
-    <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), puffin::error::Error&gt; {
-        <span class="prelude-val">Err</span>(Error::Put(
-            <span class="string">"libssh does not support determinism"</span>.to_string(),
-        ))
     }
 }
 </code></pre></div></section></main></body></html>

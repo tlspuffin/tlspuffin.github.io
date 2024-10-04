@@ -835,14 +835,6 @@
 <a href="#835" id="835">835</a>
 <a href="#836" id="836">836</a>
 <a href="#837" id="837">837</a>
-<a href="#838" id="838">838</a>
-<a href="#839" id="839">839</a>
-<a href="#840" id="840">840</a>
-<a href="#841" id="841">841</a>
-<a href="#842" id="842">842</a>
-<a href="#843" id="843">843</a>
-<a href="#844" id="844">844</a>
-<a href="#845" id="845">845</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *term* module defines typed[`Term`]s of the form `fn_add(x: u8, fn_square(y: u16)) → u16`.
 //!
 //! Each function like `fn_add` or `fn_square` has a shape. The variables `x` and `y` each have a
@@ -1479,14 +1471,6 @@
 
         <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TestProtocolBehavior&gt;&gt; {
             Box::new(TestFactory {})
-        }
-
-        <span class="kw">fn </span>determinism_set_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-
-        <span class="kw">fn </span>determinism_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
     }
 }

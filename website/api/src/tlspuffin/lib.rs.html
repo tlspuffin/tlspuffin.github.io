@@ -132,6 +132,12 @@
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! TODO: Write intro: &lt;https://github.com/tlspuffin/tlspuffin/issues/94&gt;
 //!
 //! ### Used protocol and cryptographic libraries
@@ -250,10 +256,18 @@
 
 </span><span class="attr">#[cfg(feature = <span class="string">"boringssl-binding"</span>)]
 </span><span class="kw">pub mod </span>boringssl;
-<span class="kw">pub mod </span>claims;
-<span class="kw">pub mod </span>debug;
+<span class="attr">#[cfg(feature = <span class="string">"libressl-binding"</span>)]
+</span><span class="kw">pub mod </span>libressl;
 <span class="attr">#[cfg(feature = <span class="string">"openssl-binding"</span>)]
 </span><span class="kw">pub mod </span>openssl;
+<span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)]
+</span><span class="kw">pub mod </span>wolfssl;
+
+<span class="attr">#[cfg(feature = <span class="string">"rust-put"</span>)]
+</span><span class="kw">pub mod </span>rand;
+
+<span class="kw">pub mod </span>claims;
+<span class="kw">pub mod </span>debug;
 <span class="kw">pub mod </span>protocol;
 <span class="kw">pub mod </span>put;
 <span class="kw">pub mod </span>put_registry;
@@ -261,8 +275,6 @@
 <span class="kw">pub mod </span>static_certs;
 <span class="kw">pub mod </span>tcp;
 <span class="kw">pub mod </span>tls;
-<span class="attr">#[cfg(feature = <span class="string">"wolfssl-binding"</span>)]
-</span><span class="kw">pub mod </span>wolfssl;
 
 <span class="attr">#[cfg(feature = <span class="string">"test-utils"</span>)]
 </span><span class="kw">pub mod </span>test_utils;

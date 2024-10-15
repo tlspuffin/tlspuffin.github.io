@@ -93,6 +93,7 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Generates a zoo of terms form a [`Signature`]. For each function symbol in the signature
 //! a closed term is generated and added to the zoo.
 
@@ -100,18 +101,19 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Function;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::{FunctionDefinition, Signature};
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Term};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::Term;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::util::Choosable;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 
 <span class="kw">const </span>MAX_DEPTH: u16 = <span class="number">8</span>; <span class="comment">// how deep terms we allow max
 </span><span class="kw">const </span>MAX_TRIES: u16 = <span class="number">100</span>; <span class="comment">// How often we want to try to generate before stopping
 
-</span><span class="kw">pub struct </span>TermZoo&lt;M: Matcher&gt; {
-    terms: Vec&lt;Term&lt;M&gt;&gt;,
+</span><span class="kw">pub struct </span>TermZoo&lt;PT: ProtocolTypes&gt; {
+    terms: Vec&lt;Term&lt;PT&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; TermZoo&lt;M&gt; {
-    <span class="kw">pub fn </span>generate&lt;R: Rand&gt;(signature: <span class="kw-2">&amp;</span>Signature, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; TermZoo&lt;PT&gt; {
+    <span class="kw">pub fn </span>generate&lt;R: Rand&gt;(signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>terms = signature
             .functions
             .iter()
@@ -136,11 +138,11 @@
     }
 
     <span class="kw">fn </span>generate_term&lt;R: Rand&gt;(
-        signature: <span class="kw-2">&amp;</span>Signature,
-        (shape, dynamic_fn): <span class="kw-2">&amp;</span>FunctionDefinition,
+        signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;,
+        (shape, dynamic_fn): <span class="kw-2">&amp;</span>FunctionDefinition&lt;PT&gt;,
         depth: u16,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Term&lt;PT&gt;&gt; {
         <span class="kw">if </span>depth == <span class="number">0 </span>{
             <span class="comment">// Reached max depth
             </span><span class="kw">return </span><span class="prelude-val">None</span>;
@@ -177,14 +179,14 @@
         ))
     }
 
-    <span class="kw">pub fn </span>choose_filtered&lt;P, R: Rand&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: P, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;M&gt;&gt;
+    <span class="kw">pub fn </span>choose_filtered&lt;P, R: Rand&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: P, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt;
     <span class="kw">where
-        </span>P: FnMut(&amp;&amp;Term&lt;M&gt;) -&gt; bool,
+        </span>P: FnMut(&amp;&amp;Term&lt;PT&gt;) -&gt; bool,
     {
         <span class="self">self</span>.terms.choose_filtered(filter, rand)
     }
 
-    <span class="kw">pub fn </span>terms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Term&lt;M&gt;] {
+    <span class="kw">pub fn </span>terms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Term&lt;PT&gt;] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.terms
     }
 }

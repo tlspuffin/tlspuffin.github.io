@@ -128,8 +128,15 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>once_cell::sync::Lazy;
@@ -140,50 +147,51 @@
     make_dynamic, DescribableFunction, DynamicFunction, DynamicFunctionShape, TypeShape,
 };
 <span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Query, Source};
 
-<span class="kw">pub type </span>FunctionDefinition = (DynamicFunctionShape, Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;);
+<span class="kw">pub type </span>FunctionDefinition&lt;PT&gt; = (DynamicFunctionShape&lt;PT&gt;, Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;);
 
 <span class="doccomment">/// Records a universe of functions.
 /// Signatures are containers for types and function symbols. They hold references to the concrete
 /// implementations of functions and the types of variables.
-</span><span class="kw">pub struct </span>Signature {
-    <span class="kw">pub </span>functions_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionDefinition&gt;,
-    <span class="kw">pub </span>functions_by_typ: HashMap&lt;TypeShape, Vec&lt;FunctionDefinition&gt;&gt;,
-    <span class="kw">pub </span>functions: Vec&lt;FunctionDefinition&gt;,
-    <span class="kw">pub </span>types_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, TypeShape&gt;,
+</span><span class="kw">pub struct </span>Signature&lt;PT: ProtocolTypes&gt; {
+    <span class="kw">pub </span>functions_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionDefinition&lt;PT&gt;&gt;,
+    <span class="kw">pub </span>functions_by_typ: HashMap&lt;TypeShape&lt;PT&gt;, Vec&lt;FunctionDefinition&lt;PT&gt;&gt;&gt;,
+    <span class="kw">pub </span>functions: Vec&lt;FunctionDefinition&lt;PT&gt;&gt;,
+    <span class="kw">pub </span>types_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, TypeShape&lt;PT&gt;&gt;,
 }
 
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Signature {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; std::fmt::Debug <span class="kw">for </span>Signature&lt;PT&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="macro">writeln!</span>(f, <span class="string">"functions; {:?}"</span>, <span class="self">self</span>.functions)
     }
 }
 
-<span class="kw">impl </span>Signature {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Signature&lt;PT&gt; {
     <span class="doccomment">/// Construct a `Signature` from the given [`FunctionDefinition`]s.
-    </span><span class="kw">pub fn </span>new(definitions: Vec&lt;FunctionDefinition&gt;) -&gt; Signature {
-        <span class="kw">let </span>functions_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionDefinition&gt; = definitions
+    </span><span class="kw">pub fn </span>new(definitions: Vec&lt;FunctionDefinition&lt;PT&gt;&gt;) -&gt; Signature&lt;PT&gt; {
+        <span class="kw">let </span>functions_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionDefinition&lt;PT&gt;&gt; = definitions
             .clone()
             .into_iter()
             .map(|(shape, dynamic_fn)| (shape.name, (shape, dynamic_fn)))
             .collect();
 
-        <span class="kw">let </span>functions_by_typ: HashMap&lt;TypeShape, Vec&lt;FunctionDefinition&gt;&gt; = definitions
+        <span class="kw">let </span>functions_by_typ: HashMap&lt;TypeShape&lt;PT&gt;, Vec&lt;FunctionDefinition&lt;PT&gt;&gt;&gt; = definitions
             .clone()
             .into_iter()
-            .into_group_map_by(|(shape, _dynamic_fn)| shape.return_type);
+            .into_group_map_by(|(shape, _dynamic_fn)| shape.return_type.clone());
 
-        <span class="kw">let </span>types_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, TypeShape&gt; = definitions
+        <span class="kw">let </span>types_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, TypeShape&lt;PT&gt;&gt; = definitions
             .clone()
             .into_iter()
             .map(|(shape, _dynamic_fn)| {
-                <span class="kw">let </span>used_types: Vec&lt;TypeShape&gt; = shape <span class="comment">// vector of the argument shapes + return type
+                <span class="kw">let </span>used_types: Vec&lt;TypeShape&lt;PT&gt;&gt; = shape <span class="comment">// vector of the argument shapes + return type
                     </span>.argument_types
                     .iter()
-                    .copied()
+                    .cloned()
                     .chain(<span class="macro">vec!</span>[shape.return_type])
-                    .collect::&lt;Vec&lt;TypeShape&gt;&gt;();
+                    .collect::&lt;Vec&lt;TypeShape&lt;PT&gt;&gt;&gt;();
                 used_types
             })
             .unique()
@@ -200,9 +208,9 @@
     }
 
     <span class="doccomment">/// Create a new [`Function`] distinct from all existing [`Function`]s.
-    </span><span class="kw">pub fn </span>new_function&lt;F, Types&gt;(f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F) -&gt; Function
+    </span><span class="kw">pub fn </span>new_function&lt;F, Types&gt;(f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F) -&gt; Function&lt;PT&gt;
     <span class="kw">where
-        </span>F: <span class="lifetime">'static </span>+ DescribableFunction&lt;Types&gt;,
+        </span>F: DescribableFunction&lt;PT, Types&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>(shape, dynamic_fn) = make_dynamic(f);
 
@@ -213,17 +221,23 @@
         source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
         counter: u16,
-    ) -&gt; Variable&lt;M&gt; {
-        <span class="kw">let </span>type_shape = TypeShape::of::&lt;T&gt;();
+    ) -&gt; Variable&lt;PT&gt;
+    <span class="kw">where
+        </span>PT: ProtocolTypes&lt;Matcher = M&gt;,
+    {
+        <span class="kw">let </span>type_shape = TypeShape::&lt;PT&gt;::of::&lt;T&gt;();
         <span class="self">Self</span>::new_var(type_shape, source, matcher, counter)
     }
 
     <span class="kw">pub fn </span>new_var&lt;M: Matcher&gt;(
-        type_shape: TypeShape,
+        type_shape: TypeShape&lt;PT&gt;,
         source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
         counter: u16,
-    ) -&gt; Variable&lt;M&gt; {
+    ) -&gt; Variable&lt;PT&gt;
+    <span class="kw">where
+        </span>PT: ProtocolTypes&lt;Matcher = M&gt;,
+    {
         <span class="kw">let </span>query = Query {
             source,
             matcher,
@@ -233,15 +247,17 @@
     }
 }
 
-<span class="kw">pub type </span>StaticSignature = Lazy&lt;Signature&gt;;
+<span class="kw">pub type </span>StaticSignature&lt;PT&gt; = Lazy&lt;Signature&lt;PT&gt;&gt;;
 
-<span class="kw">pub const fn </span>create_static_signature(init: <span class="kw">fn</span>() -&gt; Signature) -&gt; StaticSignature {
+<span class="kw">pub const fn </span>create_static_signature&lt;PT: ProtocolTypes&gt;(
+    init: <span class="kw">fn</span>() -&gt; Signature&lt;PT&gt;,
+) -&gt; StaticSignature&lt;PT&gt; {
     Lazy::new(init)
 }
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules!</span> define_signature {
-    (<span class="macro-nonterminal">$name_signature</span>:ident, $(<span class="macro-nonterminal">$f</span>:path)+) =&gt; {
+    (<span class="macro-nonterminal">$name_signature</span>:ident&lt;<span class="macro-nonterminal">$protocol_types</span>:ident&gt;, $(<span class="macro-nonterminal">$f</span>:path)+) =&gt; {
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::create_static_signature</span>;
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::StaticSignature</span>;
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
@@ -250,7 +266,7 @@
         /// for linking function implementations to serialized data.
         ///
         /// Note: Changes in function symbols may cause deserialization of term to fail.
-        </span><span class="kw">pub static </span><span class="macro-nonterminal">$name_signature</span>: StaticSignature = create_static_signature(|| {
+        </span><span class="kw">pub static </span><span class="macro-nonterminal">$name_signature</span>: StaticSignature&lt;<span class="macro-nonterminal">$protocol_types</span>&gt; = create_static_signature(|| {
             <span class="kw">let </span>definitions = <span class="macro">vec!</span>[
                 $(<span class="macro-nonterminal">$crate::algebra::dynamic_function::make_dynamic</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$f</span>)),*
             ];

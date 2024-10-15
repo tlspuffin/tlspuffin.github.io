@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["deserialize_signature","set_deserialize_signature"],"mod":["atoms","dynamic_function","error","macros","signature","term"],"static":["DESERIALIZATION_SIGNATURE"],"struct":["AnyMatcher"],"trait":["Matcher"]};
+window.SIDEBAR_ITEMS = {"mod":["atoms","dynamic_function","error","macros","signature","term"],"struct":["AnyMatcher"],"trait":["Matcher"]};

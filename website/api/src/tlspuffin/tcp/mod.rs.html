@@ -529,6 +529,7 @@
 <a href="#529" id="529">529</a>
 <a href="#530" id="530">530</a>
 <a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::OsStr;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, ErrorKind, Read, Write};
 <span class="kw">use </span>std::net::{AddrParseError, IpAddr, SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
@@ -549,9 +550,7 @@
 <span class="kw">use </span>puffin::stream::Stream;
 <span class="kw">use </span>puffin::VERSION_STR;
 
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior};
-<span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, OpaqueMessage};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior, TLSProtocolTypes};
 
 <span class="kw">pub fn </span>new_tcp_factory() -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TLSProtocolBehavior&gt;&gt; {
     <span class="kw">struct </span>TCPFactory;
@@ -559,7 +558,10 @@
         <span class="kw">fn </span>create(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
+            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
+                TLSProtocolTypes,
+                &lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim,
+            &gt;,
             options: <span class="kw-2">&amp;</span>PutOptions,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;TLSProtocolBehavior&gt;&gt;, Error&gt; {
             <span class="kw">if </span>options.get_option(<span class="string">"args"</span>).is_some() {
@@ -770,7 +772,7 @@
     }
 }
 
-<span class="kw">impl </span>Stream&lt;TlsQueryMatcher, Message, OpaqueMessage, OpaqueMessageFlight&gt; <span class="kw">for </span>TcpServerPut {
+<span class="kw">impl </span>Stream&lt;TLSProtocolBehavior&gt; <span class="kw">for </span>TcpServerPut {
     <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opaque_flight: <span class="kw-2">&amp;</span>OpaqueMessageFlight) {
         <span class="self">self</span>.write_to_stream(<span class="kw-2">&amp;</span>opaque_flight.clone().get_encoding())
             .unwrap();
@@ -781,7 +783,7 @@
     }
 }
 
-<span class="kw">impl </span>Stream&lt;TlsQueryMatcher, Message, OpaqueMessage, OpaqueMessageFlight&gt; <span class="kw">for </span>TcpClientPut {
+<span class="kw">impl </span>Stream&lt;TLSProtocolBehavior&gt; <span class="kw">for </span>TcpClientPut {
     <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opaque_flight: <span class="kw-2">&amp;</span>OpaqueMessageFlight) {
         <span class="self">self</span>.write_to_stream(<span class="kw-2">&amp;</span>opaque_flight.clone().get_encoding())
             .unwrap();

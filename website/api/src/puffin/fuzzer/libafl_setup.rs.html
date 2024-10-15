@@ -572,7 +572,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::util::TermConstraints;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_monitor::StatsMonitor;
 <span class="kw">use </span><span class="kw">crate</span>::log::{config_fuzzing, config_fuzzing_client};
-<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
 <span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
 
@@ -996,7 +996,7 @@
     <span class="macro">log::info!</span>(<span class="string">"Config: {:?}\n\nlog_handle: {:?}"</span>, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>log_handle);
     log_handle.set_config(config_fuzzing(log_file));
 
-    <span class="kw">let </span><span class="kw-2">mut </span>run_client = |state: <span class="prelude-ty">Option</span>&lt;StdState&lt;Trace&lt;PB::Matcher&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;,
+    <span class="kw">let </span><span class="kw-2">mut </span>run_client = |state: <span class="prelude-ty">Option</span>&lt;StdState&lt;Trace&lt;PB::ProtocolTypes&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;,
                           event_manager: LlmpRestartingEventManager&lt;<span class="kw">_</span>, StdShMemProvider&gt;,
                           _core_id: CoreId|
      -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -1013,7 +1013,7 @@
                 <span class="kw-2">*</span>max_trace_length,
                 <span class="kw-2">*</span>term_constraints,
                 <span class="kw-2">*</span>fresh_zoo_after,
-                PB::signature(),
+                &lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::signature(),
             ))
             .with_initial_inputs(PB::create_corpus())
             .with_rand(StdRand::new())

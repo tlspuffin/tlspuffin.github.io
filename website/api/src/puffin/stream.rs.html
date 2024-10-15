@@ -110,13 +110,6 @@
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The communication streams between [`Agent`](crate::agent::Agent)s.
 //!
 //! These are currently implemented by using an in-memory buffer.
@@ -140,21 +133,17 @@
 
 </span><span class="kw">use </span>std::io::{<span class="self">self</span>, Read, Write};
 
-<span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
+<span class="kw">use </span><span class="kw">crate</span>::codec::Codec;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolMessage};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 
-<span class="kw">pub trait </span>Stream&lt;
-    Mt: Matcher,
-    M: ProtocolMessage&lt;Mt, O&gt;,
-    O: OpaqueProtocolMessage&lt;Mt&gt;,
-    OF: OpaqueProtocolMessageFlight&lt;Mt, O&gt;,
-&gt;
-{
-    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>OF);
+<span class="kw">pub trait </span>Stream&lt;PB: ProtocolBehavior&gt; {
+    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>PB::OpaqueProtocolMessageFlight);
 
     <span class="doccomment">/// Takes a single TLS message from the outbound channel
-    </span><span class="kw">fn </span>take_message_from_outbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;OF&gt;, Error&gt;;
+    </span><span class="kw">fn </span>take_message_from_outbound(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PB::OpaqueProtocolMessageFlight&gt;, Error&gt;;
 }
 
 <span class="doccomment">/// Describes in- or outbound channels of an [`crate::agent::Agent`].
@@ -188,19 +177,16 @@
     }
 }
 
-<span class="kw">impl</span>&lt;
-        Mt: Matcher,
-        M: ProtocolMessage&lt;Mt, O&gt;,
-        O: OpaqueProtocolMessage&lt;Mt&gt;,
-        OF: OpaqueProtocolMessageFlight&lt;Mt, O&gt;,
-    &gt; Stream&lt;Mt, M, O, OF&gt; <span class="kw">for </span>MemoryStream
-{
-    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>OF) {
+<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; Stream&lt;PB&gt; <span class="kw">for </span>MemoryStream {
+    <span class="kw">fn </span>add_to_inbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_flight: <span class="kw-2">&amp;</span>PB::OpaqueProtocolMessageFlight) {
         message_flight.encode(<span class="self">self</span>.inbound.get_mut());
     }
 
-    <span class="kw">fn </span>take_message_from_outbound(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;OF&gt;, Error&gt; {
-        <span class="kw">let </span>flight = OF::read_bytes(<span class="self">self</span>.outbound.get_ref().as_slice());
+    <span class="kw">fn </span>take_message_from_outbound(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PB::OpaqueProtocolMessageFlight&gt;, Error&gt; {
+        <span class="kw">let </span>flight =
+            PB::OpaqueProtocolMessageFlight::read_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>.outbound.get_ref().as_slice());
         <span class="self">self</span>.outbound.set_position(<span class="number">0</span>);
         <span class="self">self</span>.outbound.get_mut().clear();
 

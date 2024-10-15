@@ -318,9 +318,13 @@
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an enum for terms. A term can either be a Variable or a Function.
 //! This also implements the serializability of terms.
-</span><span class="kw">use </span>std::fmt;
+</span><span class="kw">use </span>std::fmt::{<span class="self">self</span>};
 <span class="kw">use </span>std::hash::{Hash, Hasher};
 
 <span class="kw">use </span>rand::random;
@@ -328,49 +332,51 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::fn_container::FnContainer;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{DynamicFunction, DynamicFunctionShape, TypeShape};
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_prefix, Matcher};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::remove_prefix;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::Query;
 
 <span class="doccomment">/// A variable symbol with fixed type.
 </span><span class="attr">#[derive(Serialize, Deserialize, Debug)]
-</span><span class="kw">pub struct </span>Variable&lt;M&gt; {
+#[serde(bound = <span class="string">"PT: ProtocolTypes"</span>)]
+</span><span class="kw">pub struct </span>Variable&lt;PT: ProtocolTypes&gt; {
     <span class="doccomment">/// Unique ID of this variable. Uniqueness is guaranteed across all
     /// [`Term`](crate::algebra::Term)s ever created. Cloning change this ID.
     </span><span class="kw">pub </span>unique_id: u32,
     <span class="doccomment">/// ID of this variable. This id stays the same during cloning.
     </span><span class="kw">pub </span>resistant_id: u32,
-    <span class="kw">pub </span>typ: TypeShape,
+    <span class="kw">pub </span>typ: TypeShape&lt;PT&gt;,
     <span class="doccomment">/// The struct which holds information about how to query this variable from knowledge
-    </span><span class="kw">pub </span>query: Query&lt;M&gt;,
+    </span><span class="kw">pub </span>query: Query&lt;PT::Matcher&gt;,
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Hash <span class="kw">for </span>Variable&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Hash <span class="kw">for </span>Variable&lt;PT&gt; {
     <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="self">self</span>.typ.hash(state);
         <span class="self">self</span>.query.hash(state);
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Eq <span class="kw">for </span>Variable&lt;M&gt; {}
-<span class="kw">impl</span>&lt;M: Matcher&gt; PartialEq <span class="kw">for </span>Variable&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Eq <span class="kw">for </span>Variable&lt;PT&gt; {}
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; PartialEq <span class="kw">for </span>Variable&lt;PT&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.typ == other.typ &amp;&amp; <span class="self">self</span>.query == other.query
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Clone <span class="kw">for </span>Variable&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Clone <span class="kw">for </span>Variable&lt;PT&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         Variable {
             unique_id: random(),
             resistant_id: <span class="self">self</span>.resistant_id,
-            typ: <span class="self">self</span>.typ,
+            typ: <span class="self">self</span>.typ.clone(),
             query: <span class="self">self</span>.query.clone(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Variable&lt;M&gt; {
-    <span class="kw">pub fn </span>new(typ: TypeShape, query: Query&lt;M&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Variable&lt;PT&gt; {
+    <span class="kw">pub fn </span>new(typ: TypeShape&lt;PT&gt;, query: Query&lt;PT::Matcher&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             unique_id: random(),
             resistant_id: random(),
@@ -380,7 +386,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Variable&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>Variable&lt;PT&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}/{}"</span>, <span class="self">self</span>.query, remove_prefix(<span class="self">self</span>.typ.name))
     }
@@ -388,29 +394,31 @@
 
 <span class="doccomment">/// A function symbol with fixed arity and fixed types.
 </span><span class="attr">#[derive(Serialize, Deserialize, Debug)]
-</span><span class="kw">pub struct </span>Function {
+#[serde(bound = <span class="string">"PT: ProtocolTypes"</span>)]
+</span><span class="kw">pub struct </span>Function&lt;PT: ProtocolTypes&gt; {
     <span class="doccomment">/// Unique ID of this function. Uniqueness is guaranteed across all
     /// [`Term`](crate::algebra::Term)s ever created. Cloning change this ID.
     </span><span class="kw">pub </span>unique_id: u32,
     <span class="doccomment">/// ID of this function. This id stays the same during cloning.
     </span><span class="kw">pub </span>resistant_id: u32,
     <span class="comment">// #[serde(flatten)] not working: https://github.com/jamesmunns/postcard/issues/29
-    </span>fn_container: FnContainer,
+    </span>fn_container: FnContainer&lt;PT&gt;,
 }
 
-<span class="kw">impl </span>Eq <span class="kw">for </span>Function {}
-<span class="kw">impl </span>Hash <span class="kw">for </span>Function {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Eq <span class="kw">for </span>Function&lt;PT&gt; {}
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Hash <span class="kw">for </span>Function&lt;PT&gt; {
     <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="self">self</span>.fn_container.hash(state)
     }
 }
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>Function {
+
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; PartialEq <span class="kw">for </span>Function&lt;PT&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.fn_container == other.fn_container
     }
 }
 
-<span class="kw">impl </span>Clone <span class="kw">for </span>Function {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Clone <span class="kw">for </span>Function&lt;PT&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         Function {
             unique_id: random(),
@@ -420,8 +428,8 @@
     }
 }
 
-<span class="kw">impl </span>Function {
-    <span class="kw">pub fn </span>new(shape: DynamicFunctionShape, dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Function&lt;PT&gt; {
+    <span class="kw">pub fn </span>new(shape: DynamicFunctionShape&lt;PT&gt;, dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             unique_id: random(),
             resistant_id: random(),
@@ -441,25 +449,25 @@
         <span class="self">self</span>.fn_container.shape.name
     }
 
-    <span class="kw">pub fn </span>shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DynamicFunctionShape {
+    <span class="kw">pub fn </span>shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DynamicFunctionShape&lt;PT&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.fn_container.shape
     }
 
-    <span class="kw">pub fn </span>dynamic_fn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>DynamicFunction {
+    <span class="kw">pub fn </span>dynamic_fn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>DynamicFunction&lt;PT&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.fn_container.dynamic_fn
     }
 
     <span class="kw">pub fn </span>change_function(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        shape: DynamicFunctionShape,
-        dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;,
+        shape: DynamicFunctionShape&lt;PT&gt;,
+        dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;,
     ) {
         <span class="self">self</span>.fn_container.shape = shape;
         <span class="self">self</span>.fn_container.dynamic_fn = dynamic_fn;
     }
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Function {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>Function&lt;PT&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.fn_container.shape.fmt(f)
     }
@@ -473,9 +481,9 @@
     <span class="kw">use </span>serde::ser::SerializeStruct;
     <span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-    <span class="kw">use </span><span class="kw">crate</span>::algebra::deserialize_signature;
     <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{DynamicFunction, DynamicFunctionShape, TypeShape};
     <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
+    <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 
     <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span>str = <span class="string">"name"</span>;
     <span class="kw">const </span>ARGUMENTS: <span class="kw-2">&amp;</span>str = <span class="string">"arguments"</span>;
@@ -483,26 +491,26 @@
     <span class="kw">const </span>FIELDS: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str] = <span class="kw-2">&amp;</span>[NAME, ARGUMENTS, RETURN];
 
     <span class="attr">#[derive(Clone, Debug)]
-    </span><span class="kw">pub struct </span>FnContainer {
-        <span class="kw">pub </span>shape: DynamicFunctionShape,
-        <span class="kw">pub </span>dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;,
+    </span><span class="kw">pub struct </span>FnContainer&lt;PT: ProtocolTypes&gt; {
+        <span class="kw">pub </span>shape: DynamicFunctionShape&lt;PT&gt;,
+        <span class="kw">pub </span>dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;,
     }
 
-    <span class="kw">impl </span>Hash <span class="kw">for </span>FnContainer {
+    <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Hash <span class="kw">for </span>FnContainer&lt;PT&gt; {
         <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
             <span class="self">self</span>.shape.hash(state)
         }
     }
 
-    <span class="kw">impl </span>Eq <span class="kw">for </span>FnContainer {}
-    <span class="kw">impl </span>PartialEq <span class="kw">for </span>FnContainer {
+    <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Eq <span class="kw">for </span>FnContainer&lt;PT&gt; {}
+    <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; PartialEq <span class="kw">for </span>FnContainer&lt;PT&gt; {
         <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
             <span class="comment">// shape already identifies the function container
             </span><span class="self">self</span>.shape == other.shape
         }
     }
 
-    <span class="kw">impl </span>Serialize <span class="kw">for </span>FnContainer {
+    <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Serialize <span class="kw">for </span>FnContainer&lt;PT&gt; {
         <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
         <span class="kw">where
             </span>S: Serializer,
@@ -515,28 +523,28 @@
         }
     }
 
-    <span class="kw">struct </span>FnContainerVisitor {
-        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
+    <span class="kw">struct </span>FnContainerVisitor&lt;PT: ProtocolTypes&gt; {
+        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FnContainerVisitor {
-        <span class="kw">type </span>Value = FnContainer;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, PT: ProtocolTypes&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FnContainerVisitor&lt;PT&gt; {
+        <span class="kw">type </span>Value = FnContainer&lt;PT&gt;;
 
         <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
             formatter.write_str(<span class="string">"struct FnContainer"</span>)
         }
 
-        <span class="kw">fn </span>visit_seq&lt;V&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>seq: V) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer, V::Error&gt;
+        <span class="kw">fn </span>visit_seq&lt;V&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>seq: V) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer&lt;PT&gt;, V::Error&gt;
         <span class="kw">where
             </span>V: SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
         {
             <span class="kw">let </span>name: <span class="kw-2">&amp;</span>str = seq
                 .next_element()<span class="question-mark">?
                 </span>.ok_or_else(|| de::Error::invalid_length(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>))<span class="question-mark">?</span>;
-            <span class="kw">let </span>argument_types: Vec&lt;TypeShape&gt; = seq
+            <span class="kw">let </span>argument_types: Vec&lt;TypeShape&lt;PT&gt;&gt; = seq
                 .next_element()<span class="question-mark">?
                 </span>.ok_or_else(|| de::Error::invalid_length(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>))<span class="question-mark">?</span>;
-            <span class="kw">let </span>return_type: TypeShape = seq
+            <span class="kw">let </span>return_type: TypeShape&lt;PT&gt; = seq
                 .next_element()<span class="question-mark">?
                 </span>.ok_or_else(|| de::Error::invalid_length(<span class="number">2</span>, <span class="kw-2">&amp;</span><span class="self">self</span>))<span class="question-mark">?</span>;
 
@@ -546,7 +554,7 @@
                 })<span class="question-mark">?</span>;
 
             <span class="kw">if </span>name != shape.name {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(<span class="string">"Function name does not match!"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(<span class="string">"Function&lt;PT&gt; name does not match!"</span>));
             }
 
             <span class="kw">if </span>return_type != shape.return_type || argument_types != shape.argument_types {
@@ -561,13 +569,13 @@
             })
         }
 
-        <span class="kw">fn </span>visit_map&lt;V&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>map: V) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer, V::Error&gt;
+        <span class="kw">fn </span>visit_map&lt;V&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>map: V) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer&lt;PT&gt;, V::Error&gt;
         <span class="kw">where
             </span>V: MapAccess&lt;<span class="lifetime">'de</span>&gt;,
         {
             <span class="kw">let </span><span class="kw-2">mut </span>name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>str&gt; = <span class="prelude-val">None</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>arguments: <span class="prelude-ty">Option</span>&lt;Vec&lt;TypeShape&gt;&gt; = <span class="prelude-val">None</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>ret: <span class="prelude-ty">Option</span>&lt;TypeShape&gt; = <span class="prelude-val">None</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>arguments: <span class="prelude-ty">Option</span>&lt;Vec&lt;TypeShape&lt;PT&gt;&gt;&gt; = <span class="prelude-val">None</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>ret: <span class="prelude-ty">Option</span>&lt;TypeShape&lt;PT&gt;&gt; = <span class="prelude-val">None</span>;
             <span class="kw">while let </span><span class="prelude-val">Some</span>(key) = map.next_key()<span class="question-mark">? </span>{
                 <span class="kw">match </span>key {
                     NAME =&gt; {
@@ -607,7 +615,7 @@
             <span class="kw">let </span>return_type = ret.ok_or_else(|| de::Error::missing_field(RETURN))<span class="question-mark">?</span>;
 
             <span class="kw">if </span>name != shape.name {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(<span class="string">"Function name does not match!"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(<span class="string">"Function&lt;PT&gt; name does not match!"</span>));
             }
 
             <span class="kw">if </span>return_type != shape.return_type || argument_types != shape.argument_types {
@@ -623,8 +631,8 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FnContainer {
-        <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer, D::Error&gt;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, PT: ProtocolTypes&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FnContainer&lt;PT&gt; {
+        <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer&lt;PT&gt;, D::Error&gt;
         <span class="kw">where
             </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
         {
@@ -632,7 +640,7 @@
                 <span class="string">"FnContainer"</span>,
                 FIELDS,
                 FnContainerVisitor {
-                    signature: deserialize_signature(),
+                    signature: PT::signature(),
                 },
             )
         }

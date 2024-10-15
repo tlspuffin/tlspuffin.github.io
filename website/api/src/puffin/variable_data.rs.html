@@ -33,30 +33,44 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Definition of the VariableData trait. A VariableData can contain any data which has a `'static`
 //! type.
 
 </span><span class="kw">use </span>std::any::{Any, TypeId};
 <span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">pub trait </span>VariableData: Debug {
-    <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&gt;;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolTypes};
+
+<span class="kw">pub trait </span>VariableData&lt;PT: ProtocolTypes&gt;: Debug + EvaluatedTerm&lt;PT&gt; {
+    <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&lt;PT&gt;&gt;;
     <span class="kw">fn </span>boxed_any(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Any&gt;;
+    <span class="kw">fn </span>boxed_term(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;;
     <span class="kw">fn </span>type_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeId;
     <span class="kw">fn </span>type_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 }
 
 <span class="doccomment">/// A VariableData is cloneable and has a `'static` type. This data type is used throughout
 /// tlspuffin to handle data of dynamic size.
-</span><span class="kw">impl</span>&lt;T: <span class="lifetime">'static</span>&gt; VariableData <span class="kw">for </span>T
+</span><span class="kw">impl</span>&lt;T, PT: ProtocolTypes&gt; VariableData&lt;PT&gt; <span class="kw">for </span>T
 <span class="kw">where
-    </span>T: Clone + Debug,
+    </span>T: Clone + Debug + EvaluatedTerm&lt;PT&gt; + <span class="lifetime">'static</span>,
 {
-    <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&gt; {
+    <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&lt;PT&gt;&gt; {
         Box::new(<span class="self">self</span>.clone())
     }
 
     <span class="kw">fn </span>boxed_any(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Any&gt; {
+        Box::new(<span class="self">self</span>.clone())
+    }
+
+    <span class="kw">fn </span>boxed_term(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt; {
         Box::new(<span class="self">self</span>.clone())
     }
 

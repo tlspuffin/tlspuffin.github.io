@@ -1028,30 +1028,44 @@
 <a href="#1028" id="1028">1028</a>
 <a href="#1029" id="1029">1029</a>
 <a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>util::{Choosable, <span class="kw-2">*</span>};
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Function;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Subterms, Term};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{Subterms, Term};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::term_zoo::TermZoo;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
 
-<span class="kw">pub fn </span>trace_mutations&lt;S, M: Matcher&gt;(
+<span class="kw">pub fn </span>trace_mutations&lt;S, PT: ProtocolTypes&gt;(
     min_trace_length: usize,
     max_trace_length: usize,
     constraints: TermConstraints,
     fresh_zoo_after: u64,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
 ) -&gt; <span class="macro">tuple_list_type!</span>(
-       RepeatMutator&lt;S&gt;,
-       SkipMutator&lt;S&gt;,
-       ReplaceReuseMutator&lt;S&gt;,
-       ReplaceMatchMutator&lt;S&gt;,
-       RemoveAndLiftMutator&lt;S&gt;,
-       GenerateMutator&lt;S, M&gt;,
-       SwapMutator&lt;S&gt;
+      RepeatMutator&lt;S&gt;,
+      SkipMutator&lt;S&gt;,
+      ReplaceReuseMutator&lt;S&gt;,
+      ReplaceMatchMutator&lt;S, PT&gt;,
+      RemoveAndLiftMutator&lt;S&gt;,
+      GenerateMutator&lt;S, PT&gt;,
+      SwapMutator&lt;S&gt;
    )
 <span class="kw">where
     </span>S: HasCorpus + HasMetadata + HasMaxSize + HasRand,
@@ -1093,21 +1107,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>SwapMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>SwapMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>rand = state.rand_mut();
         <span class="kw">if let </span><span class="prelude-val">Some</span>((term_a, trace_path_a)) = choose(trace, <span class="self">self</span>.constraints, rand) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path_b) = choose_term_path_filtered(
                 trace,
-                |term: <span class="kw-2">&amp;</span>Term&lt;M&gt;| term.get_type_shape() == term_a.get_type_shape(),
+                |term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;| term.get_type_shape() == term_a.get_type_shape(),
                 <span class="self">self</span>.constraints,
                 rand,
             ) {
@@ -1158,18 +1172,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>RemoveAndLiftMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>RemoveAndLiftMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>rand = state.rand_mut();
-        <span class="kw">let </span>filter = |term: <span class="kw-2">&amp;</span>Term&lt;M&gt;| <span class="kw">match </span>term {
+        <span class="kw">let </span>filter = |term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;| <span class="kw">match </span>term {
             Term::Variable(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
             Term::Application(<span class="kw">_</span>, subterms) =&gt; subterms
                 .find_subterm(|subterm| <span class="kw">match </span>subterm {
@@ -1216,23 +1230,24 @@
 
 <span class="doccomment">/// REPLACE-MATCH: Replaces a function symbol with a different one (such that types match).
 ///
-/// An example would be to replace a constant with another constant or the binary function fn_add
-/// with fn_sub. It can also replace any variable with a constant.
-</span><span class="kw">pub struct </span>ReplaceMatchMutator&lt;S&gt;
+/// An example would be to replace a constant with another constant or the binary function
+/// fn_add with fn_sub.
+/// It can also replace any variable with a constant.
+</span><span class="kw">pub struct </span>ReplaceMatchMutator&lt;S, PT: ProtocolTypes&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     constraints: TermConstraints,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
     phantom_s: std::marker::PhantomData&lt;S&gt;,
 }
 
-<span class="kw">impl</span>&lt;S&gt; ReplaceMatchMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; ReplaceMatchMutator&lt;S, PT&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new(constraints: TermConstraints, signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(constraints: TermConstraints, signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             constraints,
             signature,
@@ -1241,14 +1256,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>ReplaceMatchMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>ReplaceMatchMutator&lt;S, PT&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>rand = state.rand_mut();
@@ -1290,12 +1305,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;S&gt; Named <span class="kw">for </span>ReplaceMatchMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Named <span class="kw">for </span>ReplaceMatchMutator&lt;S, PT&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;ReplaceMatchMutator&lt;S&gt;&gt;()
+        std::any::type_name::&lt;ReplaceMatchMutator&lt;S, PT&gt;&gt;()
     }
 }
 
@@ -1324,21 +1339,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>ReplaceReuseMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>ReplaceReuseMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>rand = state.rand_mut();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(replacement) = choose_term(trace, <span class="self">self</span>.constraints, rand).cloned() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(to_replace) = choose_term_filtered_mut(
                 trace,
-                |term: <span class="kw-2">&amp;</span>Term&lt;M&gt;| term.get_type_shape() == replacement.get_type_shape(),
+                |term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;| term.get_type_shape() == replacement.get_type_shape(),
                 <span class="self">self</span>.constraints,
                 rand,
             ) {
@@ -1380,14 +1395,14 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>SkipMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>SkipMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>steps = <span class="kw-2">&amp;mut </span>trace.steps;
@@ -1432,14 +1447,14 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>RepeatMutator&lt;S&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>RepeatMutator&lt;S&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>steps = <span class="kw-2">&amp;</span>trace.steps;
@@ -1466,18 +1481,18 @@
 }
 
 <span class="doccomment">/// GENERATE: Generates a previously-unseen term using a term zoo
-</span><span class="kw">pub struct </span>GenerateMutator&lt;S, M: Matcher&gt;
+</span><span class="kw">pub struct </span>GenerateMutator&lt;S, PT: ProtocolTypes&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     mutation_counter: u64,
     refresh_zoo_after: u64,
     constraints: TermConstraints,
-    zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;M&gt;&gt;,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
+    zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;PT&gt;&gt;,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
     phantom_s: std::marker::PhantomData&lt;S&gt;,
 }
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; GenerateMutator&lt;S, M&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; GenerateMutator&lt;S, PT&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
@@ -1486,8 +1501,8 @@
         mutation_counter: u64,
         refresh_zoo_after: u64,
         constraints: TermConstraints,
-        zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;M&gt;&gt;,
-        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature,
+        zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;PT&gt;&gt;,
+        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             mutation_counter,
@@ -1499,14 +1514,14 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Mutator&lt;Trace&lt;M&gt;, S&gt; <span class="kw">for </span>GenerateMutator&lt;S, M&gt;
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>GenerateMutator&lt;S, PT&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;M&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
         <span class="kw">let </span>rand = state.rand_mut();
@@ -1532,19 +1547,21 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;S, M: Matcher&gt; Named <span class="kw">for </span>GenerateMutator&lt;S, M&gt;
+
+<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Named <span class="kw">for </span>GenerateMutator&lt;S, PT&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;GenerateMutator&lt;S, M&gt;&gt;()
+        std::any::type_name::&lt;GenerateMutator&lt;S, PT&gt;&gt;()
     }
 }
 
 <span class="kw">pub mod </span>util {
     <span class="kw">use </span>libafl_bolts::rands::Rand;
 
-    <span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Term};
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::Term;
+    <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
     <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Step, Trace};
 
     <span class="attr">#[derive(Copy, Clone, Debug)]
@@ -1623,13 +1640,13 @@
     <span class="kw">pub type </span>TracePath = (StepIndex, TermPath);
 
     <span class="doccomment">/// &lt;https://en.wikipedia.org/wiki/Reservoir_sampling#Simple_algorithm&gt;
-    </span><span class="kw">fn </span>reservoir_sample&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;M&gt;,
+    </span><span class="kw">fn </span>reservoir_sample&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes, P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
         filter: P,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, TracePath)&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>reservoir: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, TracePath)&gt; = <span class="prelude-val">None</span>;
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, TracePath)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>reservoir: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, TracePath)&gt; = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>visited = <span class="number">0</span>;
 
         <span class="kw">for </span>(step_index, step) <span class="kw">in </span>trace.steps.iter().enumerate() {
@@ -1642,7 +1659,7 @@
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="kw">let </span><span class="kw-2">mut </span>stack: Vec&lt;(<span class="kw-2">&amp;</span>Term&lt;M&gt;, TracePath)&gt; =
+                    <span class="kw">let </span><span class="kw-2">mut </span>stack: Vec&lt;(<span class="kw-2">&amp;</span>Term&lt;PT&gt;, TracePath)&gt; =
                         <span class="macro">vec!</span>[(term, (step_index, Vec::new()))];
 
                     <span class="kw">while let </span><span class="prelude-val">Some</span>((term, path)) = stack.pop() {
@@ -1688,10 +1705,10 @@
         reservoir
     }
 
-    <span class="kw">fn </span>find_term_by_term_path_mut&lt;<span class="lifetime">'a</span>, M: Matcher&gt;(
-        term: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;,
+    <span class="kw">fn </span>find_term_by_term_path_mut&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt;(
+        term: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;,
         term_path: <span class="kw-2">&amp;mut </span>TermPath,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;&gt; {
         <span class="kw">if </span>term_path.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Some</span>(term);
         }
@@ -1710,13 +1727,13 @@
         }
     }
 
-    <span class="kw">pub fn </span>find_term_mut&lt;<span class="lifetime">'a</span>, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>find_term_mut&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;PT&gt;,
         trace_path: <span class="kw-2">&amp;</span>TracePath,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;&gt; {
         <span class="kw">let </span>(step_index, term_path) = trace_path;
 
-        <span class="kw">let </span>step: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Step&lt;M&gt;&gt; = trace.steps.get_mut(<span class="kw-2">*</span>step_index);
+        <span class="kw">let </span>step: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Step&lt;PT&gt;&gt; = trace.steps.get_mut(<span class="kw-2">*</span>step_index);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(step) = step {
             <span class="kw">match </span><span class="kw-2">&amp;mut </span>step.action {
                 Action::Input(input) =&gt; {
@@ -1729,27 +1746,27 @@
         </span>}
     }
 
-    <span class="kw">pub fn </span>choose&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, (usize, TermPath))&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, (usize, TermPath))&gt; {
         reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand)
     }
 
-    <span class="kw">pub fn </span>choose_term&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;&gt; {
         reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand).map(|ret| ret.<span class="number">0</span>)
     }
 
-    <span class="kw">pub fn </span>choose_term_mut&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term_mut&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;PT&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path) = choose_term_path_filtered(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand) {
             find_term_mut(trace, <span class="kw-2">&amp;</span>trace_path)
         } <span class="kw">else </span>{
@@ -1757,12 +1774,17 @@
         </span>}
     }
 
-    <span class="kw">pub fn </span>choose_term_filtered_mut&lt;<span class="lifetime">'a</span>, R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
-        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term_filtered_mut&lt;
+        <span class="lifetime">'a</span>,
+        R: Rand,
+        PT: ProtocolTypes,
+        P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy,
+    &gt;(
+        trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;PT&gt;,
         filter: P,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;M&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path) = choose_term_path_filtered(trace, filter, constraints, rand) {
             find_term_mut(trace, <span class="kw-2">&amp;</span>trace_path)
         } <span class="kw">else </span>{
@@ -1770,16 +1792,20 @@
         </span>}
     }
 
-    <span class="kw">pub fn </span>choose_term_path&lt;R: Rand, M: Matcher&gt;(
-        trace: <span class="kw-2">&amp;</span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term_path&lt;R: Rand, PT: ProtocolTypes&gt;(
+        trace: <span class="kw-2">&amp;</span>Trace&lt;PT&gt;,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;TracePath&gt; {
         choose_term_path_filtered(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand)
     }
 
-    <span class="kw">pub fn </span>choose_term_path_filtered&lt;R: Rand, M: Matcher, P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
-        trace: <span class="kw-2">&amp;</span>Trace&lt;M&gt;,
+    <span class="kw">pub fn </span>choose_term_path_filtered&lt;
+        R: Rand,
+        PT: ProtocolTypes,
+        P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy,
+    &gt;(
+        trace: <span class="kw-2">&amp;</span>Trace&lt;PT&gt;,
         filter: P,
         constraints: TermConstraints,
         rand: <span class="kw-2">&amp;mut </span>R,
@@ -1801,7 +1827,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
     <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::DescribableFunction;
     <span class="kw">use </span><span class="kw">crate</span>::algebra::test_signature::{TestTrace, <span class="kw-2">*</span>};
-    <span class="kw">use </span><span class="kw">crate</span>::algebra::{AnyMatcher, Term};
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::Term;
     <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Step};
 
     <span class="kw">fn </span>create_state(
@@ -1819,7 +1845,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>mutator = RepeatMutator::new(<span class="number">15</span>);
 
-        <span class="kw">fn </span>check_is_encrypt12(step: <span class="kw-2">&amp;</span>Step&lt;AnyMatcher&gt;) -&gt; bool {
+        <span class="kw">fn </span>check_is_encrypt12(step: <span class="kw-2">&amp;</span>Step&lt;TestProtocolTypes&gt;) -&gt; bool {
             <span class="kw">if let </span>Action::Input(input) = <span class="kw-2">&amp;</span>step.action {
                 <span class="kw">if </span>input.recipe.name() == fn_encrypt12.name() {
                     <span class="kw">return </span><span class="bool-val">true</span>;

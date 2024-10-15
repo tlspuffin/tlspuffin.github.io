@@ -279,7 +279,7 @@
 
     <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
-        </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::Matcher&gt;&gt;;
+        </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;;
 }
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -304,7 +304,7 @@
 
     <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
-        </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::Matcher&gt;&gt;,
+        </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
         <span class="comment">// We reseed all PUTs before executing a trace!
         </span><span class="self">self</span>.registry.determinism_reseed_all_factories();
@@ -351,7 +351,7 @@
 
     <span class="kw">fn </span>execute&lt;Tr&gt;(<span class="self">self</span>, trace: Tr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
-        </span>Tr: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::Matcher&gt;&gt;,
+        </span>Tr: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
         <span class="kw">let </span>runner = <span class="self">self</span>.runner.clone();
 

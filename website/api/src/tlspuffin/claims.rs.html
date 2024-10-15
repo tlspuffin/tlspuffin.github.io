@@ -335,14 +335,51 @@
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
 <a href="#337" id="337">337</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::Any;
-<span class="kw">use </span>std::fmt::Debug;
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use </span>puffin::agent::{AgentName, AgentType, TLSVersion};
 <span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::claims::Claim;
+<span class="kw">use </span>puffin::dummy_extract_knowledge;
+<span class="kw">use </span>puffin::error::Error;
+<span class="kw">use </span>puffin::protocol::{EvaluatedTerm, ProtocolTypes};
+<span class="kw">use </span>puffin::trace::{Knowledge, Source};
 <span class="kw">use </span>puffin::variable_data::VariableData;
 <span class="kw">use </span>smallvec::SmallVec;
+
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
 
 <span class="attr">#[cfg(not(has_instr = <span class="string">"claimer"</span>))]
 </span><span class="kw">pub mod </span>dummy_registration {
@@ -375,6 +412,8 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptClientHello);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptPartialClientHello(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptPartialClientHello {
@@ -383,6 +422,8 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptPartialClientHello);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptServerHello(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptServerHello {
@@ -391,6 +432,8 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptServerHello);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptServerFinished(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptServerFinished {
@@ -399,6 +442,8 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptServerFinished);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptClientFinished(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptClientFinished {
@@ -407,6 +452,8 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptClientFinished);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptCertificate(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptCertificate {
@@ -415,6 +462,7 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptCertificate);
 
 <span class="kw">pub trait </span>Transcript {
     <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8];
@@ -422,12 +470,16 @@
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ClientHello;
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, ClientHello);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ServerHello;
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, ServerHello);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Certificate;
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, Certificate);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>CertificateVerify;
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, CertificateVerify);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Finished {
     <span class="kw">pub </span>outbound: bool,
@@ -474,6 +526,7 @@
                     }
     */
 </span>}
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, Finished);
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub enum </span>ClaimDataTranscript {
@@ -508,15 +561,15 @@
     <span class="kw">pub </span>data: ClaimData,
 }
 
-<span class="kw">impl </span>Claim <span class="kw">for </span>TlsClaim {
+<span class="kw">impl </span>Claim&lt;TLSProtocolTypes&gt; <span class="kw">for </span>TlsClaim {
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
         <span class="self">self</span>.agent_name
     }
 
-    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape {
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape&lt;TLSProtocolTypes&gt; {
         <span class="kw">type </span>Message = ClaimDataMessage;
         <span class="kw">type </span>Transcript = ClaimDataTranscript;
-        <span class="kw">type </span>Type = TypeShape;
+        <span class="kw">type </span>Type = TypeShape&lt;TLSProtocolTypes&gt;;
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
             ClaimData::Message(message) =&gt; <span class="kw">match </span>message {
                 Message::ClientHello(<span class="kw">_</span>) =&gt; Type::of::&lt;ClientHello&gt;(),
@@ -536,26 +589,37 @@
         }
     }
 
-    <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Any&gt; {
+    <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;TLSProtocolTypes&gt;&gt; {
         <span class="kw">type </span>Message = ClaimDataMessage;
         <span class="kw">type </span>Transcript = ClaimDataTranscript;
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
             ClaimData::Message(message) =&gt; <span class="kw">match </span>message {
-                Message::ClientHello(claim) =&gt; claim.boxed_any(),
-                Message::ServerHello(claim) =&gt; claim.boxed_any(),
-                Message::Certificate(claim) =&gt; claim.boxed_any(),
-                Message::CertificateVerify(claim) =&gt; claim.boxed_any(),
-                Message::Finished(claim) =&gt; claim.boxed_any(),
+                Message::ClientHello(claim) =&gt; claim.boxed_term(),
+                Message::ServerHello(claim) =&gt; claim.boxed_term(),
+                Message::Certificate(claim) =&gt; claim.boxed_term(),
+                Message::CertificateVerify(claim) =&gt; claim.boxed_term(),
+                Message::Finished(claim) =&gt; claim.boxed_term(),
             },
             ClaimData::Transcript(transcript) =&gt; <span class="kw">match </span>transcript {
-                Transcript::ClientHello(claim) =&gt; claim.boxed_any(),
-                Transcript::PartialClientHello(claim) =&gt; claim.boxed_any(),
-                Transcript::ServerHello(claim) =&gt; claim.boxed_any(),
-                Transcript::ServerFinished(claim) =&gt; claim.boxed_any(),
-                Transcript::ClientFinished(claim) =&gt; claim.boxed_any(),
-                Transcript::Certificate(claim) =&gt; claim.boxed_any(),
+                Transcript::ClientHello(claim) =&gt; claim.boxed_term(),
+                Transcript::PartialClientHello(claim) =&gt; claim.boxed_term(),
+                Transcript::ServerHello(claim) =&gt; claim.boxed_term(),
+                Transcript::ServerFinished(claim) =&gt; claim.boxed_term(),
+                Transcript::ClientFinished(claim) =&gt; claim.boxed_term(),
+                Transcript::Certificate(claim) =&gt; claim.boxed_term(),
             },
         }
+    }
+}
+
+<span class="kw">impl </span>EvaluatedTerm&lt;TLSProtocolTypes&gt; <span class="kw">for </span>TlsClaim {
+    <span class="kw">fn </span>extract_knowledge(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        _knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;puffin::trace::Knowledge&lt;TLSProtocolTypes&gt;&gt;,
+        _matcher: <span class="prelude-ty">Option</span>&lt;&lt;TLSProtocolTypes <span class="kw">as </span>puffin::protocol::ProtocolTypes&gt;::Matcher&gt;,
+        _source: <span class="kw-2">&amp;</span>puffin::trace::Source,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), puffin::error::Error&gt; {
+        <span class="prelude-val">Ok</span>(())
     }
 }
 

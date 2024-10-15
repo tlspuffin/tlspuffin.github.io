@@ -43,6 +43,9 @@
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
 <a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::rc::Rc;
 
@@ -53,22 +56,25 @@
 <span class="kw">use </span>puffin::put::PutOptions;
 
 <span class="kw">use </span><span class="kw">crate</span>::claims::TlsClaim;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{TLSProtocolBehavior, TLSProtocolTypes};
 
 <span class="doccomment">/// Static configuration for creating a new agent state for the PUT
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>TlsPutConfig {
     <span class="kw">pub </span>descriptor: AgentDescriptor,
-    <span class="kw">pub </span>claims: GlobalClaimList&lt;TlsClaim&gt;,
+    <span class="kw">pub </span>claims: GlobalClaimList&lt;TLSProtocolTypes, TlsClaim&gt;,
     <span class="kw">pub </span>authenticate_peer: bool,
-    <span class="kw">pub </span>extract_deferred: Rc&lt;RefCell&lt;<span class="prelude-ty">Option</span>&lt;TypeShape&gt;&gt;&gt;,
+    <span class="kw">pub </span>extract_deferred: Rc&lt;RefCell&lt;<span class="prelude-ty">Option</span>&lt;TypeShape&lt;TLSProtocolTypes&gt;&gt;&gt;&gt;,
     <span class="kw">pub </span>use_clear: bool,
 }
 
 <span class="kw">impl </span>TlsPutConfig {
     <span class="kw">pub fn </span>new(
         agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
+        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
+            TLSProtocolTypes,
+            &lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim,
+        &gt;,
         options: <span class="kw-2">&amp;</span>PutOptions,
     ) -&gt; TlsPutConfig {
         <span class="kw">let </span>use_clear = options

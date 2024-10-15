@@ -66,12 +66,14 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algebra::{Matcher, Term};
+<a href="#69" id="69">69</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algebra::Term;
 <span class="kw">use </span><span class="kw">crate</span>::execution::{ExecutionStatus, ForkError};
 <span class="kw">use </span><span class="kw">crate</span>::graphviz::write_graphviz;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace};
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Trace&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Trace&lt;PT&gt; {
     <span class="kw">pub fn </span>count_functions_by_name(<span class="kw-2">&amp;</span><span class="self">self</span>, find_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; usize {
         <span class="self">self</span>.steps
             .iter()
@@ -103,7 +105,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Term&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Term&lt;PT&gt; {
     <span class="kw">pub fn </span>count_functions_by_name(<span class="kw-2">&amp;</span><span class="self">self</span>, find_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; usize {
         <span class="kw">let </span><span class="kw-2">mut </span>found = <span class="number">0</span>;
         <span class="kw">for </span>term <span class="kw">in </span><span class="self">self</span>.into_iter() {

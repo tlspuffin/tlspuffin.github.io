@@ -271,6 +271,8 @@
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
 <a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *tls* module provides concrete implementations for the functions used in the term.
 //!
 //! The module offers a variety of
@@ -281,6 +283,8 @@
 <span class="kw">use </span>puffin::algebra::error::FnError;
 <span class="kw">use </span>puffin::define_signature;
 <span class="kw">use </span>puffin::error::Error;
+
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
 
 <span class="kw">mod </span>key_exchange;
 <span class="kw">mod </span>key_schedule;
@@ -331,7 +335,7 @@
 }
 
 <span class="macro">define_signature!</span>(
-    TLS_SIGNATURE,
+    TLS_SIGNATURE&lt;TLSProtocolTypes&gt;,
     <span class="comment">// constants
     </span>fn_true
     fn_false

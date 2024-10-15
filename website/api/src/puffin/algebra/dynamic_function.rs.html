@@ -334,10 +334,25 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides traits for calling rust functions dynamically.
 //!
 //! All functions which implement the DynamicFunction trait can be called by passing an array of
-//! [`Any`]s to it. The return value is again of type [`Any`].
+//! [`EvaluatedTerm`]s to it. The return value is again of type [`EvaluatedTerm`].
 //!
 //! Rust is a statically typed language. That means the compiler would be able to statically verify
 //! that a term evaluates without any type errors.
@@ -364,16 +379,20 @@
 //! use std::any::Any;
 //!
 //! use puffin::algebra::error::FnError;
+//! use puffin::protocol::{EvaluatedTerm, ProtocolTypes};
 //!
-//! pub trait DynamicFunction: Fn(&amp;Vec&lt;Box&lt;dyn Any&gt;&gt;) -&gt; Result&lt;Box&lt;dyn Any&gt;, FnError&gt; {}
+//! pub trait DynamicFunction&lt;PT: ProtocolTypes&gt;:
+//!     Fn(&amp;Vec&lt;Box&lt;dyn EvaluatedTerm&lt;PT&gt;&gt;&gt;) -&gt; Result&lt;Box&lt;dyn EvaluatedTerm&lt;PT&gt;&gt;, FnError&gt;
+//! {
+//! }
 //! ```
 //!
 //! Note, that both functions return a `Result` and therefore can gracefully fail.
 //!
-//! `DynamicFunctions` can be called with an array of any type. The result type is also arbitrary.
-//! Rust offers a unique ID for each type. Using this type we can check during runtime whether
-//! types are available. The types of each variable, constant and function are preserved and
-//! stored alongside the `DynamicFunction`.
+//! `DynamicFunctions` can be called with an array of any type implementing the EvaluatedTerm
+//! trait. The result must also implement EvaluatedTerm. Rust offers a unique ID for each type.
+//! Using this type we can check during runtime whether types are available. The types of each
+//! variable, constant and function are preserved and stored alongside the `DynamicFunction`.
 //!
 //! The following function is a simple example for a constant:
 //!
@@ -386,40 +405,42 @@
 //! ```
 //!
 //! It returns one possibility for the cipher suites which could be sent during a `ClientHello`.
-</span><span class="kw">use </span>std::any::{type_name, Any, TypeId};
+</span><span class="kw">use </span>std::any::{type_name, TypeId};
 <span class="kw">use </span>std::collections::hash_map::DefaultHasher;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::hash::{Hash, Hasher};
+<span class="kw">use </span>std::marker::PhantomData;
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::de::Visitor;
 <span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-<span class="kw">use </span><span class="kw">crate</span>::algebra::deserialize_signature;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
+<span class="kw">use </span><span class="kw">super</span>::error::FnError;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolTypes};
 
 <span class="doccomment">/// Describes the shape of a [`DynamicFunction`]
 </span><span class="attr">#[derive(Serialize, Deserialize, Debug, Clone)]
-</span><span class="kw">pub struct </span>DynamicFunctionShape {
+#[serde(bound = <span class="string">"PT: ProtocolTypes"</span>)]
+</span><span class="kw">pub struct </span>DynamicFunctionShape&lt;PT: ProtocolTypes&gt; {
     <span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
-    <span class="kw">pub </span>argument_types: Vec&lt;TypeShape&gt;,
-    <span class="kw">pub </span>return_type: TypeShape,
+    <span class="kw">pub </span>argument_types: Vec&lt;TypeShape&lt;PT&gt;&gt;,
+    <span class="kw">pub </span>return_type: TypeShape&lt;PT&gt;,
 }
 
-<span class="kw">impl </span>Eq <span class="kw">for </span>DynamicFunctionShape {}
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>DynamicFunctionShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Eq <span class="kw">for </span>DynamicFunctionShape&lt;PT&gt; {}
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; PartialEq <span class="kw">for </span>DynamicFunctionShape&lt;PT&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.name.eq(other.name) <span class="comment">// name is unique
     </span>}
 }
 
-<span class="kw">impl </span>Hash <span class="kw">for </span>DynamicFunctionShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Hash <span class="kw">for </span>DynamicFunctionShape&lt;PT&gt; {
     <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="self">self</span>.name.hash(state)
     }
 }
 
-<span class="kw">impl </span>DynamicFunctionShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; DynamicFunctionShape&lt;PT&gt; {
     <span class="kw">pub fn </span>arity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.argument_types.len() <span class="kw">as </span>u16
     }
@@ -429,7 +450,7 @@
     </span>}
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>DynamicFunctionShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>DynamicFunctionShape&lt;PT&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
@@ -451,12 +472,12 @@
     hasher.finish()
 }
 
-<span class="kw">fn </span>format_args&lt;P: AsRef&lt;<span class="kw">dyn </span>Any&gt;&gt;(anys: <span class="kw-2">&amp;</span>[P]) -&gt; String {
+<span class="kw">fn </span>format_args&lt;PT: ProtocolTypes, P: AsRef&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;&gt;(anys: <span class="kw-2">&amp;</span>[P]) -&gt; String {
     <span class="macro">format!</span>(
         <span class="string">"({})"</span>,
         anys.iter()
             .map(|any| {
-                <span class="kw">let </span>id = <span class="kw-2">&amp;</span>any.as_ref().type_id();
+                <span class="kw">let </span>id = <span class="kw-2">&amp;</span>any.as_ref().as_any().type_id();
                 <span class="macro">format!</span>(<span class="string">"{:x}"</span>, hash_type_id(id))
             })
             .join(<span class="string">","</span>)
@@ -471,34 +492,38 @@
 ///
 /// We want to use Any here and not VariableData (which implements Clone). Else all returned types
 /// in functions op_impl.rs would need to return a cloneable struct. Message for example is not.
-</span><span class="kw">pub trait </span>DynamicFunction:
-    Fn(<span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;, FnError&gt; + Send + Sync
+</span><span class="kw">pub trait </span>DynamicFunction&lt;PT: ProtocolTypes&gt;:
+    Fn(<span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;, FnError&gt; + Send + Sync
 {
-    <span class="kw">fn </span>clone_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;;
+    <span class="kw">fn </span>clone_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;;
 }
 
-<span class="kw">impl</span>&lt;F&gt; DynamicFunction <span class="kw">for </span>F
+<span class="kw">impl</span>&lt;F, PT: ProtocolTypes&gt; DynamicFunction&lt;PT&gt; <span class="kw">for </span>F
 <span class="kw">where
-    </span>F: <span class="lifetime">'static </span>+ Fn(<span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;, FnError&gt; + Clone + Send + Sync,
+    </span>F: <span class="lifetime">'static
+        </span>+ Fn(<span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;, FnError&gt;
+        + Clone
+        + Send
+        + Sync,
 {
-    <span class="kw">fn </span>clone_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&gt; {
+    <span class="kw">fn </span>clone_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt; {
         Box::new(<span class="self">self</span>.clone())
     }
 }
 
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Debug <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"DynamicFunction"</span>)
     }
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"DynamicFunction"</span>)
     }
 }
 
-<span class="kw">impl </span>Clone <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Clone <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         (<span class="kw-2">**</span><span class="self">self</span>).clone_box()
     }
@@ -509,26 +534,27 @@
 /// * wrap them into a [`DynamicFunction`] which is callable with arbitrary data
 ///
 /// Adapted from &lt;https://jsdw.me/posts/rust-fn-traits/&gt; but using type ids
-</span><span class="kw">pub trait </span>DescribableFunction&lt;Types&gt; {
+</span><span class="kw">pub trait </span>DescribableFunction&lt;PT: ProtocolTypes, Types&gt; {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
-    <span class="kw">fn </span>shape() -&gt; DynamicFunctionShape;
-    <span class="kw">fn </span>make_dynamic(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;;
+    <span class="kw">fn </span>shape() -&gt; DynamicFunctionShape&lt;PT&gt;;
+    <span class="kw">fn </span>make_dynamic(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;;
 }
 
 <span class="macro">macro_rules!</span> dynamic_fn {
     ($(<span class="macro-nonterminal">$arg</span>:ident)* =&gt; <span class="macro-nonterminal">$res</span>:ident) =&gt; (
-    <span class="kw">impl</span>&lt;F, <span class="macro-nonterminal">$res</span>: <span class="lifetime">'static</span>, $(<span class="macro-nonterminal">$arg</span>: <span class="lifetime">'static</span>),<span class="kw-2">*</span>&gt;
-        DescribableFunction&lt;(<span class="macro-nonterminal">$res</span>, $(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>)&gt; <span class="kw">for </span>F
+    <span class="kw">impl</span>&lt;F,PT : ProtocolTypes, <span class="macro-nonterminal">$res</span>: <span class="lifetime">'static</span>, $(<span class="macro-nonterminal">$arg</span>: <span class="lifetime">'static</span>),<span class="kw-2">*</span>&gt;
+        DescribableFunction&lt;PT, (<span class="macro-nonterminal">$res</span>, $(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>)&gt; <span class="kw">for </span>F
     <span class="kw">where
         </span>F: (Fn($(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>)  -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$res</span>, FnError&gt;) + Send + Sync,
         <span class="macro-nonterminal">$res</span>: Send + Sync,
+        R: EvaluatedTerm&lt;PT&gt;,
         $(<span class="macro-nonterminal">$arg</span>: Send + Sync),*
     {
-        <span class="kw">fn </span>shape() -&gt; DynamicFunctionShape {
-            DynamicFunctionShape {
+        <span class="kw">fn </span>shape() -&gt; DynamicFunctionShape&lt;PT&gt; {
+            DynamicFunctionShape::&lt;PT&gt; {
                 name: std::any::type_name::&lt;F&gt;(),
-                argument_types: <span class="macro">vec!</span>[$(TypeShape::of::&lt;<span class="macro-nonterminal">$arg</span>&gt;()),<span class="kw-2">*</span>],
-                return_type: TypeShape::of::&lt;<span class="macro-nonterminal">$res</span>&gt;(),
+                argument_types: <span class="macro">vec!</span>[$(TypeShape::&lt;PT&gt;::of::&lt;<span class="macro-nonterminal">$arg</span>&gt;()),<span class="kw-2">*</span>],
+                return_type: TypeShape::&lt;PT&gt;::of::&lt;<span class="macro-nonterminal">$res</span>&gt;(),
             }
         }
 
@@ -536,9 +562,9 @@
             std::any::type_name::&lt;F&gt;()
         }
 
-        <span class="kw">fn </span>make_dynamic(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&gt; {
+        <span class="kw">fn </span>make_dynamic(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt; {
             <span class="attr">#[allow(unused_variables)]
-            </span>Box::new(<span class="kw">move </span>|args: <span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt;| {
+            </span>Box::new(<span class="kw">move </span>|args: <span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;&gt;| {
                 <span class="attr">#[allow(unused_mut)]
                 </span><span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">0</span>;
 
@@ -551,7 +577,7 @@
                                         <span class="kw">let </span>shape = <span class="self">Self</span>::shape();
                                         FnError::Unknown(<span class="macro">format!</span>(<span class="string">"Missing argument #{} while calling {}."</span>, index + <span class="number">1</span>, shape.name))
                                     })<span class="question-mark">?
-                                    </span>.as_ref().downcast_ref::&lt;<span class="macro-nonterminal">$arg</span>&gt;() {
+                                    </span>.as_any().downcast_ref::&lt;<span class="macro-nonterminal">$arg</span>&gt;() {
                                index += <span class="number">1</span>;
                                arg_
                            } <span class="kw">else </span>{
@@ -567,7 +593,7 @@
                        }
                 ),<span class="kw-2">*</span>);
 
-                result.map(|result| Box::new(result) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>std::any::Any&gt;)
+                result.map(|result| Box::new(result) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;)
             })
         }
     }
@@ -585,54 +611,58 @@
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 =&gt; R);
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 T9 =&gt; R);
 
-<span class="kw">pub fn </span>make_dynamic&lt;F, Types&gt;(f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F) -&gt; (DynamicFunctionShape, Box&lt;<span class="kw">dyn </span>DynamicFunction&gt;)
+<span class="kw">pub fn </span>make_dynamic&lt;F, PT: ProtocolTypes, Types&gt;(
+    f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F,
+) -&gt; (DynamicFunctionShape&lt;PT&gt;, Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;)
 <span class="kw">where
-    </span>F: <span class="lifetime">'static </span>+ DescribableFunction&lt;Types&gt;,
+    </span>F: DescribableFunction&lt;PT, Types&gt; + <span class="lifetime">'static</span>,
 {
     (F::shape(), f.make_dynamic())
 }
 
 <span class="attr">#[derive(Copy, Clone, Debug)]
-</span><span class="kw">pub struct </span>TypeShape {
+</span><span class="kw">pub struct </span>TypeShape&lt;PT: ProtocolTypes&gt; {
     inner_type_id: TypeId,
     <span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+    phantom: PhantomData&lt;PT&gt;,
 }
 
-<span class="kw">impl </span>TypeShape {
-    <span class="kw">pub fn </span>of&lt;T: <span class="lifetime">'static</span>&gt;() -&gt; TypeShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; TypeShape&lt;PT&gt; {
+    <span class="kw">pub fn </span>of&lt;T: <span class="lifetime">'static</span>&gt;() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             inner_type_id: TypeId::of::&lt;T&gt;(),
             name: type_name::&lt;T&gt;(),
+            phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl </span>From&lt;TypeShape&gt; <span class="kw">for </span>TypeId {
-    <span class="kw">fn </span>from(shape: TypeShape) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; From&lt;TypeShape&lt;PT&gt;&gt; <span class="kw">for </span>TypeId {
+    <span class="kw">fn </span>from(shape: TypeShape&lt;PT&gt;) -&gt; <span class="self">Self </span>{
         shape.inner_type_id
     }
 }
 
-<span class="kw">impl </span>Eq <span class="kw">for </span>TypeShape {}
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>TypeShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Eq <span class="kw">for </span>TypeShape&lt;PT&gt; {}
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; PartialEq <span class="kw">for </span>TypeShape&lt;PT&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.inner_type_id == other.inner_type_id
     }
 }
 
-<span class="kw">impl </span>Hash <span class="kw">for </span>TypeShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Hash <span class="kw">for </span>TypeShape&lt;PT&gt; {
     <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="self">self</span>.inner_type_id.hash(state);
     }
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>TypeShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>TypeShape&lt;PT&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.name)
     }
 }
 
-<span class="kw">impl </span>Serialize <span class="kw">for </span>TypeShape {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Serialize <span class="kw">for </span>TypeShape&lt;PT&gt; {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
         </span>S: Serializer,
@@ -641,15 +671,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>TypeShape {
-    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;TypeShape, D::Error&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, PT: ProtocolTypes&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>TypeShape&lt;PT&gt; {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;TypeShape&lt;PT&gt;, D::Error&gt;
     <span class="kw">where
         </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">struct </span>TypeShapeVisitor;
+        <span class="kw">struct </span>TypeShapeVisitor&lt;PT: ProtocolTypes&gt;(PhantomData&lt;PT&gt;);
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>TypeShapeVisitor {
-            <span class="kw">type </span>Value = TypeShape;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, PT: ProtocolTypes&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>TypeShapeVisitor&lt;PT&gt; {
+            <span class="kw">type </span>Value = TypeShape&lt;PT&gt;;
 
             <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
                 formatter.write_str(<span class="string">"a TypeShape"</span>)
@@ -659,15 +689,15 @@
             <span class="kw">where
                 </span>E: de::Error,
             {
-                <span class="kw">let </span>typ = deserialize_signature()
+                <span class="kw">let </span>typ = PT::signature()
                     .types_by_name
                     .get(v)
                     .ok_or_else(|| de::Error::missing_field(<span class="string">"could not find type"</span>))<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>typ)
+                <span class="prelude-val">Ok</span>(typ.clone())
             }
         }
 
-        deserializer.deserialize_str(TypeShapeVisitor)
+        deserializer.deserialize_str(TypeShapeVisitor(PhantomData))
     }
 }
 </code></pre></div></section></main></body></html>

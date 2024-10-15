@@ -57,6 +57,8 @@
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::executors::ExitKind;
 <span class="kw">use </span>rand::Rng;
 
@@ -69,7 +71,7 @@
 
 <span class="kw">pub fn </span>harness&lt;PB: ProtocolBehavior + <span class="lifetime">'static</span>&gt;(
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
-    input: <span class="kw-2">&amp;</span>Trace&lt;PB::Matcher&gt;,
+    input: <span class="kw-2">&amp;</span>Trace&lt;PB::ProtocolTypes&gt;,
 ) -&gt; ExitKind {
     <span class="kw">let </span>runner = Runner::new(put_registry.clone(), Spawner::new(put_registry.clone()));
 
@@ -106,7 +108,9 @@
 }
 
 <span class="attr">#[allow(unused)]
-</span><span class="kw">pub fn </span>dummy_harness&lt;PB: ProtocolBehavior + <span class="lifetime">'static</span>&gt;(_input: <span class="kw-2">&amp;</span>Trace&lt;PB::Matcher&gt;) -&gt; ExitKind {
+</span><span class="kw">pub fn </span>dummy_harness&lt;PB: ProtocolBehavior + <span class="lifetime">'static</span>&gt;(
+    _input: <span class="kw-2">&amp;</span>Trace&lt;PB::ProtocolTypes&gt;,
+) -&gt; ExitKind {
     <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
 
     <span class="kw">let </span>n1 = rng.gen_range(<span class="number">0</span>..<span class="number">10</span>);

@@ -190,11 +190,11 @@
 <span class="kw">use </span>puffin::term;
 <span class="kw">use </span>puffin::trace::{InputAction, OutputAction, Trace};
 
-<span class="kw">use </span><span class="kw">crate</span>::query::SshQueryMatcher;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::SshProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::ssh::fn_impl::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::ssh::message::<span class="kw-2">*</span>;
 
-<span class="kw">pub fn </span>seed_successful(client: AgentName, server: AgentName) -&gt; Trace&lt;SshQueryMatcher&gt; {
+<span class="kw">pub fn </span>seed_successful(client: AgentName, server: AgentName) -&gt; Trace&lt;SshProtocolTypes&gt; {
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[

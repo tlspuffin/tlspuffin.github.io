@@ -835,6 +835,20 @@
 <a href="#835" id="835">835</a>
 <a href="#836" id="836">836</a>
 <a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *term* module defines typed[`Term`]s of the form `fn_add(x: u8, fn_square(y: u16)) → u16`.
 //!
 //! Each function like `fn_add` or `fn_square` has a shape. The variables `x` and `y` each have a
@@ -869,12 +883,10 @@
 </span><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::hash::Hash;
 
-<span class="kw">use </span>once_cell::sync::OnceCell;
 <span class="kw">use </span>serde::de::DeserializeOwned;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">pub use </span><span class="self">self</span>::term::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
 
 <span class="kw">pub mod </span>atoms;
 <span class="kw">pub mod </span>dynamic_function;
@@ -882,19 +894,6 @@
 <span class="kw">pub mod </span>macros;
 <span class="kw">pub mod </span>signature;
 <span class="kw">pub mod </span>term;
-
-<span class="kw">static </span>DESERIALIZATION_SIGNATURE: OnceCell&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&gt; = OnceCell::new();
-
-<span class="doccomment">/// Returns the current signature which is used during deserialization.
-</span><span class="kw">pub fn </span>deserialize_signature() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature {
-    DESERIALIZATION_SIGNATURE
-        .get()
-        .expect(<span class="string">"current signature needs to be set"</span>)
-}
-
-<span class="kw">pub fn </span>set_deserialize_signature(signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-    DESERIALIZATION_SIGNATURE.set(signature).map_err(|_err| ())
-}
 
 <span class="kw">impl</span>&lt;T&gt; Matcher <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt;
 <span class="kw">where
@@ -945,7 +944,10 @@
 </span><span class="kw">pub mod </span>test_signature {
     <span class="kw">use </span>std::any::{Any, TypeId};
     <span class="kw">use </span>std::fmt;
+    <span class="kw">use </span>std::fmt::{Debug, Display};
     <span class="kw">use </span>std::io::Read;
+
+    <span class="kw">use </span>serde::{Deserialize, Serialize};
 
     <span class="kw">use </span><span class="kw">crate</span>::agent::{AgentDescriptor, AgentName, TLSVersion};
     <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
@@ -955,28 +957,76 @@
     <span class="kw">use </span><span class="kw">crate</span>::codec::{Codec, Reader};
     <span class="kw">use </span><span class="kw">crate</span>::error::Error;
     <span class="kw">use </span><span class="kw">crate</span>::protocol::{
-        ExtractKnowledge, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
-        ProtocolMessage, ProtocolMessageDeframer, ProtocolMessageFlight,
+        EvaluatedTerm, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
+        ProtocolMessage, ProtocolMessageDeframer, ProtocolMessageFlight, ProtocolTypes,
     };
     <span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutOptions};
     <span class="kw">use </span><span class="kw">crate</span>::put_registry::{Factory, PutKind};
     <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, InputAction, Knowledge, Source, Step, Trace};
     <span class="kw">use </span><span class="kw">crate</span>::variable_data::VariableData;
-    <span class="kw">use crate</span>::{define_signature, term, VERSION_STR};
+    <span class="kw">use crate</span>::{define_signature, dummy_extract_knowledge, term, VERSION_STR};
 
-    <span class="kw">pub struct </span>HmacKey;
-    <span class="kw">pub struct </span>HandshakeMessage;
-    <span class="kw">pub struct </span>Encrypted;
-    <span class="kw">pub struct </span>ProtocolVersion;
-    <span class="kw">pub struct </span>Random;
-    <span class="kw">pub struct </span>ClientExtension;
-    <span class="kw">pub struct </span>ClientExtensions;
-    <span class="kw">pub struct </span>Group;
-    <span class="kw">pub struct </span>SessionID;
-    <span class="kw">pub struct </span>CipherSuites;
-    <span class="kw">pub struct </span>CipherSuite;
-    <span class="kw">pub struct </span>Compression;
-    <span class="kw">pub struct </span>Compressions;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>HmacKey;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>HandshakeMessage;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>Encrypted;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>ProtocolVersion;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>Random;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>ClientExtension;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>ClientExtensions;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>Group;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>SessionID;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>CipherSuites;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>CipherSuite;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>Compression;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>Compressions;
+
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, HmacKey);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, HandshakeMessage);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, Encrypted);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, ProtocolVersion);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, Random);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, ClientExtension);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, ClientExtensions);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, Group);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, SessionID);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, CipherSuites);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, CipherSuite);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, Compression);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, Compressions);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, u8);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, u16);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, u32);
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, u64);
+
+    <span class="kw">impl</span>&lt;T: std::fmt::Debug + Clone + <span class="lifetime">'static</span>&gt; EvaluatedTerm&lt;TestProtocolTypes&gt; <span class="kw">for </span>Vec&lt;T&gt; {
+        <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
+            <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+            knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">'a</span>, TestProtocolTypes&gt;&gt;,
+            matcher: <span class="prelude-ty">Option</span>&lt;&lt;TestProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
+            source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+            knowledges.push(Knowledge {
+                source,
+                matcher,
+                data: <span class="self">self</span>,
+            });
+
+            <span class="prelude-val">Ok</span>(())
+        }
+    }
 
     <span class="kw">pub fn </span>fn_hmac256_new_key() -&gt; <span class="prelude-ty">Result</span>&lt;HmacKey, FnError&gt; {
         <span class="prelude-val">Ok</span>(HmacKey)
@@ -1159,7 +1209,7 @@
     }
 
     <span class="macro">define_signature!</span>(
-        TEST_SIGNATURE,
+        TEST_SIGNATURE&lt;TestProtocolTypes&gt;,
         fn_hmac256_new_key
         fn_hmac256
         fn_client_hello
@@ -1187,13 +1237,15 @@
         fn_seq_1
     );
 
-    <span class="kw">pub type </span>TestTrace = Trace&lt;AnyMatcher&gt;;
-    <span class="kw">pub type </span>TestTerm = Term&lt;AnyMatcher&gt;;
+    <span class="kw">pub type </span>TestTrace = Trace&lt;TestProtocolTypes&gt;;
+    <span class="kw">pub type </span>TestTerm = Term&lt;TestProtocolTypes&gt;;
 
     <span class="kw">pub struct </span>TestClaim;
 
-    <span class="kw">impl </span>VariableData <span class="kw">for </span>TestClaim {
-        <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&gt; {
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, TestClaim);
+
+    <span class="kw">impl </span>VariableData&lt;TestProtocolTypes&gt; <span class="kw">for </span>TestClaim {
+        <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>VariableData&lt;TestProtocolTypes&gt;&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
 
@@ -1208,6 +1260,10 @@
         <span class="kw">fn </span>type_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
+
+        <span class="kw">fn </span>boxed_term(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;TestProtocolTypes&gt;&gt; {
+            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
+        }
     }
 
     <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>TestClaim {
@@ -1216,16 +1272,16 @@
         }
     }
 
-    <span class="kw">impl </span>Claim <span class="kw">for </span>TestClaim {
+    <span class="kw">impl </span>Claim&lt;TestProtocolTypes&gt; <span class="kw">for </span>TestClaim {
         <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
 
-        <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape {
+        <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape&lt;TestProtocolTypes&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
 
-        <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Any&gt; {
+        <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;TestProtocolTypes&gt;&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
     }
@@ -1254,22 +1310,13 @@
         }
     }
 
-    <span class="kw">impl </span>OpaqueProtocolMessage&lt;AnyMatcher&gt; <span class="kw">for </span>TestOpaqueMessage {
+    <span class="kw">impl </span>OpaqueProtocolMessage&lt;TestProtocolTypes&gt; <span class="kw">for </span>TestOpaqueMessage {
         <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, _info: <span class="kw-2">&amp;</span>str) {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
     }
 
-    <span class="kw">impl </span>ExtractKnowledge&lt;AnyMatcher&gt; <span class="kw">for </span>TestOpaqueMessage {
-        <span class="kw">fn </span>extract_knowledge(
-            <span class="kw-2">&amp;</span><span class="self">self</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;AnyMatcher&gt;&gt;,
-            <span class="kw">_</span>: <span class="prelude-ty">Option</span>&lt;AnyMatcher&gt;,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span>Source,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-    }
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, TestOpaqueMessage);
 
     <span class="kw">pub struct </span>TestMessage;
 
@@ -1285,7 +1332,7 @@
         }
     }
 
-    <span class="kw">impl </span>ProtocolMessage&lt;AnyMatcher, TestOpaqueMessage&gt; <span class="kw">for </span>TestMessage {
+    <span class="kw">impl </span>ProtocolMessage&lt;TestProtocolTypes, TestOpaqueMessage&gt; <span class="kw">for </span>TestMessage {
         <span class="kw">fn </span>create_opaque(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TestOpaqueMessage {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
@@ -1295,20 +1342,11 @@
         }
     }
 
-    <span class="kw">impl </span>ExtractKnowledge&lt;AnyMatcher&gt; <span class="kw">for </span>TestMessage {
-        <span class="kw">fn </span>extract_knowledge(
-            <span class="kw-2">&amp;</span><span class="self">self</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;AnyMatcher&gt;&gt;,
-            <span class="kw">_</span>: <span class="prelude-ty">Option</span>&lt;AnyMatcher&gt;,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span>Source,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-    }
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, TestMessage);
 
     <span class="kw">pub struct </span>TestMessageDeframer;
 
-    <span class="kw">impl </span>ProtocolMessageDeframer&lt;AnyMatcher&gt; <span class="kw">for </span>TestMessageDeframer {
+    <span class="kw">impl </span>ProtocolMessageDeframer&lt;TestProtocolTypes&gt; <span class="kw">for </span>TestMessageDeframer {
         <span class="kw">type </span>OpaqueProtocolMessage = TestOpaqueMessage;
 
         <span class="kw">fn </span>pop_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TestOpaqueMessage&gt; {
@@ -1321,7 +1359,7 @@
     }
 
     <span class="kw">pub struct </span>TestSecurityViolationPolicy;
-    <span class="kw">impl </span>SecurityViolationPolicy&lt;TestClaim&gt; <span class="kw">for </span>TestSecurityViolationPolicy {
+    <span class="kw">impl </span>SecurityViolationPolicy&lt;TestProtocolTypes, TestClaim&gt; <span class="kw">for </span>TestSecurityViolationPolicy {
         <span class="kw">fn </span>check_violation(_claims: <span class="kw-2">&amp;</span>[TestClaim]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
@@ -1330,8 +1368,13 @@
     <span class="attr">#[derive(Debug, Clone)]
     </span><span class="kw">pub struct </span>TestMessageFlight;
 
-    <span class="kw">impl </span>ProtocolMessageFlight&lt;AnyMatcher, TestMessage, TestOpaqueMessage, TestOpaqueMessageFlight&gt;
-        <span class="kw">for </span>TestMessageFlight
+    <span class="kw">impl
+        </span>ProtocolMessageFlight&lt;
+            TestProtocolTypes,
+            TestMessage,
+            TestOpaqueMessage,
+            TestOpaqueMessageFlight,
+        &gt; <span class="kw">for </span>TestMessageFlight
     {
         <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
             <span class="self">Self </span>{}
@@ -1354,16 +1397,7 @@
         }
     }
 
-    <span class="kw">impl </span>ExtractKnowledge&lt;AnyMatcher&gt; <span class="kw">for </span>TestMessageFlight {
-        <span class="kw">fn </span>extract_knowledge(
-            <span class="kw-2">&amp;</span><span class="self">self</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;AnyMatcher&gt;&gt;,
-            <span class="kw">_</span>: <span class="prelude-ty">Option</span>&lt;AnyMatcher&gt;,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span>Source,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-    }
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, TestMessageFlight);
 
     <span class="kw">impl </span>From&lt;TestMessage&gt; <span class="kw">for </span>TestMessageFlight {
         <span class="kw">fn </span>from(_value: TestMessage) -&gt; <span class="self">Self </span>{
@@ -1374,7 +1408,7 @@
     <span class="attr">#[derive(Debug, Clone)]
     </span><span class="kw">pub struct </span>TestOpaqueMessageFlight;
 
-    <span class="kw">impl </span>OpaqueProtocolMessageFlight&lt;AnyMatcher, TestOpaqueMessage&gt; <span class="kw">for </span>TestOpaqueMessageFlight {
+    <span class="kw">impl </span>OpaqueProtocolMessageFlight&lt;TestProtocolTypes, TestOpaqueMessage&gt; <span class="kw">for </span>TestOpaqueMessageFlight {
         <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
             <span class="self">Self </span>{}
         }
@@ -1388,16 +1422,7 @@
         }
     }
 
-    <span class="kw">impl </span>ExtractKnowledge&lt;AnyMatcher&gt; <span class="kw">for </span>TestOpaqueMessageFlight {
-        <span class="kw">fn </span>extract_knowledge(
-            <span class="kw-2">&amp;</span><span class="self">self</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;AnyMatcher&gt;&gt;,
-            <span class="kw">_</span>: <span class="prelude-ty">Option</span>&lt;AnyMatcher&gt;,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span>Source,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-    }
+    <span class="macro">dummy_extract_knowledge!</span>(TestProtocolTypes, TestOpaqueMessageFlight);
 
     <span class="kw">impl </span>From&lt;TestOpaqueMessage&gt; <span class="kw">for </span>TestOpaqueMessageFlight {
         <span class="kw">fn </span>from(_value: TestOpaqueMessage) -&gt; <span class="self">Self </span>{
@@ -1421,23 +1446,36 @@
         }
     }
 
+    <span class="attr">#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
+    </span><span class="kw">pub struct </span>TestProtocolTypes;
+
+    <span class="kw">impl </span>ProtocolTypes <span class="kw">for </span>TestProtocolTypes {
+        <span class="kw">type </span>Matcher = AnyMatcher;
+
+        <span class="kw">fn </span>signature() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;<span class="self">Self</span>&gt; {
+            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
+        }
+    }
+
+    <span class="kw">impl </span>Display <span class="kw">for </span>TestProtocolTypes {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+            <span class="macro">write!</span>(f, <span class="string">""</span>)
+        }
+    }
+
     <span class="attr">#[derive(Debug, PartialEq)]
     </span><span class="kw">pub struct </span>TestProtocolBehavior;
 
     <span class="kw">impl </span>ProtocolBehavior <span class="kw">for </span>TestProtocolBehavior {
         <span class="kw">type </span>Claim = TestClaim;
-        <span class="kw">type </span>Matcher = AnyMatcher;
         <span class="kw">type </span>OpaqueProtocolMessage = TestOpaqueMessage;
         <span class="kw">type </span>OpaqueProtocolMessageFlight = TestOpaqueMessageFlight;
         <span class="kw">type </span>ProtocolMessage = TestMessage;
         <span class="kw">type </span>ProtocolMessageFlight = TestMessageFlight;
+        <span class="kw">type </span>ProtocolTypes = TestProtocolTypes;
         <span class="kw">type </span>SecurityViolationPolicy = TestSecurityViolationPolicy;
 
-        <span class="kw">fn </span>signature() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature {
-            <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-
-        <span class="kw">fn </span>create_corpus() -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::Matcher&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; {
+        <span class="kw">fn </span>create_corpus() -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::ProtocolTypes&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
     }
@@ -1448,7 +1486,10 @@
         <span class="kw">fn </span>create(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             _agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TestProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
+            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
+                TestProtocolTypes,
+                &lt;TestProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim,
+            &gt;,
             _options: <span class="kw-2">&amp;</span>PutOptions,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;TestProtocolBehavior&gt;&gt;, Error&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
@@ -1483,26 +1524,9 @@
     <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
     <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
     <span class="kw">use </span><span class="kw">crate</span>::algebra::{AnyMatcher, Term};
-    <span class="kw">use </span><span class="kw">crate</span>::protocol::ExtractKnowledge;
     <span class="kw">use </span><span class="kw">crate</span>::put_registry::{Factory, PutRegistry};
     <span class="kw">use </span><span class="kw">crate</span>::term;
-    <span class="kw">use </span><span class="kw">crate</span>::trace::{Knowledge, Source, Spawner, TraceContext};
-
-    <span class="kw">impl </span>ExtractKnowledge&lt;AnyMatcher&gt; <span class="kw">for </span>Vec&lt;u8&gt; {
-        <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
-            <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
-            knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">'a</span>, AnyMatcher&gt;&gt;,
-            matcher: <span class="prelude-ty">Option</span>&lt;AnyMatcher&gt;,
-            source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::error::Error&gt; {
-            knowledges.push(Knowledge {
-                source,
-                matcher,
-                data: <span class="self">self</span>,
-            });
-            <span class="prelude-val">Ok</span>(())
-        }
-    }
+    <span class="kw">use </span><span class="kw">crate</span>::trace::{Source, Spawner, TraceContext};
 
     <span class="attr">#[allow(dead_code)]
     </span><span class="kw">fn </span>test_compilation() {
@@ -1560,7 +1584,7 @@
 
         <span class="comment">//println!("TypeId of vec array {:?}", data.type_id());
 
-        </span><span class="kw">let </span>variable: Variable&lt;AnyMatcher&gt; = Signature::new_var(
+        </span><span class="kw">let </span>variable: Variable&lt;TestProtocolTypes&gt; = Signature::new_var(
             TypeShape::of::&lt;Vec&lt;u8&gt;&gt;(),
             <span class="prelude-val">Some</span>(Source::Agent(AgentName::first())),
             <span class="prelude-val">None</span>,
@@ -1590,10 +1614,13 @@
             .knowledge_store
             .add_raw_knowledge(data, Source::Agent(AgentName::first()));
 
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, context.knowledge_store);
+
         <span class="kw">let </span>_string = generated_term
             .evaluate(<span class="kw-2">&amp;</span>context)
             .as_ref()
             .unwrap()
+            .as_any()
             .downcast_ref::&lt;Vec&lt;u8&gt;&gt;();
         <span class="comment">//println!("{:?}", string);
     </span>}
@@ -1611,13 +1638,14 @@
         <span class="kw">let </span>dynamic_fn = func.dynamic_fn();
         <span class="kw">let </span>_string = dynamic_fn(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[Box::new(<span class="number">1u8</span>)])
             .unwrap()
+            .as_any()
             .downcast_ref::&lt;u16&gt;()
             .unwrap();
         <span class="comment">//println!("{:?}", string);
         </span><span class="kw">let </span>_string = Signature::new_function(<span class="kw-2">&amp;</span>example_op_c).shape();
         <span class="comment">//println!("{}", string);
 
-        </span><span class="kw">let </span>constructed_term = Term::Application(
+        </span><span class="kw">let </span>constructed_term = Term::&lt;TestProtocolTypes&gt;::Application(
             Signature::new_function(<span class="kw-2">&amp;</span>example_op_c),
             <span class="macro">vec!</span>[
                 Term::Application(

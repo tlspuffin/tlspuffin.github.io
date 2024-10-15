@@ -262,10 +262,10 @@
 <a href="#262" id="262">262</a>
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`Term`]s as well as iterators over them.
 
-</span><span class="kw">use </span>std::any::Any;
-<span class="kw">use </span>std::fmt;
+</span><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -273,32 +273,31 @@
 <span class="kw">use </span><span class="kw">super</span>::atoms::{Function, Variable};
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Source, TraceContext};
 
 <span class="doccomment">/// A first-order term: either a [`Variable`] or an application of an [`Function`].
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
-#[serde(bound = <span class="string">"M: Matcher"</span>)]
-</span><span class="kw">pub enum </span>Term&lt;M: Matcher&gt; {
+#[serde(bound = <span class="string">"PT: ProtocolTypes"</span>)]
+</span><span class="kw">pub enum </span>Term&lt;PT: ProtocolTypes&gt; {
     <span class="doccomment">/// A concrete but unspecified `Term` (e.g. `x`, `y`).
     /// See [`Variable`] for more information.
-    </span>Variable(Variable&lt;M&gt;),
+    </span>Variable(Variable&lt;PT&gt;),
     <span class="doccomment">/// An [`Function`] applied to zero or more `Term`s (e.g. (`f(x, y)`, `g()`).
     ///
     /// A `Term` that is an application of an [`Function`] with arity 0 applied to 0 `Term`s can be
     /// considered a constant.
-    </span>Application(Function, Vec&lt;Term&lt;M&gt;&gt;),
+    </span>Application(Function&lt;PT&gt;, Vec&lt;Term&lt;PT&gt;&gt;),
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; fmt::Display <span class="kw">for </span>Term&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>Term&lt;PT&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.display_at_depth(<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Term&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Term&lt;PT&gt; {
     <span class="kw">pub fn </span>resistant_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="kw">match </span><span class="self">self </span>{
             Term::Variable(v) =&gt; v.resistant_id,
@@ -326,7 +325,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>get_type_shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>TypeShape {
+    <span class="kw">pub fn </span>get_type_shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>TypeShape&lt;PT&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Term::Variable(v) =&gt; <span class="kw-2">&amp;</span>v.typ,
             Term::Application(function, <span class="kw">_</span>) =&gt; <span class="kw-2">&amp;</span>function.shape().return_type,
@@ -340,7 +339,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>mutate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Term&lt;M&gt;) {
+    <span class="kw">pub fn </span>mutate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Term&lt;PT&gt;) {
         <span class="kw-2">*</span><span class="self">self </span>= other;
     }
 
@@ -367,24 +366,27 @@
         }
     }
 
-    <span class="kw">pub fn </span>evaluate&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;, Error&gt;
+    <span class="kw">pub fn </span>evaluate&lt;PB&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;, Error&gt;
     <span class="kw">where
-        </span>PB: ProtocolBehavior&lt;Matcher = M&gt;,
+        </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
     {
         <span class="kw">match </span><span class="self">self </span>{
             Term::Variable(variable) =&gt; context
-                .find_variable(variable.typ, <span class="kw-2">&amp;</span>variable.query)
-                .map(|data| data.boxed_any())
+                .find_variable(variable.typ.clone(), <span class="kw-2">&amp;</span>variable.query)
+                .map(|data| data.boxed_term())
                 .or_else(|| {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(Source::Agent(agent_name)) = <span class="kw-2">&amp;</span>variable.query.source {
-                        context.find_claim(<span class="kw-2">*</span>agent_name, variable.typ)
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(Source::Agent(agent_name)) = variable.query.source {
+                        context.find_claim(agent_name, variable.typ.clone())
                     } <span class="kw">else </span>{
                         <span class="macro">todo!</span>(<span class="string">"Implement querying by label"</span>);
                     }
                 })
                 .ok_or_else(|| Error::Term(<span class="macro">format!</span>(<span class="string">"Unable to find variable {}!"</span>, variable))),
             Term::Application(func, args) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>dynamic_args: Vec&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt; = Vec::new();
+                <span class="kw">let </span><span class="kw-2">mut </span>dynamic_args: Vec&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;&gt; = Vec::new();
                 <span class="kw">for </span>term <span class="kw">in </span>args {
                     <span class="kw">match </span>term.evaluate(context) {
                         <span class="prelude-val">Ok</span>(data) =&gt; {
@@ -396,14 +398,14 @@
                     }
                 }
                 <span class="kw">let </span>dynamic_fn = <span class="kw-2">&amp;</span>func.dynamic_fn();
-                <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;, FnError&gt; = dynamic_fn(<span class="kw-2">&amp;</span>dynamic_args);
+                <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;, FnError&gt; = dynamic_fn(<span class="kw-2">&amp;</span>dynamic_args);
                 result.map_err(Error::Fn)
             }
         }
     }
 }
 
-<span class="kw">fn </span>append&lt;<span class="lifetime">'a</span>, M: Matcher&gt;(term: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;, v: <span class="kw-2">&amp;mut </span>Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;&gt;) {
+<span class="kw">fn </span>append&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt;(term: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, v: <span class="kw-2">&amp;mut </span>Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;&gt;) {
     <span class="kw">match </span><span class="kw-2">*</span>term {
         Term::Variable(<span class="kw">_</span>) =&gt; {}
         Term::Application(<span class="kw">_</span>, <span class="kw-2">ref </span>subterms) =&gt; {
@@ -419,36 +421,36 @@
 <span class="doccomment">/// Having the same mutator for &amp;'a mut Term is not possible in Rust:
 /// * &lt;https://stackoverflow.com/questions/49057270/is-there-a-way-to-iterate-over-a-mutable-tree-to-get-a-random-node&gt;
 /// * &lt;https://sachanganesh.com/programming/graph-tree-traversals-in-rust/&gt;
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: Matcher&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt; {
-    <span class="kw">type </span>IntoIter = std::vec::IntoIter&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;&gt;;
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;M&gt;;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt; {
+    <span class="kw">type </span>IntoIter = std::vec::IntoIter&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;&gt;;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="macro">vec!</span>[];
-        append::&lt;M&gt;(<span class="self">self</span>, <span class="kw-2">&amp;mut </span>result);
+        append::&lt;PT&gt;(<span class="self">self</span>, <span class="kw-2">&amp;mut </span>result);
         result.into_iter()
     }
 }
 
-<span class="kw">pub trait </span>Subterms&lt;M: Matcher&gt; {
-    <span class="kw">fn </span>find_subterm_same_shape(<span class="kw-2">&amp;</span><span class="self">self</span>, term: <span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;M&gt;&gt;;
+<span class="kw">pub trait </span>Subterms&lt;PT: ProtocolTypes&gt; {
+    <span class="kw">fn </span>find_subterm_same_shape(<span class="kw-2">&amp;</span><span class="self">self</span>, term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt;;
 
-    <span class="kw">fn </span>find_subterm&lt;P: Fn(&amp;&amp;Term&lt;M&gt;) -&gt; bool + Copy&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: P) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;M&gt;&gt;;
+    <span class="kw">fn </span>find_subterm&lt;P: Fn(&amp;&amp;Term&lt;PT&gt;) -&gt; bool + Copy&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: P) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt;;
 
-    <span class="kw">fn </span>filter_grand_subterms&lt;P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;, <span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
+    <span class="kw">fn </span>filter_grand_subterms&lt;P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;, <span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         predicate: P,
-    ) -&gt; Vec&lt;((usize, <span class="kw-2">&amp;</span>Term&lt;M&gt;), <span class="kw-2">&amp;</span>Term&lt;M&gt;)&gt;;
+    ) -&gt; Vec&lt;((usize, <span class="kw-2">&amp;</span>Term&lt;PT&gt;), <span class="kw-2">&amp;</span>Term&lt;PT&gt;)&gt;;
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Subterms&lt;M&gt; <span class="kw">for </span>Vec&lt;Term&lt;M&gt;&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Subterms&lt;PT&gt; <span class="kw">for </span>Vec&lt;Term&lt;PT&gt;&gt; {
     <span class="doccomment">/// Finds a subterm with the same type as `term`
-    </span><span class="kw">fn </span>find_subterm_same_shape(<span class="kw-2">&amp;</span><span class="self">self</span>, term: <span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;M&gt;&gt; {
+    </span><span class="kw">fn </span>find_subterm_same_shape(<span class="kw-2">&amp;</span><span class="self">self</span>, term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt; {
         <span class="self">self</span>.find_subterm(|subterm| term.get_type_shape() == subterm.get_type_shape())
     }
 
     <span class="doccomment">/// Finds a subterm in this vector
-    </span><span class="kw">fn </span>find_subterm&lt;P: Fn(&amp;&amp;Term&lt;M&gt;) -&gt; bool + Copy&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, predicate: P) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;M&gt;&gt; {
+    </span><span class="kw">fn </span>find_subterm&lt;P: Fn(&amp;&amp;Term&lt;PT&gt;) -&gt; bool + Copy&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, predicate: P) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt; {
         <span class="self">self</span>.iter().find(predicate)
     }
 
@@ -458,10 +460,10 @@
     ///
     /// Each grand subterm is returned together with its parent and the index of the parent in
     /// `self`.
-    </span><span class="kw">fn </span>filter_grand_subterms&lt;P: Fn(<span class="kw-2">&amp;</span>Term&lt;M&gt;, <span class="kw-2">&amp;</span>Term&lt;M&gt;) -&gt; bool + Copy&gt;(
+    </span><span class="kw">fn </span>filter_grand_subterms&lt;P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;, <span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         predicate: P,
-    ) -&gt; Vec&lt;((usize, <span class="kw-2">&amp;</span>Term&lt;M&gt;), <span class="kw-2">&amp;</span>Term&lt;M&gt;)&gt; {
+    ) -&gt; Vec&lt;((usize, <span class="kw-2">&amp;</span>Term&lt;PT&gt;), <span class="kw-2">&amp;</span>Term&lt;PT&gt;)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>found_grand_subterms = <span class="macro">vec!</span>[];
 
         <span class="kw">for </span>(i, subterm) <span class="kw">in </span><span class="self">self</span>.iter().enumerate() {

@@ -507,11 +507,6 @@
 <a href="#507" id="507">507</a>
 <a href="#508" id="508">508</a>
 <a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
-<a href="#512" id="512">512</a>
-<a href="#513" id="513">513</a>
-<a href="#514" id="514">514</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -523,7 +518,6 @@
 <span class="kw">use </span>libafl::inputs::Input;
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::set_deserialize_signature;
 <span class="kw">use </span><span class="kw">crate</span>::codec::Codec;
 <span class="kw">use </span><span class="kw">crate</span>::execution::{ForkedRunner, Runner, TraceRunner};
 <span class="kw">use </span><span class="kw">crate</span>::experiment::<span class="kw-2">*</span>;
@@ -634,11 +628,7 @@
 
     <span class="comment">// Initialize global state
 
-    </span><span class="kw">if </span>set_deserialize_signature(PB::signature()).is_err() {
-        <span class="macro">log::error!</span>(<span class="string">"Failed to initialize deserialization"</span>);
-    }
-
-    <span class="kw">let </span><span class="kw-2">mut </span>options: Vec&lt;(String, String)&gt; = Vec::new();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>options: Vec&lt;(String, String)&gt; = Vec::new();
     <span class="kw">if </span>put_use_clear {
         options.push((<span class="string">"use_clear"</span>.to_string(), put_use_clear.to_string()))
     }
@@ -805,7 +795,7 @@
             .unwrap_or(<span class="kw-2">&amp;</span><span class="number">44338u16</span>)
             .to_string();
 
-        <span class="kw">let </span>trace = Trace::&lt;PB::Matcher&gt;::from_file(input).unwrap();
+        <span class="kw">let </span>trace = Trace::&lt;PB::ProtocolTypes&gt;::from_file(input).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>options = <span class="macro">vec!</span>[(<span class="string">"port"</span>, port.as_str()), (<span class="string">"host"</span>, host)];
 
@@ -927,7 +917,7 @@
     <span class="comment">// Read trace file
     </span><span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
     input_file.read_to_end(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
-    <span class="kw">let </span>trace = postcard::from_bytes::&lt;Trace&lt;PB::Matcher&gt;&gt;(<span class="kw-2">&amp;</span>buffer)<span class="question-mark">?</span>;
+    <span class="kw">let </span>trace = postcard::from_bytes::&lt;Trace&lt;PB::ProtocolTypes&gt;&gt;(<span class="kw-2">&amp;</span>buffer)<span class="question-mark">?</span>;
 
     <span class="comment">// All-in-one tree
     </span>write_graphviz(
@@ -966,7 +956,7 @@
 }
 
 <span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(runner: <span class="kw-2">&amp;</span>Runner&lt;PB&gt;, input: P) {
-    <span class="kw">let </span>trace = <span class="kw">match </span>Trace::&lt;PB::Matcher&gt;::from_file(input.as_ref()) {
+    <span class="kw">let </span>trace = <span class="kw">match </span>Trace::&lt;PB::ProtocolTypes&gt;::from_file(input.as_ref()) {
         <span class="prelude-val">Ok</span>(t) =&gt; t,
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
             <span class="macro">log::error!</span>(<span class="string">"Invalid trace file {}"</span>, input.as_ref().display());
@@ -995,7 +985,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
     <span class="kw">let </span>spawner = Spawner::new(put_registry.clone()).with_default(default_put);
     <span class="kw">let </span>ctx = TraceContext::new(spawner);
-    <span class="kw">let </span>trace = Trace::&lt;PB::Matcher&gt;::from_file(input)<span class="question-mark">?</span>;
+    <span class="kw">let </span>trace = Trace::&lt;PB::ProtocolTypes&gt;::from_file(input)<span class="question-mark">?</span>;
 
     <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 
@@ -1005,12 +995,12 @@
         <span class="kw">match </span>step.action {
             Action::Input(input) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(evaluated) = input.recipe.evaluate(<span class="kw-2">&amp;</span>ctx) {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_ref().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_any().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
                         <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;u8&gt; = Vec::new();
                         msg.create_opaque().encode(<span class="kw-2">&amp;mut </span>data);
                         f.write_all(<span class="kw-2">&amp;</span>data).expect(<span class="string">"Unable to write data"</span>);
                     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(opaque_message) = evaluated
-                        .as_ref()
+                        .as_any()
                         .downcast_ref::&lt;PB::OpaqueProtocolMessage&gt;()
                     {
                         <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;u8&gt; = Vec::new();

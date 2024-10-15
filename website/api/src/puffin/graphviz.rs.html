@@ -212,6 +212,7 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module adds plotting capabilities to[`Term`]sand Traces. The output of the functions in
 //! this module can be passed to the command line utility `dot` which is part of graphviz.
 
@@ -221,7 +222,8 @@
 
 <span class="kw">use </span>itertools::Itertools;
 
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_fn_prefix, remove_prefix, Matcher, Term};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_fn_prefix, remove_prefix, Term};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace};
 
 <span class="comment">// Colorful theme
@@ -268,7 +270,7 @@ const SHOW_LABELS: bool = false */
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Trace&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Trace&lt;PT&gt; {
     <span class="kw">pub fn </span>dot_graph(<span class="kw-2">&amp;</span><span class="self">self</span>, tree_mode: bool) -&gt; String {
         <span class="macro">format!</span>(
             <span class="string">"strict digraph \"Trace\" \
@@ -316,7 +318,7 @@ const SHOW_LABELS: bool = false */
     }
 }
 
-<span class="kw">impl</span>&lt;M: Matcher&gt; Term&lt;M&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Term&lt;PT&gt; {
     <span class="kw">fn </span>unique_id(<span class="kw-2">&amp;</span><span class="self">self</span>, tree_mode: bool, cluster_id: usize) -&gt; String {
         <span class="kw">match </span><span class="self">self </span>{
             Term::Variable(variable) =&gt; {
@@ -347,7 +349,7 @@ const SHOW_LABELS: bool = false */
     }
 
     <span class="kw">fn </span>collect_statements(
-        term: <span class="kw-2">&amp;</span>Term&lt;M&gt;,
+        term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;,
         tree_mode: bool,
         cluster_id: usize,
         statements: <span class="kw-2">&amp;mut </span>Vec&lt;String&gt;,

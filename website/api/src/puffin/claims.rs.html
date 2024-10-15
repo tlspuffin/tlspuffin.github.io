@@ -101,9 +101,17 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::Any;
-<span class="kw">use </span>std::cell::{Ref, RefCell, RefMut};
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::{Ref, RefCell, RefMut};
 <span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::ops::Deref;
 <span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::slice::Iter;
@@ -112,34 +120,36 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::variable_data::VariableData;
 
-<span class="kw">pub trait </span>Claim: VariableData + Debug {
+<span class="kw">pub trait </span>Claim&lt;PT: ProtocolTypes&gt;: EvaluatedTerm&lt;PT&gt; + VariableData&lt;PT&gt; + Debug {
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName;
-    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape;
-    <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Any&gt;;
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape&lt;PT&gt;;
+    <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;;
 }
 
-<span class="kw">pub trait </span>SecurityViolationPolicy&lt;C: Claim&gt; {
+<span class="kw">pub trait </span>SecurityViolationPolicy&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; {
     <span class="kw">fn </span>check_violation(claims: <span class="kw-2">&amp;</span>[C]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
 }
 
 <span class="attr">#[derive(Default, Clone, Debug, PartialEq)]
-</span><span class="kw">pub struct </span>ClaimList&lt;C: Claim&gt; {
+</span><span class="kw">pub struct </span>ClaimList&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; {
     claims: Vec&lt;C&gt;,
+    phantom: PhantomData&lt;PT&gt;,
 }
 
-<span class="kw">impl</span>&lt;C: Claim&gt; ClaimList&lt;C&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; ClaimList&lt;PT, C&gt; {
     <span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'_</span>, C&gt; {
         <span class="self">self</span>.claims.iter()
     }
 
     <span class="doccomment">/// finds the last claim matching `type`
     </span><span class="kw">pub fn </span>find_last_claim_by_type&lt;T: <span class="lifetime">'static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_name: AgentName) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>C&gt; {
-        <span class="self">self</span>.find_last_claim(agent_name, TypeShape::of::&lt;T&gt;())
+        <span class="self">self</span>.find_last_claim(agent_name, TypeShape::&lt;PT&gt;::of::&lt;T&gt;())
     }
 
-    <span class="kw">pub fn </span>find_last_claim(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_name: AgentName, shape: TypeShape) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>C&gt; {
+    <span class="kw">pub fn </span>find_last_claim(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_name: AgentName, shape: TypeShape&lt;PT&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>C&gt; {
         <span class="self">self</span>.claims
             .iter()
             .rev()
@@ -151,7 +161,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;C: Claim&gt; ClaimList&lt;C&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; ClaimList&lt;PT, C&gt; {
     <span class="kw">pub fn </span>log(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="comment">// TODO: skip logging completely during fuzzing -&gt; more performance
         </span><span class="macro">log::debug!</span>(
@@ -168,15 +178,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;C: Claim&gt; From&lt;Vec&lt;C&gt;&gt; <span class="kw">for </span>ClaimList&lt;C&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; From&lt;Vec&lt;C&gt;&gt; <span class="kw">for </span>ClaimList&lt;PT, C&gt; {
     <span class="kw">fn </span>from(claims: Vec&lt;C&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ claims }
+        <span class="self">Self </span>{
+            claims,
+            phantom: PhantomData,
+        }
     }
 }
 
-<span class="kw">impl</span>&lt;C: Claim&gt; ClaimList&lt;C&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; ClaimList&lt;PT, C&gt; {
     <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ claims: <span class="macro">vec!</span>[] }
+        <span class="self">Self </span>{
+            claims: <span class="macro">vec!</span>[],
+            phantom: PhantomData,
+        }
     }
 
     <span class="kw">pub fn </span>claim_sized(<span class="kw-2">&amp;mut </span><span class="self">self</span>, claim: C) {
@@ -185,22 +201,22 @@
 }
 
 <span class="attr">#[derive(Default, Clone, PartialEq, Debug)]
-</span><span class="kw">pub struct </span>GlobalClaimList&lt;C: Claim&gt; {
-    claims: Rc&lt;RefCell&lt;ClaimList&lt;C&gt;&gt;&gt;,
+</span><span class="kw">pub struct </span>GlobalClaimList&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; {
+    claims: Rc&lt;RefCell&lt;ClaimList&lt;PT, C&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;C: Claim&gt; GlobalClaimList&lt;C&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; GlobalClaimList&lt;PT, C&gt; {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             claims: Rc::new(RefCell::new(ClaimList::new())),
         }
     }
 
-    <span class="kw">pub fn </span>deref_borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, ClaimList&lt;C&gt;&gt; {
+    <span class="kw">pub fn </span>deref_borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, ClaimList&lt;PT, C&gt;&gt; {
         <span class="self">self</span>.claims.deref().borrow()
     }
 
-    <span class="kw">pub fn </span>deref_borrow_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, ClaimList&lt;C&gt;&gt; {
+    <span class="kw">pub fn </span>deref_borrow_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, ClaimList&lt;PT, C&gt;&gt; {
         <span class="self">self</span>.claims.deref().borrow_mut()
     }
 }

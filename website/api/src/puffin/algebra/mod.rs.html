@@ -848,7 +848,6 @@
 <a href="#848" id="848">848</a>
 <a href="#849" id="849">849</a>
 <a href="#850" id="850">850</a>
-<a href="#851" id="851">851</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *term* module defines typed[`Term`]s of the form `fn_add(x: u8, fn_square(y: u16)) → u16`.
 //!
 //! Each function like `fn_add` or `fn_square` has a shape. The variables `x` and `y` each have a
@@ -1185,23 +1184,22 @@
                 Step {
                     agent: server,
                     action: Action::Input(InputAction {
+                        precomputations: <span class="macro">vec!</span>[],
                         recipe: client_hello,
                     }),
                 },
                 Step {
                     agent: server,
                     action: Action::Input(InputAction {
-                        recipe: <span class="macro">term!</span> {
-                            fn_client_key_exchange
-                        },
+                        precomputations: <span class="macro">vec!</span>[],
+                        recipe: <span class="macro">term!</span> {fn_client_key_exchange},
                     }),
                 },
                 Step {
                     agent: server,
                     action: Action::Input(InputAction {
-                        recipe: <span class="macro">term!</span> {
-                            fn_encrypt12(fn_finished, fn_seq_0)
-                        },
+                        precomputations: <span class="macro">vec!</span>[],
+                        recipe: <span class="macro">term!</span> {fn_encrypt12(fn_finished,fn_seq_0)},
                     }),
                 },
             ],
@@ -1612,7 +1610,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>context = TraceContext::new(spawner);
         context
             .knowledge_store
-            .add_raw_knowledge(data, Source::Agent(AgentName::first()));
+            .add_raw_knowledge(data, Source::Agent(AgentName::first()), <span class="prelude-val">None</span>);
 
         <span class="macro">println!</span>(<span class="string">"{:?}"</span>, context.knowledge_store);
 

@@ -759,6 +759,47 @@
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
 <a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 
 <span class="kw">use </span>puffin::algebra::signature::Signature;
@@ -783,14 +824,17 @@
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::ccs::ChangeCipherSpecPayload;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::deframer::MessageDeframer;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{
-    AlertDescription, AlertLevel, CipherSuite, Compression, HandshakeType, NamedGroup,
-    ProtocolVersion, SignatureScheme,
+    AlertDescription, AlertLevel, CipherSuite, Compression, HandshakeType, KeyUpdateRequest,
+    NamedGroup, ProtocolVersion, SignatureScheme,
 };
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
-    CertReqExtension, CertificateEntry, CertificateExtension, CertificatePayload, ClientExtension,
-    ClientHelloPayload, ECDHEServerKeyExchange, HandshakeMessagePayload, HandshakePayload,
-    HelloRetryExtension, NewSessionTicketExtension, NewSessionTicketPayload, PresharedKeyIdentity,
-    Random, ServerExtension, ServerHelloPayload, ServerKeyExchangePayload, SessionID,
+    CertReqExtension, CertificateEntry, CertificateExtension, CertificatePayload,
+    CertificatePayloadTLS13, CertificateRequestPayload, CertificateRequestPayloadTLS13,
+    CertificateStatus, ClientExtension, ClientHelloPayload, DigitallySignedStruct,
+    ECDHEServerKeyExchange, EncryptedExtensions, HandshakeMessagePayload, HandshakePayload,
+    HelloRetryExtension, NewSessionTicketExtension, NewSessionTicketPayload,
+    NewSessionTicketPayloadTLS13, PresharedKeyIdentity, Random, ServerExtension,
+    ServerHelloPayload, ServerKeyExchangePayload, SessionID,
 };
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::heartbeat::HeartbeatPayload;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage};
@@ -1137,9 +1181,39 @@
             HandshakePayload::NewSessionTicket(ticket) =&gt; {
                 ticket.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
             }
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">log::error!</span>(<span class="string">"failed extraction: {self:?}"</span>);
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Extraction());
+            HandshakePayload::EncryptedExtensions(ext) =&gt; {
+                ext.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::CertificateTLS13(c) =&gt; {
+                c.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::CertificateRequest(c) =&gt; {
+                c.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::CertificateRequestTLS13(c) =&gt; {
+                c.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::CertificateVerify(c) =&gt; {
+                c.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::EndOfEarlyData =&gt; {}
+            HandshakePayload::NewSessionTicketTLS13(t) =&gt; {
+                t.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::KeyUpdate(k) =&gt; {
+                k.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::Finished(payload) =&gt; {
+                payload.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::CertificateStatus(certificate_status) =&gt; {
+                certificate_status.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::MessageHash(payload) =&gt; {
+                payload.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
+            }
+            HandshakePayload::Unknown(payload) =&gt; {
+                payload.extract_knowledge(knowledges, matcher, source)<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -1413,14 +1487,22 @@
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, Certificate);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CertificateEntry);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CertificateExtension);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CertificatePayloadTLS13);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CertificateRequestPayload);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CertificateRequestPayloadTLS13);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CertificateStatus);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, CipherSuite);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, ClientExtension);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, Compression);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, DigitallySignedStruct);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, EncryptedExtensions);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, HandshakeHash);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, HandshakeType);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, HelloRetryExtension);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, KeyUpdateRequest);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, NamedGroup);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, NewSessionTicketExtension);
+<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, NewSessionTicketPayloadTLS13);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, PresharedKeyIdentity);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, ProtocolVersion);
 <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, Random);

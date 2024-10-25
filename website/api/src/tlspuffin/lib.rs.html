@@ -140,6 +140,7 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! TODO: Write intro: &lt;https://github.com/tlspuffin/tlspuffin/issues/94&gt;
 //!
 //! ### Used protocol and cryptographic libraries
@@ -158,6 +159,7 @@
 //! use puffin::agent::{AgentDescriptor, AgentName};
 //! use puffin::algebra::signature::Signature;
 //! use puffin::algebra::Term;
+//! use puffin::input_action;
 //! use puffin::trace::{
 //!     Action, InputAction, OutputAction, Query, Source, Step, Trace, TraceContext,
 //! };
@@ -183,8 +185,8 @@
 //!         // Client: Hello Client -&gt; Server
 //!         Step {
 //!             agent: server,
-//!             action: Action::Input(InputAction {
-//!                 recipe: Term::Application(
+//!             action: Action::Input(input_action! {
+//!                 Term::Application(
 //!                     Signature::new_function(&amp;fn_client_hello),
 //!                     vec![
 //!                         Term::Variable(Signature::new_var_with_type::&lt;ProtocolVersion, _&gt;(
@@ -222,7 +224,7 @@
 //!                             ),
 //!                         ),
 //!                     ],
-//!                 ),
+//!                 )
 //!             }),
 //!         },
 //!         // further steps here

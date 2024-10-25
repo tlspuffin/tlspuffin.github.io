@@ -263,6 +263,7 @@
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`Term`]s as well as iterators over them.
 
 </span><span class="kw">use </span>std::fmt;
@@ -381,8 +382,9 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(Source::Agent(agent_name)) = variable.query.source {
                         context.find_claim(agent_name, variable.typ.clone())
                     } <span class="kw">else </span>{
-                        <span class="macro">todo!</span>(<span class="string">"Implement querying by label"</span>);
-                    }
+                        <span class="comment">// Claims doesn't have precomputations as source
+                        </span><span class="prelude-val">None
+                    </span>}
                 })
                 .ok_or_else(|| Error::Term(<span class="macro">format!</span>(<span class="string">"Unable to find variable {}!"</span>, variable))),
             Term::Application(func, args) =&gt; {

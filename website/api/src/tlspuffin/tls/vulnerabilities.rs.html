@@ -1084,42 +1084,11 @@
 <a href="#1084" id="1084">1084</a>
 <a href="#1085" id="1085">1085</a>
 <a href="#1086" id="1086">1086</a>
-<a href="#1087" id="1087">1087</a>
-<a href="#1088" id="1088">1088</a>
-<a href="#1089" id="1089">1089</a>
-<a href="#1090" id="1090">1090</a>
-<a href="#1091" id="1091">1091</a>
-<a href="#1092" id="1092">1092</a>
-<a href="#1093" id="1093">1093</a>
-<a href="#1094" id="1094">1094</a>
-<a href="#1095" id="1095">1095</a>
-<a href="#1096" id="1096">1096</a>
-<a href="#1097" id="1097">1097</a>
-<a href="#1098" id="1098">1098</a>
-<a href="#1099" id="1099">1099</a>
-<a href="#1100" id="1100">1100</a>
-<a href="#1101" id="1101">1101</a>
-<a href="#1102" id="1102">1102</a>
-<a href="#1103" id="1103">1103</a>
-<a href="#1104" id="1104">1104</a>
-<a href="#1105" id="1105">1105</a>
-<a href="#1106" id="1106">1106</a>
-<a href="#1107" id="1107">1107</a>
-<a href="#1108" id="1108">1108</a>
-<a href="#1109" id="1109">1109</a>
-<a href="#1110" id="1110">1110</a>
-<a href="#1111" id="1111">1111</a>
-<a href="#1112" id="1112">1112</a>
-<a href="#1113" id="1113">1113</a>
-<a href="#1114" id="1114">1114</a>
-<a href="#1115" id="1115">1115</a>
-<a href="#1116" id="1116">1116</a>
-<a href="#1117" id="1117">1117</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
-<span class="kw">use </span>puffin::term;
 <span class="kw">use </span>puffin::trace::{Action, InputAction, OutputAction, Step, Trace};
+<span class="kw">use </span>puffin::{input_action, term};
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{MessageFlight, TLSProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
@@ -1226,16 +1195,14 @@
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @client_hello
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@certificate_rsa),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1245,13 +1212,12 @@
                             fn_true,
                             fn_seq_0  <span class="comment">// sequence 0
                         </span>)
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                          fn_encrypt_handshake(
                             (@certificate_verify_rsa),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1261,13 +1227,12 @@
                             fn_true,
                             fn_seq_1  <span class="comment">// sequence 1
                         </span>)
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@client_finished),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1277,7 +1242,7 @@
                             fn_true,
                             fn_seq_2  <span class="comment">// sequence 2
                         </span>)
-                    },
+                    }
                 }),
             },
         ],
@@ -1365,16 +1330,14 @@
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @client_hello
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@certificate),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1384,13 +1347,12 @@
                             fn_true,
                             fn_seq_0  <span class="comment">// sequence 0
                         </span>)
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@client_finished),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1400,7 +1362,7 @@
                             fn_true,
                             fn_seq_1  <span class="comment">// sequence 1
                         </span>)
-                    },
+                    }
                 }),
             },
         ],
@@ -1445,8 +1407,7 @@
 
     trace.steps.push(Step {
         agent: server,
-        action: Action::Input(InputAction {
-            recipe: <span class="macro">term!</span> {
+        action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                 fn_encrypt12(
                     (@renegotiation_client_hello),
                     ((server, <span class="number">0</span>)),
@@ -1457,14 +1418,13 @@
                     fn_true,
                     fn_seq_1
                 )
-            },
+            }
         }),
     });
 
     <span class="comment">/*trace.steps.push(Step {
         agent: server,
-        action: Action::Input(InputAction {
-            recipe: term! {
+        action: Action::Input(input_action! { term! {
                 fn_encrypt12(
                     renegotiation_client_hello,
                     ((server, 0)),
@@ -1475,7 +1435,7 @@
                     fn_true,
                     fn_seq_1
                 )
-            },
+            }
         }),
     });*/
 
@@ -1516,17 +1476,15 @@
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: client_hello,
+                action: Action::Input(<span class="macro">input_action!</span> { client_hello
                 }),
             },
             <span class="comment">// Send directly after client_hello such that this does not need to be encrypted
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_heartbeat_fake_length(fn_empty_bytes_vec, fn_large_length)
-                    },
+                    }
                 }),
             },
         ],
@@ -1576,53 +1534,48 @@
             <span class="comment">// Server Certificate, Server -&gt; Client
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_certificate(
                             ((server, <span class="number">0</span>))
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// Server Key Exchange, Server -&gt; Client
             // If the KEX fails here, then no ephemeral KEX is used
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_server_key_exchange(  <span class="comment">// check whether the client rejects this if it does not support export
                             </span>((server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerKeyExchange)))]/Vec&lt;u8&gt;)
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// Server Hello Done, Server -&gt; Client
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_server_hello_done
-                    },
+                    }
                 }),
             },
             <span class="comment">// Client Key Exchange, Client -&gt; Server
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_client_key_exchange(
                              ((client, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ClientKeyExchange)))]/Vec&lt;u8&gt;)
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// Client Change Cipher Spec, Client -&gt; Server
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_change_cipher_spec
-                    },
+                    }
                 }),
             },
         ],
@@ -1681,16 +1634,14 @@
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @client_hello
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_encrypt_handshake(
                             (@client_finished),
                             (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
@@ -1700,7 +1651,7 @@
                             fn_true,
                             fn_seq_0  <span class="comment">// sequence 0
                         </span>)
-                    },
+                    }
                 }),
             },
         ],
@@ -1747,52 +1698,47 @@
             <span class="comment">// Server Certificate, Server -&gt; Client
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_certificate(
                             ((server, <span class="number">0</span>))
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// Server Key Exchange, Server -&gt; Client
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_server_key_exchange(
                             ((server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerKeyExchange)))]/Vec&lt;u8&gt;)
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// Server Hello Done, Server -&gt; Client
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_server_hello_done
-                    },
+                    }
                 }),
             },
             <span class="comment">// Client Key Exchange, Client -&gt; Server
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_client_key_exchange(
                             ((client, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ClientKeyExchange)))]/Vec&lt;u8&gt;)
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// Client Change Cipher Spec, Client -&gt; Server
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_change_cipher_spec
-                    },
+                    }
                 }),
             },
             <span class="comment">// Client Handshake Finished, Client -&gt; Server
@@ -1801,24 +1747,22 @@
             // could be a HelloRequest if the encrypted data starts with a 0.
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_opaque_message(
                             ((client, <span class="number">3</span>)[<span class="prelude-val">None</span>])
                         )
-                    },
+                    }
                 }),
             },
             <span class="comment">// NewSessionTicket, Server -&gt; Client
             </span>Step {
                 agent: client,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_new_session_ticket(
                             ((server, <span class="number">0</span>)/u32),
                             fn_large_bytes_vec
                         )
-                    },
+                    }
                 }),
             },
         ],
@@ -1938,10 +1882,9 @@
             // ciphers that will be stored in ssl-&gt;suites-&gt;suites.
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @full_client_hello
-                    },
+                    }
                 }),
             },
             <span class="comment">// Step 3: sends a Client Hello (CH3) with a missing support_group_extension that will
@@ -1954,10 +1897,9 @@
             // include support_group_extension.
             </span>Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @full_client_hello
-                    },
+                    }
                 }),
             },
         ],
@@ -2069,18 +2011,16 @@
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @full_client_hello
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @full_client_hello
-                    },
+                    }
                 }),
             },
         ],
@@ -2173,18 +2113,16 @@
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @client_hello
-                    },
+                    }
                 }),
             },
             Step {
                 agent: server,
-                action: Action::Input(InputAction {
-                    recipe: <span class="macro">term!</span> {
+                action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         @client_hello
-                    },
+                    }
                 }),
             },
         ],

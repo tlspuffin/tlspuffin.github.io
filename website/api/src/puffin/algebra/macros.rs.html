@@ -122,6 +122,15 @@
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides a DLS for writing [`Term`](crate::algebra::Term)s within Rust.
 //! See the tlspuffin crate for usage examples.
 
@@ -135,13 +144,15 @@
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::dynamic_function::TypeShape</span>;
 
         <span class="comment">// ignore $req_type as we are overriding it with $type
-        </span><span class="macro">term!</span>((!<span class="macro-nonterminal">$precomp</span>, <span class="macro-nonterminal">$counter</span>) &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;())
+        </span>Term::from(<span class="macro">term!</span>((!<span class="macro-nonterminal">$precomp</span>, <span class="macro-nonterminal">$counter</span>) &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;()))
     }};
     ((<span class="macro-nonterminal">$agent</span>:expr, <span class="macro-nonterminal">$counter</span>:expr) / <span class="macro-nonterminal">$typ</span>:ty $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::dynamic_function::TypeShape</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+
 
         <span class="comment">// ignore $req_type as we are overriding it with $type
-        </span><span class="macro">term!</span>((<span class="macro-nonterminal">$agent</span>, <span class="macro-nonterminal">$counter</span>) &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;())
+        </span>Term::from(<span class="macro">term!</span>((<span class="macro-nonterminal">$agent</span>, <span class="macro-nonterminal">$counter</span>) &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;()))
     }};
     ((!<span class="macro-nonterminal">$precomp</span>:literal, <span class="macro-nonterminal">$counter</span>:expr) $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
@@ -149,15 +160,15 @@
         <span class="kw">use </span><span class="macro-nonterminal">$crate::trace::Source</span>;
 
         <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="prelude-val">Some</span>(Source::Label(<span class="prelude-val">Some</span>(<span class="macro-nonterminal">$precomp</span>.into()))), <span class="prelude-val">None</span>, <span class="macro-nonterminal">$counter</span>); <span class="comment">// TODO: verify hat using here None is fine. Before a refactor it was: Some(TlsMessageType::Handshake(None))
-        </span>Term::Variable(var)
+        </span>Term::from(DYTerm::Variable(var))
     }};
     ((<span class="macro-nonterminal">$agent</span>:expr, <span class="macro-nonterminal">$counter</span>:expr) $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
-        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra</span>::{DYTerm,Term};
         <span class="kw">use </span><span class="macro-nonterminal">$crate::trace::Source</span>;
 
         <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="prelude-val">Some</span>(Source::Agent(<span class="macro-nonterminal">$agent</span>)), <span class="prelude-val">None</span>, <span class="macro-nonterminal">$counter</span>); <span class="comment">// TODO: verify hat using here None is fine. Before a refactor it was: Some(TlsMessageType::Handshake(None))
-        </span>Term::Variable(var)
+        </span>Term::from(DYTerm::Variable(var))
     }};
 
     <span class="comment">//
@@ -167,13 +178,13 @@
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::dynamic_function::TypeShape</span>;
 
         <span class="comment">// ignore $req_type as we are overriding it with $type
-        </span><span class="macro">term!</span>((!<span class="macro-nonterminal">$precomp</span>, <span class="macro-nonterminal">$counter</span>) [<span class="macro-nonterminal">$message_type</span>] &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;())
+       </span>Term::from(<span class="macro">term!</span>((!<span class="macro-nonterminal">$precomp</span>, <span class="macro-nonterminal">$counter</span>) [<span class="macro-nonterminal">$message_type</span>] &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;()))
     }};
     ((<span class="macro-nonterminal">$agent</span>:expr, <span class="macro-nonterminal">$counter</span>:expr) [<span class="macro-nonterminal">$message_type</span>:expr] / <span class="macro-nonterminal">$typ</span>:ty $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::dynamic_function::TypeShape</span>;
 
         <span class="comment">// ignore $req_type as we are overriding it with $type
-        </span><span class="macro">term!</span>((<span class="macro-nonterminal">$agent</span>, <span class="macro-nonterminal">$counter</span>) [<span class="macro-nonterminal">$message_type</span>] &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;())
+        </span>Term::from(<span class="macro">term!</span>((<span class="macro-nonterminal">$agent</span>, <span class="macro-nonterminal">$counter</span>) [<span class="macro-nonterminal">$message_type</span>] &gt; TypeShape::of::&lt;<span class="macro-nonterminal">$typ</span>&gt;()))
     }};
     <span class="comment">// Extended with custom $type
     </span>((!<span class="macro-nonterminal">$precomp</span>:literal, <span class="macro-nonterminal">$counter</span>:expr) [<span class="macro-nonterminal">$message_type</span>:expr] $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
@@ -182,15 +193,15 @@
         <span class="kw">use </span><span class="macro-nonterminal">$crate::trace::Source</span>;
 
         <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="prelude-val">Some</span>(Source::Label(<span class="prelude-val">Some</span>(<span class="macro-nonterminal">$precomp</span>.into()))), <span class="macro-nonterminal">$message_type</span>, <span class="macro-nonterminal">$counter</span>);
-        Term::Variable(var)
+        Term::from(DYTerm::Variable(var))
     }};
     ((<span class="macro-nonterminal">$agent</span>:expr, <span class="macro-nonterminal">$counter</span>:expr) [<span class="macro-nonterminal">$message_type</span>:expr] $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
-        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra</span>::{DYTerm,Term};
         <span class="kw">use </span><span class="macro-nonterminal">$crate::trace::Source</span>;
 
         <span class="kw">let </span>var = Signature::new_var($(<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>, <span class="prelude-val">Some</span>(Source::Agent(<span class="macro-nonterminal">$agent</span>)), <span class="macro-nonterminal">$message_type</span>, <span class="macro-nonterminal">$counter</span>);
-        Term::Variable(var)
+        Term::from(DYTerm::Variable(var))
     }};
 
     <span class="comment">//
@@ -198,7 +209,7 @@
     //
     </span>(<span class="macro-nonterminal">$func</span>:ident ($(<span class="macro-nonterminal">$args</span>:tt),<span class="kw-2">*</span>) $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
-        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra</span>::{DYTerm,Term};
 
         <span class="kw">let </span>func = Signature::new_function(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$func</span>);
         <span class="attr">#[allow(unused_assignments, unused_variables, unused_mut)]
@@ -210,40 +221,47 @@
             <span class="attr">#[allow(unused)]
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(argument) = func.shape().argument_types.get(i) {
                 i += <span class="number">1</span>;
-                <span class="macro-nonterminal">$</span><span class="macro">crate::term_arg!</span>(<span class="macro-nonterminal">$args </span>&gt; argument.clone())
+                Term::from(<span class="macro-nonterminal">$</span><span class="macro">crate::term_arg!</span>(<span class="macro-nonterminal">$args </span>&gt; argument.clone()))
             } <span class="kw">else </span>{
                 <span class="macro">panic!</span>(<span class="string">"too many arguments specified for function {}"</span>, func)
             }
         }),<span class="kw-2">*</span>];
 
-        Term::Application(func, arguments)
+        Term::from(DYTerm::Application(func, arguments))
     }};
     <span class="comment">// Shorthand for constants
     </span>(<span class="macro-nonterminal">$func</span>:ident $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
-        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra</span>::{DYTerm,Term};
+
 
         <span class="kw">let </span>func = Signature::new_function(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$func</span>);
-        Term::Application(func, <span class="macro">vec!</span>[])
+        Term::from(DYTerm::Application(func, <span class="macro">vec!</span>[]))
     }};
 
     <span class="comment">//
     // Allows to use variables which already contain a term by starting with a `@`
     //
     </span>(@<span class="macro-nonterminal">$e</span>:ident $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
-        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::Term</span>;
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra</span>::{DYTerm,Term};
 
         <span class="kw">let </span>subterm: <span class="kw-2">&amp;</span>Term&lt;<span class="kw">_</span>&gt; = <span class="kw-2">&amp;</span><span class="macro-nonterminal">$e</span>;
-        subterm.clone()
+        Term::from(subterm.clone())
     }};
 }
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules!</span> term_arg {
     <span class="comment">// Somehow the following rules is very important
-    </span>( ( $(<span class="macro-nonterminal">$e</span>:tt)* ) $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; (<span class="macro">term!</span>($(<span class="macro-nonterminal">$e</span>)* $(&gt;<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>));
+    </span>( ( $(<span class="macro-nonterminal">$e</span>:tt)* ) $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
+        <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra</span>::{DYTerm,Term};
+
+        Term::from(<span class="macro">term!</span>($(<span class="macro-nonterminal">$e</span>)* $(&gt;<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>))
+    }};
     <span class="comment">// not sure why I should need this
     // ( ( $e:tt ) ) =&gt; (ast!($e));
-    </span>(<span class="macro-nonterminal">$e</span>:tt $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; (<span class="macro">term!</span>(<span class="macro-nonterminal">$e </span>$(&gt;<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>));
+    </span>(<span class="macro-nonterminal">$e</span>:tt $(&gt;<span class="macro-nonterminal">$req_type</span>:expr)<span class="question-mark">?</span>) =&gt; {{
+        Term::from(<span class="macro">term!</span>(<span class="macro-nonterminal">$e </span>$(&gt;<span class="macro-nonterminal">$req_type</span>)<span class="question-mark">?</span>))
+    }};
 }
 </code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["nyi_fn"],"mod":["claims","debug","protocol","put","put_registry","query","static_certs","tcp","tls"]};
+window.SIDEBAR_ITEMS = {"macro":["nyi_fn","try_read"],"mod":["claims","debug","protocol","put","put_registry","query","static_certs","tcp","tls"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["RuntimeStats"],"static":["AGENT","EXTRACTION","FN_ERROR","IO","PUT","STATS","STREAM","TERM","TERM_SIZE","TRACE_LENGTH"],"struct":["Counter","MinMaxMean","StatsStage"],"trait":["Fire"]};
+window.SIDEBAR_ITEMS = {"enum":["RuntimeStats"],"static":["AGENT","CODEC","EXTRACTION","FN_ERROR","IO","PUT","STATS","STREAM","TERM","TERM_SIZE","TRACE_LENGTH"],"struct":["Counter","MinMaxMean","StatsStage"],"trait":["Fire"]};

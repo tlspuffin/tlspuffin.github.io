@@ -2332,11 +2332,91 @@
 <a href="#2332" id="2332">2332</a>
 <a href="#2333" id="2333">2333</a>
 <a href="#2334" id="2334">2334</a>
+<a href="#2335" id="2335">2335</a>
+<a href="#2336" id="2336">2336</a>
+<a href="#2337" id="2337">2337</a>
+<a href="#2338" id="2338">2338</a>
+<a href="#2339" id="2339">2339</a>
+<a href="#2340" id="2340">2340</a>
+<a href="#2341" id="2341">2341</a>
+<a href="#2342" id="2342">2342</a>
+<a href="#2343" id="2343">2343</a>
+<a href="#2344" id="2344">2344</a>
+<a href="#2345" id="2345">2345</a>
+<a href="#2346" id="2346">2346</a>
+<a href="#2347" id="2347">2347</a>
+<a href="#2348" id="2348">2348</a>
+<a href="#2349" id="2349">2349</a>
+<a href="#2350" id="2350">2350</a>
+<a href="#2351" id="2351">2351</a>
+<a href="#2352" id="2352">2352</a>
+<a href="#2353" id="2353">2353</a>
+<a href="#2354" id="2354">2354</a>
+<a href="#2355" id="2355">2355</a>
+<a href="#2356" id="2356">2356</a>
+<a href="#2357" id="2357">2357</a>
+<a href="#2358" id="2358">2358</a>
+<a href="#2359" id="2359">2359</a>
+<a href="#2360" id="2360">2360</a>
+<a href="#2361" id="2361">2361</a>
+<a href="#2362" id="2362">2362</a>
+<a href="#2363" id="2363">2363</a>
+<a href="#2364" id="2364">2364</a>
+<a href="#2365" id="2365">2365</a>
+<a href="#2366" id="2366">2366</a>
+<a href="#2367" id="2367">2367</a>
+<a href="#2368" id="2368">2368</a>
+<a href="#2369" id="2369">2369</a>
+<a href="#2370" id="2370">2370</a>
+<a href="#2371" id="2371">2371</a>
+<a href="#2372" id="2372">2372</a>
+<a href="#2373" id="2373">2373</a>
+<a href="#2374" id="2374">2374</a>
+<a href="#2375" id="2375">2375</a>
+<a href="#2376" id="2376">2376</a>
+<a href="#2377" id="2377">2377</a>
+<a href="#2378" id="2378">2378</a>
+<a href="#2379" id="2379">2379</a>
+<a href="#2380" id="2380">2380</a>
+<a href="#2381" id="2381">2381</a>
+<a href="#2382" id="2382">2382</a>
+<a href="#2383" id="2383">2383</a>
+<a href="#2384" id="2384">2384</a>
+<a href="#2385" id="2385">2385</a>
+<a href="#2386" id="2386">2386</a>
+<a href="#2387" id="2387">2387</a>
+<a href="#2388" id="2388">2388</a>
+<a href="#2389" id="2389">2389</a>
+<a href="#2390" id="2390">2390</a>
+<a href="#2391" id="2391">2391</a>
+<a href="#2392" id="2392">2392</a>
+<a href="#2393" id="2393">2393</a>
+<a href="#2394" id="2394">2394</a>
+<a href="#2395" id="2395">2395</a>
+<a href="#2396" id="2396">2396</a>
+<a href="#2397" id="2397">2397</a>
+<a href="#2398" id="2398">2398</a>
+<a href="#2399" id="2399">2399</a>
+<a href="#2400" id="2400">2400</a>
+<a href="#2401" id="2401">2401</a>
+<a href="#2402" id="2402">2402</a>
+<a href="#2403" id="2403">2403</a>
+<a href="#2404" id="2404">2404</a>
+<a href="#2405" id="2405">2405</a>
+<a href="#2406" id="2406">2406</a>
+<a href="#2407" id="2407">2407</a>
+<a href="#2408" id="2408">2408</a>
+<a href="#2409" id="2409">2409</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections, fmt};
 
-<span class="kw">use </span>puffin::codec;
 <span class="kw">use </span>puffin::codec::{Codec, Reader};
+<span class="kw">use </span>puffin::error::Error;
+<span class="kw">use </span>puffin::protocol::{Extractable, ProtocolTypes};
+<span class="kw">use </span>puffin::trace::{Knowledge, Source};
+<span class="kw">use </span>puffin::{atom_extract_knowledge, codec};
 
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
+<span class="kw">use </span><span class="kw">crate</span>::tls::fn_impl::fn_hello_retry_request_random;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::{Payload, PayloadU16, PayloadU24, PayloadU8};
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{
     CertificateStatusType, CipherSuite, ClientCertificateType, Compression, ECCurveType,
@@ -2349,6 +2429,8 @@
   (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$itemtype</span>:ty) =&gt; {
     <span class="attr">#[derive(Debug, Clone)]
     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name</span>(<span class="kw">pub </span>Vec&lt;<span class="macro-nonterminal">$itemtype</span>&gt;);
+
+    <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, <span class="macro-nonterminal">$name</span>);
 
     <span class="kw">impl </span>puffin::codec::Codec <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
       <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
@@ -2367,6 +2449,8 @@
     <span class="attr">#[derive(Debug, Clone)]
     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name</span>(<span class="kw">pub </span>Vec&lt;<span class="macro-nonterminal">$itemtype</span>&gt;);
 
+    <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, <span class="macro-nonterminal">$name</span>);
+
     <span class="kw">impl </span>puffin::codec::Codec <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
       <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         puffin::codec::encode_vec_u16(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
@@ -2379,25 +2463,64 @@
   }
 );
 
+<span class="macro">macro_rules!</span> declare_u16_vec_empty (
+  (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$itemtype</span>:ty) =&gt; {
+    <span class="attr">#[derive(Debug, Clone)]
+    </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name</span>(<span class="kw">pub </span>Vec&lt;<span class="macro-nonterminal">$itemtype</span>&gt;);
+
+    <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, <span class="macro-nonterminal">$name</span>);
+
+    <span class="kw">impl </span>puffin::codec::Codec <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+      <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+          <span class="kw">if </span>!<span class="self">self</span>.<span class="number">0</span>.is_empty() { <span class="comment">// for optional fields such as ClientExtensions
+            </span>puffin::codec::encode_vec_u16(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
+          }
+      }
+
+      <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>puffin::codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$name</span>(puffin::codec::read_vec_u16::&lt;<span class="macro-nonterminal">$itemtype</span>&gt;(r)<span class="question-mark">?</span>)) <span class="comment">// we still try to read even though we might
+          // mis-interpret a ['0'] as being the empty list, which is must however must be serialized as [] (empty bittstring).
+          // This is a trade-off we accept to be able to correctly read in most cases (non-empty lists).
+          // Moroever, when reading a struct containing $name as a field, we shall first check that there is remaining
+          // bytes to read!
+      </span>}
+    }
+  }
+);
+
+<span class="macro">macro_rules!</span> declare_u24_vec_limited (
+  (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$itemtype</span>:ty) =&gt; {
+    <span class="attr">#[derive(Debug, Clone)]
+    </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name</span>(<span class="kw">pub </span>Vec&lt;<span class="macro-nonterminal">$itemtype</span>&gt;);
+
+    <span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, <span class="macro-nonterminal">$name</span>);
+
+    <span class="kw">impl </span>puffin::codec::Codec <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+      <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        puffin::codec::encode_vec_u24(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
+      }
+
+      <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>puffin::codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$name</span>(puffin::codec::read_vec_u24_limited::&lt;<span class="macro-nonterminal">$itemtype</span>&gt;(r, <span class="number">0x10000</span>)<span class="question-mark">?</span>))
+      }
+    }
+  }
+);
+
 <span class="macro">declare_u16_vec!</span>(VecU16OfPayloadU8, PayloadU8);
 <span class="macro">declare_u16_vec!</span>(VecU16OfPayloadU16, PayloadU16);
 
 <span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
 </span><span class="kw">pub struct </span>Random(<span class="kw">pub </span>[u8; <span class="number">32</span>]);
 
-<span class="kw">static </span>HELLO_RETRY_REQUEST_RANDOM: Random = Random([
-    <span class="number">0xcf</span>, <span class="number">0x21</span>, <span class="number">0xad</span>, <span class="number">0x74</span>, <span class="number">0xe5</span>, <span class="number">0x9a</span>, <span class="number">0x61</span>, <span class="number">0x11</span>, <span class="number">0xbe</span>, <span class="number">0x1d</span>, <span class="number">0x8c</span>, <span class="number">0x02</span>, <span class="number">0x1e</span>, <span class="number">0x65</span>, <span class="number">0xb8</span>, <span class="number">0x91</span>,
-    <span class="number">0xc2</span>, <span class="number">0xa2</span>, <span class="number">0x11</span>, <span class="number">0x16</span>, <span class="number">0x7a</span>, <span class="number">0xbb</span>, <span class="number">0x8c</span>, <span class="number">0x5e</span>, <span class="number">0x07</span>, <span class="number">0x9e</span>, <span class="number">0x09</span>, <span class="number">0xe2</span>, <span class="number">0xc8</span>, <span class="number">0xa8</span>, <span class="number">0x33</span>, <span class="number">0x9c</span>,
-]);
-
 <span class="kw">static </span>ZERO_RANDOM: Random = Random([<span class="number">0u8</span>; <span class="number">32</span>]);
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>Random {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>Random {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         bytes.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>bytes = r.take(<span class="number">32</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>opaque = [<span class="number">0</span>; <span class="number">32</span>];
         opaque.clone_from_slice(bytes);
@@ -2455,14 +2578,14 @@
     </span>}
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>SessionID {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>SessionID {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.len &lt;= <span class="number">32</span>);
         bytes.push(<span class="self">self</span>.len <span class="kw">as </span>u8);
         bytes.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.data[..<span class="self">self</span>.len]);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>len = u8::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">if </span>len &gt; <span class="number">32 </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -2510,7 +2633,7 @@
         <span class="self">self</span>.payload.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(typ: ExtensionType, r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>read(typ: ExtensionType, r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>payload = Payload::read(r);
         <span class="self">Self </span>{ typ, payload }
     }
@@ -2587,7 +2710,7 @@
         <span class="self">Self</span>::HostName((raw, hostname))
     }
 
-    <span class="kw">fn </span>read_hostname(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read_hostname(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>raw = PayloadU16::read(r)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>dns_name = {
@@ -2616,13 +2739,13 @@
     <span class="kw">pub </span>payload: ServerNamePayload,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ServerName {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ServerName {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.typ.encode(bytes);
         <span class="self">self</span>.payload.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ServerNameType::read(r)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>payload = <span class="kw">match </span>typ {
@@ -2719,13 +2842,13 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>KeyShareEntry {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>KeyShareEntry {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.group.encode(bytes);
         <span class="self">self</span>.payload.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>group = NamedGroup::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>payload = PayloadU16::read(r)<span class="question-mark">?</span>;
 
@@ -2749,13 +2872,13 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>PresharedKeyIdentity {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>PresharedKeyIdentity {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.identity.encode(bytes);
         <span class="self">self</span>.obfuscated_ticket_age.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
             identity: PayloadU16::read(r)<span class="question-mark">?</span>,
             obfuscated_ticket_age: u32::read(r)<span class="question-mark">?</span>,
@@ -2783,13 +2906,13 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>PresharedKeyOffer {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>PresharedKeyOffer {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.identities.encode(bytes);
         <span class="self">self</span>.binders.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
             identities: PresharedKeyIdentities::read(r)<span class="question-mark">?</span>,
             binders: PresharedKeyBinders::read(r)<span class="question-mark">?</span>,
@@ -2806,14 +2929,14 @@
     <span class="kw">pub </span>extensions: PayloadU16,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>OCSPCertificateStatusRequest {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>OCSPCertificateStatusRequest {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         CertificateStatusType::OCSP.encode(bytes);
         <span class="self">self</span>.responder_ids.encode(bytes);
         <span class="self">self</span>.extensions.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
             responder_ids: ResponderIDs::read(r)<span class="question-mark">?</span>,
             extensions: PayloadU16::read(r)<span class="question-mark">?</span>,
@@ -2827,7 +2950,7 @@
     Unknown((CertificateStatusType, Payload)),
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificateStatusRequest {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificateStatusRequest {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::OCSP(<span class="kw-2">ref </span>r) =&gt; r.encode(bytes),
@@ -2838,7 +2961,7 @@
         }
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = CertificateStatusType::read(r)<span class="question-mark">?</span>;
 
         <span class="kw">match </span>typ {
@@ -2926,7 +3049,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ClientExtension {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ClientExtension {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.get_type().encode(bytes);
 
@@ -2960,7 +3083,7 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ExtensionType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = u16::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -3008,7 +3131,11 @@
                 <span class="self">Self</span>::TransportParametersDraft(sub.rest().to_vec())
             }
             ExtensionType::RenegotiationInfo =&gt; {
-                <span class="self">Self</span>::RenegotiationInfo(PayloadU8::new(sub.rest().to_vec()))
+                <span class="kw">let </span><span class="kw-2">mut </span>content_without_size = sub.rest().to_vec();
+                <span class="kw">if </span>!content_without_size.is_empty() {
+                    content_without_size = content_without_size[<span class="number">1</span>..].to_vec() <span class="comment">// because PayloadU8::new adds one byte for the length already
+                </span>}
+                <span class="self">Self</span>::RenegotiationInfo(PayloadU8::new(content_without_size))
             }
             ExtensionType::SignatureAlgorithmsCert =&gt; {
                 <span class="kw">let </span>schemes = SupportedSignatureSchemes::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>;
@@ -3100,7 +3227,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ServerExtension {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ServerExtension {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.get_type().encode(bytes);
 
@@ -3128,7 +3255,7 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ExtensionType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = u16::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -3186,41 +3313,42 @@
     }
 }
 
+<span class="macro">declare_u16_vec_empty!</span>(ClientExtensions, ClientExtension);
+<span class="macro">declare_u16_vec!</span>(CipherSuites, CipherSuite);
+<span class="macro">declare_u8_vec!</span>(Compressions, Compression);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ClientHelloPayload {
     <span class="kw">pub </span>client_version: ProtocolVersion,
     <span class="kw">pub </span>random: Random,
     <span class="kw">pub </span>session_id: SessionID,
-    <span class="kw">pub </span>cipher_suites: Vec&lt;CipherSuite&gt;,
-    <span class="kw">pub </span>compression_methods: Vec&lt;Compression&gt;,
-    <span class="kw">pub </span>extensions: Vec&lt;ClientExtension&gt;,
+    <span class="kw">pub </span>cipher_suites: CipherSuites,
+    <span class="kw">pub </span>compression_methods: Compressions,
+    <span class="kw">pub </span>extensions: ClientExtensions,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ClientHelloPayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ClientHelloPayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.client_version.encode(bytes);
         <span class="self">self</span>.random.encode(bytes);
         <span class="self">self</span>.session_id.encode(bytes);
-        codec::encode_vec_u16(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.cipher_suites);
-        codec::encode_vec_u8(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.compression_methods);
+        <span class="self">self</span>.cipher_suites.encode(bytes);
+        <span class="self">self</span>.compression_methods.encode(bytes);
+        <span class="self">self</span>.extensions.encode(bytes); <span class="comment">// will not write anything if the list is empty!
+    </span>}
 
-        <span class="kw">if </span>!<span class="self">self</span>.extensions.is_empty() {
-            codec::encode_vec_u16(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.extensions);
-        }
-    }
-
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="self">Self </span>{
             client_version: ProtocolVersion::read(r)<span class="question-mark">?</span>,
             random: Random::read(r)<span class="question-mark">?</span>,
             session_id: SessionID::read(r)<span class="question-mark">?</span>,
-            cipher_suites: codec::read_vec_u16::&lt;CipherSuite&gt;(r)<span class="question-mark">?</span>,
-            compression_methods: codec::read_vec_u8::&lt;Compression&gt;(r)<span class="question-mark">?</span>,
-            extensions: Vec::new(),
+            cipher_suites: CipherSuites::read(r)<span class="question-mark">?</span>,
+            compression_methods: Compressions::read(r)<span class="question-mark">?</span>,
+            extensions: ClientExtensions(Vec::new()),
         };
 
         <span class="kw">if </span>r.any_left() {
-            ret.extensions = codec::read_vec_u16::&lt;ClientExtension&gt;(r)<span class="question-mark">?</span>;
+            ret.extensions = ClientExtensions::read(r)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if </span>r.any_left() {
@@ -3237,7 +3365,7 @@
     </span><span class="kw">pub fn </span>has_duplicate_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>seen = collections::HashSet::new();
 
-        <span class="kw">for </span>ext <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.extensions {
+        <span class="kw">for </span>ext <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.extensions.<span class="number">0 </span>{
             <span class="kw">let </span>typ = ext.get_type().get_u16();
 
             <span class="kw">if </span>seen.contains(<span class="kw-2">&amp;</span>typ) {
@@ -3250,7 +3378,7 @@
     </span>}
 
     <span class="kw">pub fn </span>find_extension(<span class="kw-2">&amp;</span><span class="self">self</span>, ext: ExtensionType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ClientExtension&gt; {
-        <span class="self">self</span>.extensions.iter().find(|x| x.get_type() == ext)
+        <span class="self">self</span>.extensions.<span class="number">0</span>.iter().find(|x| x.get_type() == ext)
     }
 
     <span class="kw">pub fn </span>get_sni_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ServerNameRequest&gt; {
@@ -3350,7 +3478,8 @@
 
     <span class="kw">pub fn </span>check_psk_ext_is_last(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.extensions
-            .last()
+            .<span class="number">0
+            </span>.last()
             .map_or(<span class="bool-val">false</span>, |ext| ext.get_type() == ExtensionType::PreSharedKey)
     }
 
@@ -3369,7 +3498,7 @@
     }
 
     <span class="kw">pub fn </span>set_psk_binder(<span class="kw-2">&amp;mut </span><span class="self">self</span>, binder: <span class="kw">impl </span>Into&lt;Vec&lt;u8&gt;&gt;) {
-        <span class="kw">let </span>last_extension = <span class="self">self</span>.extensions.last_mut();
+        <span class="kw">let </span>last_extension = <span class="self">self</span>.extensions.<span class="number">0</span>.last_mut();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ClientExtension::PresharedKey(<span class="kw-2">ref mut </span>offer)) = last_extension {
             offer.binders.<span class="number">0</span>[<span class="number">0</span>] = PresharedKeyBinder::new(binder.into());
         }
@@ -3404,7 +3533,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>HelloRetryExtension {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>HelloRetryExtension {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.get_type().encode(bytes);
 
@@ -3420,7 +3549,7 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ExtensionType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = u16::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -3442,38 +3571,49 @@
     }
 }
 
+<span class="macro">declare_u16_vec!</span>(HelloRetryExtensions, HelloRetryExtension);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>HelloRetryRequest {
     <span class="kw">pub </span>legacy_version: ProtocolVersion,
+    <span class="kw">pub </span>random: Random,
     <span class="kw">pub </span>session_id: SessionID,
     <span class="kw">pub </span>cipher_suite: CipherSuite,
-    <span class="kw">pub </span>extensions: Vec&lt;HelloRetryExtension&gt;,
+    <span class="kw">pub </span>compression_methods: Compressions,
+    <span class="kw">pub </span>extensions: HelloRetryExtensions,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>HelloRetryRequest {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>HelloRetryRequest {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.legacy_version.encode(bytes);
-        HELLO_RETRY_REQUEST_RANDOM.encode(bytes);
+        <span class="self">self</span>.random.encode(bytes);
         <span class="self">self</span>.session_id.encode(bytes);
         <span class="self">self</span>.cipher_suite.encode(bytes);
-        Compression::Null.encode(bytes);
-        codec::encode_vec_u16(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.extensions);
-    }
+        <span class="self">self</span>.compression_methods.encode(bytes);
+        <span class="comment">// Compression::Null.encode(bytes);
+        // if !self.extensions.0.is_empty() {  // TODO: @MAX shouldn't we also accept empty ones?
+        //         // lists of extensions, as for CLientHello ClientExtensions?
+        </span><span class="self">self</span>.extensions.encode(bytes);
+        <span class="comment">// }
+    </span>}
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>session_id = SessionID::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>cipher_suite = CipherSuite::read(r)<span class="question-mark">?</span>;
-        <span class="kw">let </span>compression = Compression::read(r)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>compression != Compression::Null {
+        <span class="kw">let </span>compression_methods = Compressions::read(r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>extensions = HelloRetryExtensions::read(r)<span class="question-mark">?</span>;
+        <span class="kw">if </span>compression_methods.<span class="number">0 </span>!= <span class="macro">vec!</span>[Compression::Null] {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
-            legacy_version: ProtocolVersion::Unknown(<span class="number">0</span>),
-            session_id,
+            legacy_version: ProtocolVersion::Unknown(<span class="number">0</span>), <span class="comment">/* will be stored by the HandShake
+                                                          * message wrapping this payload */
+            </span>random: fn_hello_retry_request_random().unwrap(), <span class="comment">// same
+            </span>session_id,
             cipher_suite,
-            extensions: codec::read_vec_u16::&lt;HelloRetryExtension&gt;(r)<span class="question-mark">?</span>,
+            compression_methods,
+            extensions,
         })
     }
 }
@@ -3484,7 +3624,7 @@
     </span><span class="kw">pub fn </span>has_duplicate_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>seen = collections::HashSet::new();
 
-        <span class="kw">for </span>ext <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.extensions {
+        <span class="kw">for </span>ext <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.extensions.<span class="number">0 </span>{
             <span class="kw">let </span>typ = ext.get_type().get_u16();
 
             <span class="kw">if </span>seen.contains(<span class="kw-2">&amp;</span>typ) {
@@ -3497,7 +3637,7 @@
     </span>}
 
     <span class="kw">pub fn </span>has_unknown_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.extensions.iter().any(|ext| {
+        <span class="self">self</span>.extensions.<span class="number">0</span>.iter().any(|ext| {
             ext.get_type() != ExtensionType::KeyShare
                 &amp;&amp; ext.get_type() != ExtensionType::SupportedVersions
                 &amp;&amp; ext.get_type() != ExtensionType::Cookie
@@ -3505,7 +3645,7 @@
     }
 
     <span class="kw">fn </span>find_extension(<span class="kw-2">&amp;</span><span class="self">self</span>, ext: ExtensionType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HelloRetryExtension&gt; {
-        <span class="self">self</span>.extensions.iter().find(|x| x.get_type() == ext)
+        <span class="self">self</span>.extensions.<span class="number">0</span>.iter().find(|x| x.get_type() == ext)
     }
 
     <span class="kw">pub fn </span>get_requested_key_share_group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NamedGroup&gt; {
@@ -3533,6 +3673,8 @@
     }
 }
 
+<span class="macro">declare_u16_vec_empty!</span>(ServerExtensions, ServerExtension);
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ServerHelloPayload {
     <span class="kw">pub </span>legacy_version: ProtocolVersion,
@@ -3540,10 +3682,10 @@
     <span class="kw">pub </span>session_id: SessionID,
     <span class="kw">pub </span>cipher_suite: CipherSuite,
     <span class="kw">pub </span>compression_method: Compression,
-    <span class="kw">pub </span>extensions: Vec&lt;ServerExtension&gt;,
+    <span class="kw">pub </span>extensions: ServerExtensions,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ServerHelloPayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ServerHelloPayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.legacy_version.encode(bytes);
         <span class="self">self</span>.random.encode(bytes);
@@ -3551,18 +3693,18 @@
         <span class="self">self</span>.session_id.encode(bytes);
         <span class="self">self</span>.cipher_suite.encode(bytes);
         <span class="self">self</span>.compression_method.encode(bytes);
-        codec::encode_vec_u16(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.extensions);
+        <span class="self">self</span>.extensions.encode(bytes);
     }
 
     <span class="comment">// minus version and random, which have already been read.
-    </span><span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>session_id = SessionID::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>suite = CipherSuite::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>compression = Compression::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>extensions = <span class="kw">if </span>r.any_left() {
-            codec::read_vec_u16::&lt;ServerExtension&gt;(r)<span class="question-mark">?
+            ServerExtensions::read(r)<span class="question-mark">?
         </span>} <span class="kw">else </span>{
-            <span class="macro">vec!</span>[]
+            ServerExtensions(<span class="macro">vec!</span>[])
         };
 
         <span class="kw">let </span>ret = <span class="self">Self </span>{
@@ -3584,8 +3726,8 @@
 
 <span class="kw">impl </span>HasServerExtensions <span class="kw">for </span>ServerHelloPayload {
     <span class="kw">fn </span>get_extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[ServerExtension] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.extensions
-    }
+        <span class="kw-2">&amp;</span><span class="self">self</span>.extensions.<span class="number">0
+    </span>}
 }
 
 <span class="kw">impl </span>ServerHelloPayload {
@@ -3638,12 +3780,12 @@
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>CertificatePayload(<span class="kw">pub </span>Vec&lt;key::Certificate&gt;);
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificatePayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificatePayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         codec::encode_vec_u24(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="comment">// 64KB of certificates is plenty, 16MB is obviously silly
         </span><span class="prelude-val">Some</span>(CertificatePayload(codec::read_vec_u24_limited(r, <span class="number">0x10000</span>)<span class="question-mark">?</span>))
     }
@@ -3689,7 +3831,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificateExtension {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificateExtension {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.get_type().encode(bytes);
 
@@ -3704,7 +3846,7 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ExtensionType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = u16::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -3737,13 +3879,13 @@
     <span class="kw">pub </span>exts: CertificateExtensions,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificateEntry {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificateEntry {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.cert.encode(bytes);
         <span class="self">self</span>.exts.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
             cert: key::Certificate::read(r)<span class="question-mark">?</span>,
             exts: CertificateExtensions::read(r)<span class="question-mark">?</span>,
@@ -3797,22 +3939,23 @@
     }
 }
 
+<span class="macro">declare_u24_vec_limited!</span>(CertificateEntries, CertificateEntry);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>CertificatePayloadTLS13 {
     <span class="kw">pub </span>context: PayloadU8,
-    <span class="kw">pub </span>entries: Vec&lt;CertificateEntry&gt;,
+    <span class="kw">pub </span>entries: CertificateEntries,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificatePayloadTLS13 {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificatePayloadTLS13 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.context.encode(bytes);
-        codec::encode_vec_u24(bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.entries);
+        <span class="self">self</span>.entries.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
             context: PayloadU8::read(r)<span class="question-mark">?</span>,
-            entries: codec::read_vec_u24_limited::&lt;CertificateEntry&gt;(r, <span class="number">0x10000</span>)<span class="question-mark">?</span>,
+            entries: CertificateEntries::read(r)<span class="question-mark">?</span>,
         })
     }
 }
@@ -3821,12 +3964,12 @@
     <span class="kw">pub fn </span>new(entries: Vec&lt;CertificateEntry&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             context: PayloadU8::empty(),
-            entries,
+            entries: CertificateEntries(entries),
         }
     }
 
     <span class="kw">pub fn </span>any_entry_has_duplicate_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries {
+        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries.<span class="number">0 </span>{
             <span class="kw">if </span>entry.has_duplicate_extension() {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
@@ -3836,7 +3979,7 @@
     </span>}
 
     <span class="kw">pub fn </span>any_entry_has_unknown_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries {
+        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries.<span class="number">0 </span>{
             <span class="kw">if </span>entry.has_unknown_extension() {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
@@ -3846,7 +3989,7 @@
     </span>}
 
     <span class="kw">pub fn </span>any_entry_has_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries {
+        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries.<span class="number">0 </span>{
             <span class="kw">if </span>!entry.exts.<span class="number">0</span>.is_empty() {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
@@ -3857,7 +4000,8 @@
 
     <span class="kw">pub fn </span>get_end_entity_ocsp(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
         <span class="self">self</span>.entries
-            .first()
+            .<span class="number">0
+            </span>.first()
             .and_then(CertificateEntry::get_ocsp_response)
             .cloned()
             .unwrap_or_default()
@@ -3865,14 +4009,15 @@
 
     <span class="kw">pub fn </span>get_end_entity_scts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SCTList&gt; {
         <span class="self">self</span>.entries
-            .first()
+            .<span class="number">0
+            </span>.first()
             .and_then(CertificateEntry::get_scts)
             .cloned()
     }
 
     <span class="kw">pub fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CertificatePayload {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = Vec::new();
-        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries {
+        <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.entries.<span class="number">0 </span>{
             ret.push(entry.cert.clone());
         }
         CertificatePayload(ret)
@@ -3898,13 +4043,13 @@
     <span class="kw">pub </span>named_group: NamedGroup,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ECParameters {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ECParameters {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.curve_type.encode(bytes);
         <span class="self">self</span>.named_group.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>ct = ECCurveType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>grp = NamedGroup::read(r)<span class="question-mark">?</span>;
 
@@ -3930,13 +4075,13 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>DigitallySignedStruct {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>DigitallySignedStruct {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.scheme.encode(bytes);
         <span class="self">self</span>.sig.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>scheme = SignatureScheme::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>sig = PayloadU16::read(r)<span class="question-mark">?</span>;
 
@@ -3949,12 +4094,12 @@
     <span class="kw">pub </span>public: PayloadU8,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ClientECDHParams {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ClientECDHParams {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.public.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>pb = PayloadU8::read(r)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{ public: pb })
     }
@@ -3978,13 +4123,13 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ServerECDHParams {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ServerECDHParams {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.curve_params.encode(bytes);
         <span class="self">self</span>.public.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>cp = ECParameters::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>pb = PayloadU8::read(r)<span class="question-mark">?</span>;
 
@@ -4001,13 +4146,13 @@
     <span class="kw">pub </span>dss: DigitallySignedStruct,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ECDHEServerKeyExchange {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ECDHEServerKeyExchange {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.params.encode(bytes);
         <span class="self">self</span>.dss.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>params = ServerECDHParams::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>dss = DigitallySignedStruct::read(r)<span class="question-mark">?</span>;
 
@@ -4021,7 +4166,7 @@
     Unknown(Payload),
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ServerKeyExchangePayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>ServerKeyExchangePayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             ServerKeyExchangePayload::ECDHE(<span class="kw-2">ref </span>x) =&gt; x.encode(bytes),
@@ -4029,7 +4174,7 @@
         }
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="comment">// read as Unknown, fully parse when we know the
         // KeyExchangeAlgorithm
         </span><span class="prelude-val">Some</span>(<span class="self">Self</span>::Unknown(Payload::read(r)))
@@ -4039,7 +4184,7 @@
 <span class="kw">impl </span>ServerKeyExchangePayload {
     <span class="kw">pub fn </span>unwrap_given_kxa(<span class="kw-2">&amp;</span><span class="self">self</span>, kxa: <span class="kw-2">&amp;</span>KeyExchangeAlgorithm) -&gt; <span class="prelude-ty">Option</span>&lt;ECDHEServerKeyExchange&gt; {
         <span class="kw">if let </span>ServerKeyExchangePayload::Unknown(<span class="kw-2">ref </span>unk) = <span class="kw-2">*</span><span class="self">self </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(<span class="kw-2">&amp;</span>unk.<span class="number">0</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>rd = codec::Reader::init(<span class="kw-2">&amp;</span>unk.<span class="number">0</span>);
 
             <span class="kw">let </span>result = <span class="kw">match </span><span class="kw-2">*</span>kxa {
                 KeyExchangeAlgorithm::ECDHE =&gt; ECDHEServerKeyExchange::read(<span class="kw-2">&amp;mut </span>rd),
@@ -4130,14 +4275,14 @@
     <span class="kw">pub </span>canames: DistinguishedNames,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificateRequestPayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificateRequestPayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.certtypes.encode(bytes);
         <span class="self">self</span>.sigschemes.encode(bytes);
         <span class="self">self</span>.canames.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>certtypes = ClientCertificateTypes::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>sigschemes = SupportedSignatureSchemes::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>canames = DistinguishedNames::read(r)<span class="question-mark">?</span>;
@@ -4167,7 +4312,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertReqExtension {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertReqExtension {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.get_type().encode(bytes);
 
@@ -4182,7 +4327,7 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ExtensionType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = u16::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -4218,13 +4363,13 @@
     <span class="kw">pub </span>extensions: CertReqExtensions,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificateRequestPayloadTLS13 {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificateRequestPayloadTLS13 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.context.encode(bytes);
         <span class="self">self</span>.extensions.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>context = PayloadU8::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>extensions = CertReqExtensions::read(r)<span class="question-mark">?</span>;
 
@@ -4273,13 +4418,13 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>NewSessionTicketPayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>NewSessionTicketPayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.lifetime_hint.encode(bytes);
         <span class="self">self</span>.ticket.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>lifetime = u32::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>ticket = PayloadU16::read(r)<span class="question-mark">?</span>;
 
@@ -4306,7 +4451,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>NewSessionTicketExtension {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>NewSessionTicketExtension {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.get_type().encode(bytes);
 
@@ -4320,7 +4465,7 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = ExtensionType::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = u16::read(r)<span class="question-mark">? </span><span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -4388,7 +4533,7 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>NewSessionTicketPayloadTLS13 {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>NewSessionTicketPayloadTLS13 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.lifetime.encode(bytes);
         <span class="self">self</span>.age_add.encode(bytes);
@@ -4397,7 +4542,7 @@
         <span class="self">self</span>.exts.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>lifetime = u32::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>age_add = u32::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>nonce = PayloadU8::read(r)<span class="question-mark">?</span>;
@@ -4422,13 +4567,13 @@
     <span class="kw">pub </span>ocsp_response: PayloadU24,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>CertificateStatus {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>CertificateStatus {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         CertificateStatusType::OCSP.encode(bytes);
         <span class="self">self</span>.ocsp_response.encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>typ = CertificateStatusType::read(r)<span class="question-mark">?</span>;
 
         <span class="kw">match </span>typ {
@@ -4477,7 +4622,7 @@
     Unknown(Payload),
 }
 
-<span class="kw">impl </span>HandshakePayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>HandshakePayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">use </span><span class="self">self</span>::HandshakePayload::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -4502,6 +4647,10 @@
             Unknown(<span class="kw-2">ref </span>x) =&gt; x.encode(bytes),
         }
     }
+
+    <span class="kw">fn </span>read(<span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">None
+    </span>}
 }
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -4510,7 +4659,7 @@
     <span class="kw">pub </span>payload: HandshakePayload,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>HandshakeMessagePayload {
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>HandshakeMessagePayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="comment">// encode payload to learn length
         </span><span class="kw">let </span><span class="kw-2">mut </span>sub: Vec&lt;u8&gt; = Vec::new();
@@ -4526,13 +4675,13 @@
         bytes.append(<span class="kw-2">&amp;mut </span>sub);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::read_version(r, ProtocolVersion::TLSv1_2)
     }
 }
 
 <span class="kw">impl </span>HandshakeMessagePayload {
-    <span class="kw">pub fn </span>read_version(r: <span class="kw-2">&amp;mut </span>Reader, vers: ProtocolVersion) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">pub fn </span>read_version(r: <span class="kw-2">&amp;mut </span>codec::Reader, vers: ProtocolVersion) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>typ = HandshakeType::read(r)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>len = codec::u24::read(r)<span class="question-mark">?</span>.<span class="number">0 </span><span class="kw">as </span>usize;
@@ -4547,9 +4696,10 @@
                 <span class="kw">let </span>version = ProtocolVersion::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>;
                 <span class="kw">let </span>random = Random::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>;
 
-                <span class="kw">if </span>random == HELLO_RETRY_REQUEST_RANDOM {
+                <span class="kw">if </span><span class="prelude-val">Ok</span>(random) == fn_hello_retry_request_random() {
                     <span class="kw">let </span><span class="kw-2">mut </span>hrr = HelloRetryRequest::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>;
                     hrr.legacy_version = version;
+                    hrr.random = random;
                     typ = HandshakeType::HelloRetryRequest;
                     HandshakePayload::HelloRetryRequest(hrr)
                 } <span class="kw">else </span>{
@@ -4643,7 +4793,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="self">self</span>.get_encoding();
 
         <span class="kw">let </span>binder_len = <span class="kw">match </span><span class="self">self</span>.payload {
-            HandshakePayload::ClientHello(<span class="kw-2">ref </span>ch) =&gt; <span class="kw">match </span>ch.extensions.last() {
+            HandshakePayload::ClientHello(<span class="kw-2">ref </span>ch) =&gt; <span class="kw">match </span>ch.extensions.<span class="number">0</span>.last() {
                 <span class="prelude-val">Some</span>(ClientExtension::PresharedKey(<span class="kw-2">ref </span>offer)) =&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>binders_encoding = Vec::new();
                     offer.binders.encode(<span class="kw-2">&amp;mut </span>binders_encoding);

@@ -265,6 +265,11 @@
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
@@ -272,6 +277,7 @@
 <span class="kw">pub enum </span>RuntimeStats {
     FnError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     TermError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
+    CodecError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     PutError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     IOError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     AgentError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
@@ -287,15 +293,16 @@
         consume: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut(String, UserStats) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            RuntimeStats::FnError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::TermError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::PutError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::IOError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::AgentError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::StreamError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::ExtractionError(inner) =&gt; inner.fire(consume),
-            RuntimeStats::TraceLength(inner) =&gt; inner.fire(consume),
-            RuntimeStats::TermSize(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::FnError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::TermError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::CodecError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::PutError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::IOError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::AgentError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::StreamError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::ExtractionError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::TraceLength(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::TermSize(inner) =&gt; inner.fire(consume),
         }
     }
 }
@@ -304,6 +311,8 @@
 </span><span class="kw">pub static </span>FN_ERROR: Counter = Counter::new(<span class="string">"fn"</span>);
 <span class="comment">// Term(String),
 </span><span class="kw">pub static </span>TERM: Counter = Counter::new(<span class="string">"term"</span>);
+<span class="comment">// Codec(String),
+</span><span class="kw">pub static </span>CODEC: Counter = Counter::new(<span class="string">"codec"</span>);
 <span class="comment">// Put(String),
 </span><span class="kw">pub static </span>PUT: Counter = Counter::new(<span class="string">"put"</span>);
 <span class="comment">// IO(String),
@@ -319,9 +328,10 @@
 
 <span class="kw">pub static </span>TERM_SIZE: MinMaxMean = MinMaxMean::new(<span class="string">"term-size"</span>);
 
-<span class="kw">pub static </span>STATS: [RuntimeStats; <span class="number">9</span>] = [
+<span class="kw">pub static </span>STATS: [RuntimeStats; <span class="number">10</span>] = [
     RuntimeStats::FnError(<span class="kw-2">&amp;</span>FN_ERROR),
     RuntimeStats::TermError(<span class="kw-2">&amp;</span>TERM),
+    RuntimeStats::CodecError(<span class="kw-2">&amp;</span>TERM),
     RuntimeStats::PutError(<span class="kw-2">&amp;</span>PUT),
     RuntimeStats::IOError(<span class="kw-2">&amp;</span>IO),
     RuntimeStats::AgentError(<span class="kw-2">&amp;</span>AGENT),
@@ -344,7 +354,7 @@
 }
 
 <span class="kw">impl </span>Counter {
-    <span class="kw">const fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; Counter {
+    <span class="kw">const fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             name,
             counter: AtomicUsize::new(<span class="number">0</span>),
@@ -382,7 +392,7 @@
 }
 
 <span class="kw">impl </span>MinMaxMean {
-    <span class="kw">const fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; MinMaxMean {
+    <span class="kw">const fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             name,
             min_set: AtomicBool::new(<span class="bool-val">false</span>),
@@ -515,7 +525,7 @@
     EM: UsesState&lt;State = Z::State&gt;,
     Z: Evaluator&lt;E, EM&gt;,
 {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             phantom: PhantomData,
         }

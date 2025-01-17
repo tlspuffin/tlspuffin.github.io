@@ -60,6 +60,31 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 <span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::Write;
@@ -67,16 +92,36 @@
 <span class="kw">use </span>std::{fs, io};
 
 <span class="kw">use </span>chrono::Local;
+<span class="kw">use </span>clap::ArgMatches;
 <span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
 <span class="kw">use crate</span>::{GIT_MSG, GIT_REF};
 
-<span class="kw">pub fn </span>format_title(title: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, index: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; String {
-    <span class="kw">let </span>date = Local::now().format(<span class="string">"%Y-%m-%d-%H%M%S"</span>);
+<span class="attr">#[must_use]
+</span><span class="kw">pub fn </span>format_title&lt;PB: ProtocolBehavior&gt;(
+    title: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+    index: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
+    without_bit_level: bool,
+    without_dy_mutations: bool,
+    put_use_clear: bool,
+    minimizer: bool,
+    num_cores: usize,
+) -&gt; String {
+    <span class="kw">let </span>date = Local::now().format(<span class="string">"%Y-%m-%d"</span>);
+    <span class="kw">let </span>hour = Local::now().format(<span class="string">"%H-%M-%S"</span>);
+    <span class="kw">let </span>without_bit_level = <span class="kw">if </span>without_bit_level { <span class="string">"_wo-bit" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
+    <span class="kw">let </span>without_dy_mutations = <span class="kw">if </span>without_dy_mutations { <span class="string">"_wo-dy" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
+    <span class="kw">let </span>put_use_clear = <span class="kw">if </span>put_use_clear { <span class="string">"_put-use-clear" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
+    <span class="kw">let </span>minimizer = <span class="kw">if </span>minimizer { <span class="string">"_minimizer" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
+    <span class="kw">let </span>default_put: <span class="kw-2">&amp;</span>str = <span class="kw-2">&amp;</span>put_registry.default().versions().last().unwrap().<span class="number">1</span>.clone();
+    <span class="kw">let </span>default_put_short = default_put.split(<span class="string">'('</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;()[<span class="number">0</span>].trim();
     <span class="macro">format!</span>(
-        <span class="string">"{date}-{title}-{index}"</span>,
+        <span class="string">"{date}\
+        --{default_put_short}-{num_cores}c{without_bit_level}{without_dy_mutations}{put_use_clear}{minimizer}__\
+        {title}--{hour}--{index}"</span>,
         date = date,
         title = title.unwrap_or(GIT_REF),
         index = index.unwrap_or(<span class="number">0</span>)
@@ -88,6 +133,8 @@
     title: <span class="kw">impl </span>Display,
     description_text: <span class="kw">impl </span>Display,
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
+    commands: <span class="kw-2">&amp;</span>ArgMatches,
+    port: u16,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;String, io::Error&gt; {
     <span class="kw">let </span>full_description = <span class="macro">format!</span>(
         <span class="string">"# Experiment: {title}\n\
@@ -95,6 +142,8 @@
                 * Date: {date}\n\
                 * Git Ref: {git_ref}\n\
                 * Git Commit: {git_msg}\n\
+                * Launched with: {command:?}\n\
+                * Port: {port}\n\
                 * Log: [tlspuffin.log](./tlspuffin.log)\n\n\
                 {description}\n"</span>,
         title = <span class="kw-2">&amp;</span>title,
@@ -105,13 +154,14 @@
                 n,
                 p.versions()
                     .into_iter()
-                    .map(|(c, v)| <span class="macro">format!</span>(<span class="string">"{} ({})"</span>, c, v))
+                    .map(|(c, v)| <span class="macro">format!</span>(<span class="string">"{c} ({v})"</span>))
                     .join(<span class="string">" "</span>)
             ))
             .join(<span class="string">", "</span>),
         date = Local::now().to_rfc3339(),
         git_ref = GIT_REF,
         git_msg = GIT_MSG,
+        command = commands,
         description = description_text
     );
 

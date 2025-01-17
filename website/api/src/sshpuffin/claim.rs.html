@@ -36,22 +36,24 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::agent::AgentName;
 <span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::claims::Claim;
-<span class="kw">use </span>puffin::dummy_extract_knowledge;
 <span class="kw">use </span>puffin::error::Error;
-<span class="kw">use </span>puffin::protocol::{EvaluatedTerm, ProtocolTypes};
+<span class="kw">use </span>puffin::protocol::{EvaluatedTerm, Extractable, ProtocolTypes};
 <span class="kw">use </span>puffin::trace::{Knowledge, Source};
+<span class="kw">use </span>puffin::{codec, dummy_codec, dummy_extract_knowledge, dummy_extract_knowledge_codec};
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::SshProtocolTypes;
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>SshClaimInner;
-<span class="macro">dummy_extract_knowledge!</span>(SshProtocolTypes, Box&lt;SshClaimInner&gt;);
+<span class="macro">dummy_extract_knowledge_codec!</span>(SshProtocolTypes, Box&lt;SshClaimInner&gt;);
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>SshClaim {
     agent_name: AgentName,
     inner: Box&lt;SshClaimInner&gt;,
 }
+
+<span class="macro">dummy_extract_knowledge_codec!</span>(SshProtocolTypes, SshClaim);
 
 <span class="kw">impl </span>Claim&lt;SshProtocolTypes&gt; <span class="kw">for </span>SshClaim {
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
@@ -66,6 +68,4 @@
         Box::new(<span class="self">self</span>.inner.clone())
     }
 }
-
-<span class="macro">dummy_extract_knowledge!</span>(SshProtocolTypes, SshClaim);
 </code></pre></div></section></main></body></html>

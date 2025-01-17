@@ -507,6 +507,51 @@
 <a href="#507" id="507">507</a>
 <a href="#508" id="508">508</a>
 <a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -516,16 +561,17 @@
 <span class="kw">use </span>clap::parser::ValuesRef;
 <span class="kw">use </span>clap::{arg, crate_authors, crate_name, crate_version, value_parser, Command};
 <span class="kw">use </span>libafl::inputs::Input;
+<span class="kw">use </span>libafl_bolts::prelude::Cores;
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
-<span class="kw">use </span><span class="kw">crate</span>::codec::Codec;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::TermType;
 <span class="kw">use </span><span class="kw">crate</span>::execution::{ForkedRunner, Runner, TraceRunner};
-<span class="kw">use </span><span class="kw">crate</span>::experiment::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::experiment::{format_title, write_experiment_markdown};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::sanitizer::asan::{asan_info, setup_asan_env};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::{start, FuzzerConfig};
 <span class="kw">use </span><span class="kw">crate</span>::graphviz::write_graphviz;
 <span class="kw">use </span><span class="kw">crate</span>::log::config_default;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolMessage};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::{PutRegistry, TCP_PUT};
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Spawner, Trace, TraceContext};
@@ -549,11 +595,13 @@
         .arg(<span class="macro">arg!</span>(--tui <span class="string">"Display fuzzing logs using the interactive terminal UI"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"put-use-clear" "Use clearing functionality instead of recreating puts"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"no-launcher" "Do not use the convenient launcher"</span>))
+        .arg(<span class="macro">arg!</span>(--<span class="string">"wo-bit" "Disable bit-level mutations"</span>))
+        .arg(<span class="macro">arg!</span>(--<span class="string">"wo-dy" "Disable DY mutations"</span>))
         .subcommands(<span class="macro">vec!</span>[
             Command::new(<span class="string">"quick-experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>),
             Command::new(<span class="string">"experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>)
                 .arg(<span class="macro">arg!</span>(-t --title &lt;t&gt; <span class="string">"Title of the experiment"</span>))
-                         .arg(<span class="macro">arg!</span>(-d --description &lt;d&gt; <span class="string">"Description of the experiment"</span>))
+                .arg(<span class="macro">arg!</span>(-d --description [d] <span class="string">"Description of the experiment"</span>))
             ,
             Command::new(<span class="string">"seed"</span>).about(<span class="string">"Generates seeds to ./seeds"</span>),
             Command::new(<span class="string">"plot"</span>)
@@ -596,7 +644,7 @@
     <span class="kw">let </span>handle = <span class="kw">match </span>log4rs::init_config(config_default()) {
         <span class="prelude-val">Ok</span>(handle) =&gt; handle,
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">eprintln!</span>(<span class="string">"error: failed to initialize logging: {:?}"</span>, err);
+            <span class="macro">eprintln!</span>(<span class="string">"error: failed to initialize logging: {err:?}"</span>);
             <span class="kw">return </span>ExitCode::FAILURE;
         }
     };
@@ -605,6 +653,10 @@
 
     <span class="kw">let </span>first_core = <span class="string">"0"</span>.to_string();
     <span class="kw">let </span>core_definition = matches.get_one(<span class="string">"cores"</span>).unwrap_or(<span class="kw-2">&amp;</span>first_core);
+    <span class="kw">let </span>num_cores = Cores::from_cmdline(core_definition.as_str())
+        .unwrap()
+        .ids
+        .len();
     <span class="kw">let </span>port: u16 = <span class="kw-2">*</span>matches.get_one::&lt;u16&gt;(<span class="string">"port"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="number">1337u16</span>);
     <span class="kw">let </span>static_seed: <span class="prelude-ty">Option</span>&lt;u64&gt; = matches.get_one(<span class="string">"seed"</span>).copied();
     <span class="kw">let </span>max_iters: <span class="prelude-ty">Option</span>&lt;u64&gt; = matches.get_one(<span class="string">"max-iters"</span>).copied();
@@ -612,13 +664,15 @@
     <span class="kw">let </span>tui = matches.get_flag(<span class="string">"tui"</span>);
     <span class="kw">let </span>no_launcher = matches.get_flag(<span class="string">"no-launcher"</span>);
     <span class="kw">let </span>put_use_clear = matches.get_flag(<span class="string">"put-use-clear"</span>);
+    <span class="kw">let </span>without_bit_level = matches.get_flag(<span class="string">"wo-bit"</span>);
+    <span class="kw">let </span>without_dy_mutations = matches.get_flag(<span class="string">"wo-dy"</span>);
 
     <span class="macro">log::info!</span>(<span class="string">"Git Version: {}"</span>, <span class="kw">crate</span>::GIT_REF);
     <span class="macro">log::info!</span>(<span class="string">"Put Versions:"</span>);
 
     <span class="kw">for </span>(id, put) <span class="kw">in </span>put_registry.puts() {
         <span class="macro">log::info!</span>(<span class="string">"({:?}) {}:"</span>, put.kind(), id);
-        <span class="kw">for </span>(component, version) <span class="kw">in </span>put.versions().into_iter() {
+        <span class="kw">for </span>(component, version) <span class="kw">in </span>put.versions() {
             <span class="macro">log::info!</span>(<span class="string">"    {}: {}"</span>, component, version);
         }
     }
@@ -630,7 +684,7 @@
 
     </span><span class="kw">let </span><span class="kw-2">mut </span>options: Vec&lt;(String, String)&gt; = Vec::new();
     <span class="kw">if </span>put_use_clear {
-        options.push((<span class="string">"use_clear"</span>.to_string(), put_use_clear.to_string()))
+        options.push((<span class="string">"use_clear"</span>.to_string(), put_use_clear.to_string()));
     }
 
     <span class="kw">let </span>default_put = PutDescriptor::new(put_registry.default().name(), options);
@@ -726,7 +780,7 @@
                     .duration_since(std::time::UNIX_EPOCH)
                     .unwrap()
                     .as_millis()
-            )
+            );
         }
 
         <span class="kw">if </span>end_reached {
@@ -800,15 +854,15 @@
         <span class="kw">let </span><span class="kw-2">mut </span>options = <span class="macro">vec!</span>[(<span class="string">"port"</span>, port.as_str()), (<span class="string">"host"</span>, host)];
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(prog) = prog {
-            options.push((<span class="string">"prog"</span>, prog))
+            options.push((<span class="string">"prog"</span>, prog));
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(args) = args {
-            options.push((<span class="string">"args"</span>, args))
+            options.push((<span class="string">"args"</span>, args));
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cwd) = cwd {
-            options.push((<span class="string">"cwd"</span>, cwd))
+            options.push((<span class="string">"cwd"</span>, cwd));
         }
 
         <span class="kw">let </span>server = trace.descriptors[<span class="number">0</span>].name;
@@ -826,17 +880,35 @@
         <span class="kw">return </span>ExitCode::SUCCESS;
     } <span class="kw">else </span>{
         <span class="kw">let </span>experiment_path = <span class="kw">if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"experiment"</span>) {
-            <span class="kw">let </span>title: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"title"</span>).unwrap();
-            <span class="kw">let </span>description: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"description"</span>).unwrap();
+            <span class="kw">let </span>git_ref = <span class="string">"_"</span>.to_string();
+            <span class="kw">let </span>title: <span class="kw-2">&amp;</span>str = matches.get_one::&lt;String&gt;(<span class="string">"title"</span>).unwrap_or(<span class="kw-2">&amp;</span>git_ref);
             <span class="kw">let </span>experiments_root = PathBuf::new().join(<span class="string">"experiments"</span>);
-            <span class="kw">let </span>experiment_path = experiments_root.join(format_title(<span class="prelude-val">Some</span>(title), <span class="prelude-val">None</span>));
-            <span class="kw">if </span>experiment_path.as_path().exists() {
-                <span class="macro">panic!</span>(<span class="string">"Experiment already exists. Consider creating a new experiment."</span>)
-            }
+            <span class="kw">let </span>format_t = format_title(
+                <span class="prelude-val">Some</span>(title),
+                <span class="prelude-val">None</span>,
+                <span class="kw-2">&amp;</span>put_registry,
+                without_bit_level,
+                without_dy_mutations,
+                put_use_clear,
+                minimizer,
+                num_cores,
+            );
+            <span class="kw">let </span>experiment_path = experiments_root.join(format_t.clone());
+            <span class="macro">assert!</span>(
+                !experiment_path.as_path().exists(),
+                <span class="string">"Experiment already exists. Consider creating a new experiment."
+            </span>);
 
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                write_experiment_markdown(<span class="kw-2">&amp;</span>experiment_path, title, description, <span class="kw-2">&amp;</span>put_registry)
-            {
+            <span class="kw">let </span>base_dec = format_t;
+            <span class="kw">let </span>description: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"description"</span>).unwrap_or(<span class="kw-2">&amp;</span>base_dec);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = write_experiment_markdown(
+                <span class="kw-2">&amp;</span>experiment_path,
+                title,
+                description,
+                <span class="kw-2">&amp;</span>put_registry,
+                matches,
+                port,
+            ) {
                 <span class="macro">log::error!</span>(<span class="string">"Failed to write readme: {:?}"</span>, err);
                 <span class="kw">return </span>ExitCode::FAILURE;
             }
@@ -846,20 +918,43 @@
             <span class="kw">let </span>description = <span class="string">"No Description, because this is a quick experiment."</span>;
             <span class="kw">let </span>experiments_root = PathBuf::from(<span class="string">"experiments"</span>);
 
-            <span class="kw">let </span>title = format_title(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+            <span class="kw">let </span>title = format_title(
+                <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span>,
+                <span class="kw-2">&amp;</span>put_registry,
+                without_bit_level,
+                without_dy_mutations,
+                put_use_clear,
+                minimizer,
+                num_cores,
+            );
 
             <span class="kw">let </span><span class="kw-2">mut </span>experiment_path = experiments_root.join(<span class="kw-2">&amp;</span>title);
 
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
             <span class="kw">while </span>experiment_path.as_path().exists() {
-                <span class="kw">let </span>title = format_title(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(i));
+                <span class="kw">let </span>title = format_title(
+                    <span class="prelude-val">None</span>,
+                    <span class="prelude-val">Some</span>(i),
+                    <span class="kw-2">&amp;</span>put_registry,
+                    without_bit_level,
+                    without_dy_mutations,
+                    put_use_clear,
+                    minimizer,
+                    num_cores,
+                );
                 experiment_path = experiments_root.join(title);
                 i += <span class="number">1</span>;
             }
 
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                write_experiment_markdown(<span class="kw-2">&amp;</span>experiment_path, title, description, <span class="kw-2">&amp;</span>put_registry)
-            {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = write_experiment_markdown(
+                <span class="kw-2">&amp;</span>experiment_path,
+                title,
+                description,
+                <span class="kw-2">&amp;</span>put_registry,
+                <span class="kw-2">&amp;</span>matches,
+                port,
+            ) {
                 <span class="macro">log::error!</span>(<span class="string">"Failed to write readme: {:?}"</span>, err);
                 <span class="kw">return </span>ExitCode::FAILURE;
             }
@@ -873,7 +968,7 @@
             <span class="kw">return </span>ExitCode::FAILURE;
         }
 
-        <span class="kw">let </span>config = FuzzerConfig {
+        <span class="kw">let </span><span class="kw-2">mut </span>config = FuzzerConfig {
             initial_corpus_dir: PathBuf::from(<span class="string">"./seeds"</span>),
             static_seed,
             max_iters,
@@ -890,10 +985,17 @@
             no_launcher,
         };
 
+        <span class="kw">if </span>without_bit_level {
+            config.mutation_config.with_bit_level = <span class="bool-val">false</span>;
+        }
+        <span class="kw">if </span>without_dy_mutations {
+            config.mutation_config.with_dy = <span class="bool-val">false</span>;
+        }
+
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = start::&lt;PB&gt;(<span class="kw-2">&amp;</span>put_registry, config, handle) {
             <span class="kw">match </span>err {
                 libafl::Error::ShuttingDown =&gt; {
-                    <span class="macro">log::info!</span>(<span class="string">"\nFuzzing stopped by user. Good Bye."</span>)
+                    <span class="macro">log::info!</span>(<span class="string">"\nFuzzing stopped by user. Good Bye."</span>);
                 }
                 <span class="kw">_ </span>=&gt; {
                     <span class="macro">panic!</span>(<span class="string">"Fuzzing failed {err:?}"</span>)
@@ -929,9 +1031,9 @@
 
     <span class="kw">if </span>is_multiple {
         <span class="kw">for </span>(i, subgraph) <span class="kw">in </span>trace.dot_subgraphs(<span class="bool-val">true</span>).iter().enumerate() {
-            <span class="kw">let </span>wrapped_subgraph = <span class="macro">format!</span>(<span class="string">"strict digraph \"\" {{ splines=true; {} }}"</span>, subgraph);
+            <span class="kw">let </span>wrapped_subgraph = <span class="macro">format!</span>(<span class="string">"strict digraph \"\" {{ splines=true; {subgraph} }}"</span>);
             write_graphviz(
-                <span class="macro">format!</span>(<span class="string">"{}_{}.{}"</span>, output_prefix, i, format).as_str(),
+                <span class="macro">format!</span>(<span class="string">"{output_prefix}_{i}.{format}"</span>).as_str(),
                 format,
                 wrapped_subgraph.as_str(),
             )
@@ -948,7 +1050,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
     fs::create_dir_all(<span class="string">"./seeds"</span>)<span class="question-mark">?</span>;
     <span class="kw">for </span>(trace, name) <span class="kw">in </span>PB::create_corpus() {
-        trace.to_file(<span class="macro">format!</span>(<span class="string">"./seeds/{}.trace"</span>, name))<span class="question-mark">?</span>;
+        trace.to_file(<span class="macro">format!</span>(<span class="string">"./seeds/{name}.trace"</span>))<span class="question-mark">?</span>;
     }
 
     <span class="macro">log::info!</span>(<span class="string">"Generated seed traces into the directory ./seeds"</span>);
@@ -956,12 +1058,11 @@
 }
 
 <span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(runner: <span class="kw-2">&amp;</span>Runner&lt;PB&gt;, input: P) {
-    <span class="kw">let </span>trace = <span class="kw">match </span>Trace::&lt;PB::ProtocolTypes&gt;::from_file(input.as_ref()) {
-        <span class="prelude-val">Ok</span>(t) =&gt; t,
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="macro">log::error!</span>(<span class="string">"Invalid trace file {}"</span>, input.as_ref().display());
-            <span class="kw">return</span>;
-        }
+    <span class="kw">let </span>trace = <span class="kw">if let </span><span class="prelude-val">Ok</span>(t) = Trace::&lt;PB::ProtocolTypes&gt;::from_file(input.as_ref()) {
+        t
+    } <span class="kw">else </span>{
+        <span class="macro">log::error!</span>(<span class="string">"Invalid trace file {}"</span>, input.as_ref().display());
+        <span class="kw">return</span>;
     };
 
     <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
@@ -995,20 +1096,9 @@
         <span class="kw">match </span>step.action {
             Action::Input(input) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(evaluated) = input.recipe.evaluate(<span class="kw-2">&amp;</span>ctx) {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = evaluated.as_any().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
-                        <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;u8&gt; = Vec::new();
-                        msg.create_opaque().encode(<span class="kw-2">&amp;mut </span>data);
-                        f.write_all(<span class="kw-2">&amp;</span>data).expect(<span class="string">"Unable to write data"</span>);
-                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(opaque_message) = evaluated
-                        .as_any()
-                        .downcast_ref::&lt;PB::OpaqueProtocolMessage&gt;()
-                    {
-                        <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;u8&gt; = Vec::new();
-                        opaque_message.encode(<span class="kw-2">&amp;mut </span>data);
-                        f.write_all(<span class="kw-2">&amp;</span>data).expect(<span class="string">"Unable to write data"</span>);
-                    } <span class="kw">else </span>{
-                        <span class="macro">log::error!</span>(<span class="string">"Recipe is not a `ProtocolMessage` or `OpaqueProtocolMessage`!"</span>)
-                    }
+                    f.write_all(<span class="kw-2">&amp;</span>evaluated).expect(<span class="string">"Unable to write data"</span>);
+                } <span class="kw">else </span>{
+                    <span class="macro">log::error!</span>(<span class="string">"Recipe is not a `ProtocolMessage` or `OpaqueProtocolMessage`!"</span>);
                 }
             }
             Action::Output(<span class="kw">_</span>) =&gt; {}

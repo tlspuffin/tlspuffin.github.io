@@ -99,7 +99,7 @@
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">"linux"</span>))]
-</span><span class="kw">pub fn </span>asan_info() {}
+</span><span class="kw">pub const fn </span>asan_info() {}
 
 <span class="attr">#[cfg(target_os = <span class="string">"linux"</span>)]
 </span><span class="kw">pub fn </span>asan_info() {

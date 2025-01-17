@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Term"],"fn":["append","remove_fn_prefix","remove_prefix"],"trait":["Subterms"]};
+window.SIDEBAR_ITEMS = {"constant":["BITSTRING_NAME","SIZE_LEAF"],"enum":["DYTerm"],"fn":["append","append_eval","display_term_at_depth","has_payload_to_replace_rec","remove_fn_prefix","remove_prefix"],"struct":["Term"],"trait":["Subterms","TermType"],"type":["ConcreteMessage"]};

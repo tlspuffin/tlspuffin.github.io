@@ -1084,9 +1084,31 @@
 <a href="#1084" id="1084">1084</a>
 <a href="#1085" id="1085">1085</a>
 <a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
+<span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::trace::{Action, InputAction, OutputAction, Step, Trace};
 <span class="kw">use </span>puffin::{input_action, term};
 
@@ -1094,6 +1116,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
 <span class="kw">use </span><span class="kw">crate</span>::tls::fn_impl::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::HandshakeType;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::OpaqueMessage;
 <span class="kw">use </span><span class="kw">crate</span>::tls::seeds::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// &lt;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25638&gt;
@@ -1103,11 +1126,13 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
-                (fn_new_cipher_suites()),
-                fn_cipher_suite13_aes_128_gcm_sha256
-            )),
+            (fn_cipher_suites_make(
+                  (fn_append_cipher_suite(
+                  (fn_new_cipher_suites()),
+                   fn_cipher_suite13_aes_128_gcm_sha256
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1121,7 +1146,7 @@
                 )),
                 fn_supported_versions13_extension
             ))
-        )
+        )))
     };
 
     <span class="kw">let </span>decrypted_handshake = <span class="macro">term!</span> {
@@ -1143,15 +1168,16 @@
 
     <span class="kw">let </span>certificate_rsa = <span class="macro">term!</span> {
         fn_certificate13(
-            (fn_get_context((@certificate_request_message))),
+            (fn_payload_u8((fn_get_context((@certificate_request_message))))),
             <span class="comment">//fn_empty_certificate_chain
             // Or append eve cert
-            </span>(fn_chain_append_certificate_entry(
+            </span>(fn_certificate_entries_make(
+                (fn_chain_append_certificate_entry(
                 (fn_certificate_entry(
                     fn_eve_cert
                 )),
               fn_empty_certificate_chain
-            ))
+            ))))
         )
     };
 
@@ -1161,7 +1187,7 @@
             <span class="comment">// Option 1 (something random, only possible because of fn_empty_certificate_chain, if FAIL_IF_NO_PEER_CERT is unset):
             //fn_eve_cert // or fn_empty_bytes_vec
             // Option 2 (impersonating eve, you have to send eve cert):
-            </span>fn_eve_pkcs1_signature
+            </span>(fn_payload_u16(fn_eve_pkcs1_signature))
             <span class="comment">// Option 3 (for testing):
             /* (fn_rsa_sign_client(
                 (fn_certificate_transcript(((server, 0)))),
@@ -1256,11 +1282,13 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
-                (fn_new_cipher_suites()),
-                fn_cipher_suite13_aes_128_gcm_sha256
-            )),
+            (fn_cipher_suites_make(
+                  (fn_append_cipher_suite(
+                  (fn_new_cipher_suites()),
+                  fn_cipher_suite13_aes_128_gcm_sha256
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1274,7 +1302,7 @@
                 )),
                 fn_supported_versions13_extension
             ))
-        )
+        )))
     };
 
     <span class="kw">let </span>decrypted_handshake = <span class="macro">term!</span> {
@@ -1296,13 +1324,14 @@
 
     <span class="kw">let </span>certificate = <span class="macro">term!</span> {
         fn_certificate13(
-            (fn_get_context((@certificate_request_message))),
-            (fn_chain_append_certificate_entry(
+            (fn_payload_u8((fn_get_context((@certificate_request_message))))),
+            (fn_certificate_entries_make(
+                (fn_chain_append_certificate_entry(
                 (fn_certificate_entry(
                     fn_eve_cert
                 )),
               fn_empty_certificate_chain
-            ))
+            ))))
         )
     };
 
@@ -1378,12 +1407,14 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
+            (fn_cipher_suites_make(
+                (fn_append_cipher_suite(
                 (fn_new_cipher_suites()),
                 <span class="comment">// force TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
                 </span>fn_cipher_suite12
-            )),
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1397,12 +1428,12 @@
                         fn_signed_certificate_timestamp_extension
                     )),
                      <span class="comment">// Enable Renegotiation
-                    </span>(fn_renegotiation_info_extension((@client_verify_data)))
+                    </span>(fn_renegotiation_info_extension((fn_payload_u8((@client_verify_data)))))
                 )),
                 <span class="comment">// Add signature cert extension
                 </span>fn_signature_algorithm_cert_extension
             ))
-        )
+        )))
     };
 
     trace.steps.push(Step {
@@ -1448,12 +1479,14 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
+            (fn_cipher_suites_make(
+                (fn_append_cipher_suite(
                 (fn_new_cipher_suites()),
                 <span class="comment">// force TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
                 </span>fn_cipher_suite12
-            )),
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1464,7 +1497,7 @@
                 )),
                 fn_signed_certificate_timestamp_extension
             ))
-        )
+        )))
     };
 
     Trace {
@@ -1483,7 +1516,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
-                        fn_heartbeat_fake_length(fn_empty_bytes_vec, fn_large_length)
+                        fn_heartbeat_fake_length((fn_payload_u16(fn_empty_bytes_vec)), fn_large_length)
                     }
                 }),
             },
@@ -1508,10 +1541,11 @@
                         ((client, <span class="number">0</span>)),
                         ((client, <span class="number">0</span>)),
                         ((client, <span class="number">0</span>)),
-                        (fn_append_cipher_suite(
+                        (fn_cipher_suites_make(
+                            (fn_append_cipher_suite(
                             (fn_new_cipher_suites()),
                             fn_weak_export_cipher_suite
-                        )),
+                        )))),
                         ((client, <span class="number">0</span>)),
                         ((client, <span class="number">0</span>))
                     )
@@ -1589,11 +1623,13 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
+            (fn_cipher_suites_make(
+                (fn_append_cipher_suite(
                 (fn_new_cipher_suites()),
                 fn_cipher_suite13_aes_128_gcm_sha256
-            )),
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1607,7 +1643,7 @@
                 )),
                 fn_supported_versions13_extension
             ))
-        )
+        )))
     };
 
     <span class="kw">let </span>client_finished = <span class="macro">term!</span> {
@@ -1748,9 +1784,7 @@
             </span>Step {
                 agent: server,
                 action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
-                        fn_opaque_message(
-                            ((client, <span class="number">3</span>)[<span class="prelude-val">None</span>])
-                        )
+                           (client, <span class="number">3</span>)[<span class="prelude-val">None</span>] &gt; TypeShape::of::&lt;OpaqueMessage&gt;()
                     }
                 }),
             },
@@ -1760,7 +1794,7 @@
                 action: Action::Input(<span class="macro">input_action!</span> { <span class="macro">term!</span> {
                         fn_new_session_ticket(
                             ((server, <span class="number">0</span>)/u32),
-                            fn_large_bytes_vec
+                            (fn_payload_u16(fn_large_bytes_vec))
                         )
                     }
                 }),
@@ -1811,12 +1845,14 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
+            (fn_cipher_suites_make(
+                (fn_append_cipher_suite(
                  (@cipher_suites), <span class="comment">// CHANGED FROM: (fn_new_cipher_suites()),
                 // CHANGED FROM fn_cipher_suite13_aes_128_gcm_sha256
                 </span>fn_cipher_suite13_aes_256_gcm_sha384
-            )),
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1842,7 +1878,7 @@
                     (@new_ticket_message)
                 ))
             ))
-        )
+        )))
     };
 
     <span class="kw">let </span>psk = <span class="macro">term!</span> {
@@ -1948,11 +1984,13 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
-                 (@cipher_suites), <span class="comment">// CHANGED FROM: (fn_new_cipher_suites()),
-                </span>fn_cipher_suite13_aes_128_gcm_sha256
-            )),
+            (fn_cipher_suites_make(
+                 (fn_append_cipher_suite(
+                   (@cipher_suites), <span class="comment">// CHANGED FROM: (fn_new_cipher_suites()),
+                  </span>fn_cipher_suite13_aes_128_gcm_sha256
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -1977,7 +2015,7 @@
                     (@new_ticket_message)
                 ))
             ))
-        )
+        )))
     };
 
     <span class="kw">let </span>psk = <span class="macro">term!</span> {
@@ -2032,9 +2070,9 @@
 
     </span><span class="kw">let </span>new_ticket_message = <span class="macro">term!</span> {
         fn_new_session_ticket13(  <span class="comment">// DUMMY resumption ticket
-            </span>fn_alice_cert,
-            fn_alice_cert,
-            fn_new_session_ticket_extensions_new
+            </span>(fn_payload_u8(fn_alice_cert)),
+            (fn_payload_u16(fn_alice_cert)),
+            (fn_new_session_ticket_extensions(fn_new_session_ticket_extensions_new))
         )
         <span class="comment">// WAS:
         // fn_decrypt_application(
@@ -2072,12 +2110,14 @@
             fn_protocol_version12,
             fn_new_random,
             fn_new_session_id,
-            (fn_append_cipher_suite(
-                 (@cipher_suites), <span class="comment">// CHANGED FROM: (fn_new_cipher_suites()),
-                // CHANGED FROM fn_cipher_suite13_aes_128_gcm_sha256
-                </span>fn_cipher_suite13_aes_256_gcm_sha384
-            )),
+            (fn_cipher_suites_make(
+                  (fn_append_cipher_suite(
+                   (@cipher_suites), <span class="comment">// CHANGED FROM: (fn_new_cipher_suites()),
+                  // CHANGED FROM fn_cipher_suite13_aes_128_gcm_sha256
+                  </span>fn_cipher_suite13_aes_256_gcm_sha384
+            )))),
             fn_compressions,
+            (fn_client_extensions_make(
             (fn_client_extensions_append(
                 (fn_client_extensions_append(
                     (fn_client_extensions_append(
@@ -2103,7 +2143,7 @@
                     (@new_ticket_message)
                 ))
             ))
-        )
+        )))
     };
 
     Trace {
@@ -2131,6 +2171,8 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>tests {
+    <span class="kw">use </span>puffin::algebra::TermType;
+
     <span class="attr">#[allow(unused_imports)]
     </span><span class="kw">use crate</span>::{test_utils::prelude::<span class="kw-2">*</span>, tls::vulnerabilities::<span class="kw-2">*</span>};
 

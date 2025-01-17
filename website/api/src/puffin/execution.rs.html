@@ -256,8 +256,6 @@
 <a href="#256" id="256">256</a>
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::mpsc;
 <span class="kw">use </span>std::time::Duration;
 
@@ -322,7 +320,7 @@
 }
 
 <span class="kw">impl</span>&lt;T: TraceRunner&gt; ForkedRunner&lt;T&gt; {
-    <span class="kw">pub fn </span>new(runner: T) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub const fn </span>new(runner: T) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             runner,
             timeout: <span class="prelude-val">None</span>,
@@ -340,7 +338,7 @@
     </span>T: TraceRunner,
 {
     <span class="kw">fn </span>from(runner: T) -&gt; <span class="self">Self </span>{
-        ForkedRunner::new(runner)
+        <span class="self">Self</span>::new(runner)
     }
 }
 
@@ -461,7 +459,7 @@
 }
 
 <span class="kw">impl </span>WatchDog {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ channel: <span class="prelude-val">None </span>}
     }
 
@@ -501,19 +499,17 @@
 
     <span class="kw">fn </span>try_from(status: <span class="prelude-ty">Result</span>&lt;WaitStatus, Errno&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>status {
-            <span class="prelude-val">Ok</span>(Signaled(<span class="kw">_</span>, Signal::SIGSEGV, <span class="kw">_</span>)) | <span class="prelude-val">Ok</span>(Signaled(<span class="kw">_</span>, Signal::SIGABRT, <span class="kw">_</span>)) =&gt; {
-                <span class="prelude-val">Ok</span>(ExecutionStatus::Crashed)
-            }
-            <span class="prelude-val">Ok</span>(Signaled(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(ExecutionStatus::Interrupted),
+            <span class="prelude-val">Ok</span>(Signaled(<span class="kw">_</span>, Signal::SIGSEGV | Signal::SIGABRT, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Crashed),
+            <span class="prelude-val">Ok</span>(Signaled(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Interrupted),
             <span class="prelude-val">Ok</span>(Exited(<span class="kw">_</span>, code)) =&gt; <span class="kw">match </span>code {
-                <span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(ExecutionStatus::Success),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(ExecutionStatus::Failure(code)),
+                <span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Success),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Failure(code)),
             },
             <span class="prelude-val">Ok</span>(s) =&gt; <span class="prelude-val">Err</span>(ForkError {
-                reason: <span class="macro">format!</span>(<span class="string">"failed to retrieve process status: {:?}"</span>, s),
+                reason: <span class="macro">format!</span>(<span class="string">"failed to retrieve process status: {s:?}"</span>),
             }),
             <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(ForkError {
-                reason: <span class="macro">format!</span>(<span class="string">"failed to retrieve process status: {:?}"</span>, e),
+                reason: <span class="macro">format!</span>(<span class="string">"failed to retrieve process status: {e:?}"</span>),
             }),
         }
     }

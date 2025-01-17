@@ -322,6 +322,66 @@
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
 <a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an enum for terms. A term can either be a Variable or a Function.
 //! This also implements the serializability of terms.
 </span><span class="kw">use </span>std::fmt::{<span class="self">self</span>};
@@ -331,7 +391,9 @@
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::fn_container::FnContainer;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{DynamicFunction, DynamicFunctionShape, TypeShape};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{
+    DynamicFunction, DynamicFunctionShape, FunctionAttributes, TypeShape,
+};
 <span class="kw">use </span><span class="kw">crate</span>::algebra::remove_prefix;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::Query;
@@ -429,31 +491,67 @@
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Function&lt;PT&gt; {
-    <span class="kw">pub fn </span>new(shape: DynamicFunctionShape&lt;PT&gt;, dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
+    <span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FunctionAttributes {
+        <span class="self">self</span>.fn_container.attrs
+    }
+
+    <span class="kw">pub fn </span>is_opaque(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.fn_container.attrs.is_opaque || <span class="self">self</span>.is_get() <span class="comment">// Added this
+                                                           // as bit-level
+                                                           // mutations currently
+                                                           // interpret `get`
+                                                           // symbols as
+                                                           // `opaque` symbols
+    </span>}
+
+    <span class="kw">pub fn </span>is_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.fn_container.attrs.is_list
+    }
+
+    <span class="kw">pub fn </span>is_get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.fn_container.attrs.is_get
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new(shape: DynamicFunctionShape&lt;PT&gt;, dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>attrs = PT::signature()
+            .attrs_by_name
+            .get(shape.name)
+            .map(|attrs| <span class="kw-2">*</span>attrs)
+            .unwrap_or_default(); <span class="comment">// Default to empty attributes, use Signature::new to provide attributes
+        </span><span class="self">Self </span>{
             unique_id: random(),
             resistant_id: random(),
-            fn_container: FnContainer { shape, dynamic_fn },
+            fn_container: FnContainer {
+                shape,
+                dynamic_fn,
+                attrs,
+            },
         }
     }
 
-    <span class="kw">pub fn </span>arity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>arity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.fn_container.shape.arity()
     }
 
-    <span class="kw">pub fn </span>is_constant(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_constant(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.fn_container.shape.is_constant()
     }
 
-    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="self">self</span>.fn_container.shape.name
     }
 
-    <span class="kw">pub fn </span>shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DynamicFunctionShape&lt;PT&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>shape(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DynamicFunctionShape&lt;PT&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.fn_container.shape
     }
 
-    <span class="kw">pub fn </span>dynamic_fn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>DynamicFunction&lt;PT&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>dynamic_fn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>DynamicFunction&lt;PT&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.fn_container.dynamic_fn
     }
 
@@ -481,7 +579,9 @@
     <span class="kw">use </span>serde::ser::SerializeStruct;
     <span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-    <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{DynamicFunction, DynamicFunctionShape, TypeShape};
+    <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{
+        DynamicFunction, DynamicFunctionShape, FunctionAttributes, TypeShape,
+    };
     <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
     <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 
@@ -494,11 +594,12 @@
     </span><span class="kw">pub struct </span>FnContainer&lt;PT: ProtocolTypes&gt; {
         <span class="kw">pub </span>shape: DynamicFunctionShape&lt;PT&gt;,
         <span class="kw">pub </span>dynamic_fn: Box&lt;<span class="kw">dyn </span>DynamicFunction&lt;PT&gt;&gt;,
+        <span class="kw">pub </span>attrs: FunctionAttributes,
     }
 
     <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Hash <span class="kw">for </span>FnContainer&lt;PT&gt; {
         <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-            <span class="self">self</span>.shape.hash(state)
+            <span class="self">self</span>.shape.hash(state);
         }
     }
 
@@ -548,10 +649,18 @@
                 .next_element()<span class="question-mark">?
                 </span>.ok_or_else(|| de::Error::invalid_length(<span class="number">2</span>, <span class="kw-2">&amp;</span><span class="self">self</span>))<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>(shape, dynamic_fn) =
-                <span class="self">self</span>.signature.functions_by_name.get(name).ok_or_else(|| {
-                    de::Error::custom(<span class="macro">format!</span>(<span class="string">"could not find function {}"</span>, name))
-                })<span class="question-mark">?</span>;
+            <span class="kw">let </span>(shape, dynamic_fn) = <span class="self">self
+                </span>.signature
+                .functions_by_name
+                .get(name)
+                .ok_or_else(|| de::Error::custom(<span class="macro">format!</span>(<span class="string">"could not find function {name}"</span>)))<span class="question-mark">?</span>;
+
+            <span class="kw">let </span>attrs = <span class="self">self
+                </span>.signature
+                .attrs_by_name
+                .get(name)
+                .map(|attrs| <span class="kw-2">*</span>attrs)
+                .ok_or_else(|| de::Error::custom(<span class="macro">format!</span>(<span class="string">"could not find function {name}"</span>)))<span class="question-mark">?</span>;
 
             <span class="kw">if </span>name != shape.name {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(<span class="string">"Function&lt;PT&gt; name does not match!"</span>));
@@ -566,6 +675,7 @@
             <span class="prelude-val">Ok</span>(FnContainer {
                 shape: shape.clone(),
                 dynamic_fn: dynamic_fn.clone(),
+                attrs,
             })
         }
 
@@ -606,9 +716,18 @@
             <span class="kw">let </span>(shape, dynamic_fn) =
                 <span class="self">self</span>.signature.functions_by_name.get(name).ok_or_else(|| {
                     de::Error::custom(<span class="macro">format!</span>(
-                        <span class="string">"Failed to link function symbol: Could not find function {}"</span>,
-                        name
-                    ))
+                        <span class="string">"Failed to link function symbol: Could not find function {name}"
+                    </span>))
+                })<span class="question-mark">?</span>;
+            <span class="kw">let </span>attrs = <span class="self">self
+                </span>.signature
+                .attrs_by_name
+                .get(name)
+                .map(|attrs| <span class="kw-2">*</span>attrs)
+                .ok_or_else(|| {
+                    de::Error::custom(<span class="macro">format!</span>(
+                        <span class="string">"Failed to link function symbol: Could not find function {name}"
+                    </span>))
                 })<span class="question-mark">?</span>;
 
             <span class="kw">let </span>argument_types = arguments.ok_or_else(|| de::Error::missing_field(ARGUMENTS))<span class="question-mark">?</span>;
@@ -627,12 +746,13 @@
             <span class="prelude-val">Ok</span>(FnContainer {
                 shape: shape.clone(),
                 dynamic_fn: dynamic_fn.clone(),
+                attrs,
             })
         }
     }
 
     <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, PT: ProtocolTypes&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FnContainer&lt;PT&gt; {
-        <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;FnContainer&lt;PT&gt;, D::Error&gt;
+        <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
         <span class="kw">where
             </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
         {

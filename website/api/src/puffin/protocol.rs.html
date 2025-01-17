@@ -162,7 +162,85 @@
 <a href="#162" id="162">162</a>
 <a href="#163" id="163">163</a>
 <a href="#164" id="164">164</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::Any;
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::{Any, TypeId};
 <span class="kw">use </span>std::fmt::{Debug, Display};
 <span class="kw">use </span>std::hash::Hash;
 
@@ -172,7 +250,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
 <span class="kw">use </span><span class="kw">crate</span>::claims::{Claim, SecurityViolationPolicy};
-<span class="kw">use </span><span class="kw">crate</span>::codec::Codec;
+<span class="kw">use </span><span class="kw">crate</span>::codec;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Knowledge, Source, Trace};
 
@@ -186,11 +264,15 @@
     </span>}
 }
 
-<span class="doccomment">/// Provide a way to extract knowledge out of a Message/OpaqueMessage or any type that
-/// might be used in a precomputation
-</span><span class="kw">pub trait </span>EvaluatedTerm&lt;PT: ProtocolTypes&gt;: std::fmt::Debug + AsAny {
-    <span class="doccomment">/// Fill `knowledges` with new knowledge gathered form the type implementing EvaluatedTerm
-    /// by recursively calling extract_knowledge on all contained element
+<span class="doccomment">/// Fill `knowledges` with new knowledge gathered form the type implementing EvaluatedTerm
+/// by recursively calling extract_knowledge on all contained element
+/// Knowledges can be extracted from using `extract_knowledge`
+</span><span class="kw">pub trait </span>Extractable&lt;PT: ProtocolTypes&gt;: std::fmt::Debug + AsAny
+<span class="kw">where
+    </span><span class="self">Self</span>: <span class="lifetime">'static</span>,
+{
+    <span class="doccomment">/// Fill `knowledges` with new knowledge gathered form the type implementing `EvaluatedTerm`
+    /// by recursively calling `extract_knowledge` on all contained element
     /// This will put source as the source of all the produced knowledge, matcher is also passed
     /// recursively but might be overwritten by a type with a more specific matcher
     </span><span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
@@ -201,41 +283,30 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 }
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules!</span> dummy_extract_knowledge {
-    (<span class="macro-nonterminal">$protocol_type</span>:ty, <span class="macro-nonterminal">$extract_type</span>:ty) =&gt; {
-        <span class="kw">impl </span>EvaluatedTerm&lt;<span class="macro-nonterminal">$protocol_type</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$extract_type </span>{
-            <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
-                <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
-                _knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$protocol_type</span>&gt;&gt;,
-                _matcher: <span class="prelude-ty">Option</span>&lt;&lt;<span class="macro-nonterminal">$protocol_type </span><span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
-                _source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
-            ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-                <span class="prelude-val">Ok</span>(())
-            }
-        }
-    };
-}
+<span class="doccomment">/// `EvaluatedTerm`: have both Codec and a way to extract knowledge out of a Message/OpaqueMessage
+/// or any type that might be used in a precomputation
+</span><span class="kw">pub trait </span>EvaluatedTerm&lt;PT: ProtocolTypes&gt;:
+    codec::CodecP + Extractable&lt;PT&gt; + Debug + AsAny + <span class="lifetime">'static
+</span><span class="kw">where
+    </span><span class="self">Self</span>: <span class="lifetime">'static</span>,
+{
+    <span class="kw">fn </span>type_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeId {
+        Any::type_id(<span class="self">self</span>)
+    }
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules!</span> atom_extract_knowledge {
-    (<span class="macro-nonterminal">$protocol_type</span>:ty, <span class="macro-nonterminal">$extract_type</span>:ty) =&gt; {
-        <span class="kw">impl </span>EvaluatedTerm&lt;<span class="macro-nonterminal">$protocol_type</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$extract_type </span>{
-            <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
-                <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
-                knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$protocol_type</span>&gt;&gt;,
-                matcher: <span class="prelude-ty">Option</span>&lt;&lt;<span class="macro-nonterminal">$protocol_type </span><span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
-                source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
-            ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-                knowledges.push(Knowledge {
-                    source,
-                    matcher,
-                    data: <span class="self">self</span>,
-                });
-                <span class="prelude-val">Ok</span>(())
-            }
-        }
-    };
+    <span class="kw">fn </span>type_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+    }
+
+    <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;;
+}
+<span class="kw">impl</span>&lt;T, PT: ProtocolTypes&gt; EvaluatedTerm&lt;PT&gt; <span class="kw">for </span>T
+<span class="kw">where
+    </span>T: codec::CodecP + Extractable&lt;PT&gt; + <span class="lifetime">'static </span>+ Clone,
+{
+    <span class="kw">fn </span>boxed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt; {
+        Box::new(<span class="self">self</span>.clone())
+    }
 }
 
 <span class="doccomment">/// Store a message flight, a vec of all the messages sent by the PUT between two steps
@@ -252,8 +323,10 @@
 }
 
 <span class="doccomment">/// Store a flight of opaque messages, a vec of all the messages sent by the PUT between two steps
+</span><span class="comment">// We require codec::Codec to be able to read a bitstring and produce an owned
+// `OpaqueProtocolMessageFlight&lt;PT&gt;` so we use the `Sized` version of `Codec`
 </span><span class="kw">pub trait </span>OpaqueProtocolMessageFlight&lt;PT: ProtocolTypes, O: OpaqueProtocolMessage&lt;PT&gt;&gt;:
-    Clone + Debug + Codec + From&lt;O&gt; + EvaluatedTerm&lt;PT&gt;
+    Clone + Debug + codec::Codec + From&lt;O&gt; + EvaluatedTerm&lt;PT&gt;
 {
     <span class="kw">fn </span>new() -&gt; <span class="self">Self</span>;
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str);
@@ -271,13 +344,12 @@
 
 <span class="doccomment">/// A non-structured version of [`ProtocolMessage`]. This can be used for example for encrypted
 /// messages which do not have a structure.
-</span><span class="kw">pub trait </span>OpaqueProtocolMessage&lt;PT: ProtocolTypes&gt;:
-    Clone + Debug + Codec + EvaluatedTerm&lt;PT&gt;
-{
+</span><span class="kw">pub trait </span>OpaqueProtocolMessage&lt;PT: ProtocolTypes&gt;: Clone + Debug + EvaluatedTerm&lt;PT&gt; {
     <span class="kw">fn </span>debug(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>str);
 }
 
-<span class="doccomment">/// Deframes a stream of bytes into distinct [OpaqueProtocolMessages](OpaqueProtocolMessage).
+<span class="doccomment">/// Deframes a stream of bytes into distinct [`OpaqueProtocolMessages`](OpaqueProtocolMessage).
+///
 /// A deframer is usually state-ful. This means it produces as many messages from the input bytes
 /// and stores them.
 </span><span class="kw">pub trait </span>ProtocolMessageDeframer&lt;PT: ProtocolTypes&gt; {
@@ -305,7 +377,7 @@
 /// arbitrary stream of bytes into messages.
 ///
 /// Also the library allows the definition of a type for [claims](Claim) and a
-/// (security policy)[SecurityViolationPolicy] over
+/// (security policy)[`SecurityViolationPolicy`] over
 /// sequences of them. Finally, there is a [matcher](Matcher) which allows traces to include
 /// queries for [knowledge](crate::trace::Knowledge).
 </span><span class="kw">pub trait </span>ProtocolBehavior: <span class="lifetime">'static </span>{
@@ -325,5 +397,89 @@
 
     <span class="doccomment">/// Creates a sane initial seed corpus.
     </span><span class="kw">fn </span>create_corpus() -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::ProtocolTypes&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;;
+
+    <span class="doccomment">/// Downcast from `Box&lt;dyn Any&gt;` and encode as bitstring any message as per the PB's internal
+    /// structure
+    </span><span class="kw">fn </span>any_get_encoding(message: <span class="kw-2">&amp;</span><span class="kw">dyn </span>EvaluatedTerm&lt;<span class="self">Self</span>::ProtocolTypes&gt;) -&gt; Vec&lt;u8&gt; {
+        <span class="doccomment">/// Use the `codecP::get_encoding` method to encode any `EvaluatedTerm&lt;PT&gt;`
+        </span>codec::CodecP::get_encoding(message)
+    }
+
+    <span class="doccomment">/// Try to read a bitstring and interpret it as the `TypeShape`, which is the type of a message
+    /// as per the PB's internal structure This is expected to fail for many types of messages!
+    </span><span class="kw">fn </span>try_read_bytes(
+        bitstring: <span class="kw-2">&amp;</span>[u8],
+        ty: TypeId,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;<span class="self">Self</span>::ProtocolTypes&gt;&gt;, Error&gt;;
+}
+
+<span class="comment">// -- Macros --
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> dummy_extract_knowledge {
+    (<span class="macro-nonterminal">$protocol_type</span>:ty, <span class="macro-nonterminal">$extract_type</span>:ty) =&gt; {
+        <span class="kw">impl </span>Extractable&lt;<span class="macro-nonterminal">$protocol_type</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$extract_type </span>{
+            <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
+                <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+                _knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$protocol_type</span>&gt;&gt;,
+                _matcher: <span class="prelude-ty">Option</span>&lt;&lt;<span class="macro-nonterminal">$protocol_type </span><span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
+                _source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
+            ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+                <span class="macro">log::warn!</span>(
+                    <span class="string">"Trying to extract a dummy type: {}"</span>,
+                    <span class="macro">stringify!</span>(<span class="macro-nonterminal">$extract_type</span>)
+                );
+                <span class="prelude-val">Ok</span>(())
+            }
+        }
+    };
+}
+
+<span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> dummy_codec {
+    (<span class="macro-nonterminal">$protocol_type</span>:ty, <span class="macro-nonterminal">$extract_type</span>:ty) =&gt; {
+        <span class="kw">impl </span>codec::CodecP <span class="kw">for </span><span class="macro-nonterminal">$extract_type </span>{
+            <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, _bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+                <span class="macro">log::warn!</span>(
+                    <span class="string">"Trying to encode a dummy type: {}"</span>,
+                    <span class="macro">stringify!</span>(<span class="macro-nonterminal">$extract_type</span>)
+                );
+            }
+
+            <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+                <span class="macro">log::warn!</span>(<span class="string">"Trying to read a dummy type: {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$extract_type</span>));
+                <span class="prelude-val">Ok</span>(())
+            }
+        }
+    };
+}
+
+<span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> dummy_extract_knowledge_codec {
+    (<span class="macro-nonterminal">$protocol_type</span>:ty, <span class="macro-nonterminal">$extract_type</span>:ty) =&gt; {
+        <span class="macro">dummy_extract_knowledge!</span>(<span class="macro-nonterminal">$protocol_type</span>, <span class="macro-nonterminal">$extract_type</span>);
+        <span class="macro">dummy_codec!</span>(<span class="macro-nonterminal">$protocol_type</span>, <span class="macro-nonterminal">$extract_type</span>);
+    };
+}
+
+<span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> atom_extract_knowledge {
+    (<span class="macro-nonterminal">$protocol_type</span>:ty, <span class="macro-nonterminal">$extract_type</span>:ty) =&gt; {
+        <span class="kw">impl </span>Extractable&lt;<span class="macro-nonterminal">$protocol_type</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$extract_type </span>{
+            <span class="kw">fn </span>extract_knowledge&lt;<span class="lifetime">'a</span>&gt;(
+                <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+                knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;Knowledge&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$protocol_type</span>&gt;&gt;,
+                matcher: <span class="prelude-ty">Option</span>&lt;&lt;<span class="macro-nonterminal">$protocol_type </span><span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
+                source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
+            ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+                <span class="macro">log::debug!</span>(<span class="string">"Extract atom: {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$extract_type</span>));
+                knowledges.push(Knowledge {
+                    source,
+                    matcher,
+                    data: <span class="self">self</span>,
+                });
+                <span class="prelude-val">Ok</span>(())
+            }
+        }
+    };
 }
 </code></pre></div></section></main></body></html>

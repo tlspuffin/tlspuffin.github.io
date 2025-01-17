@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["atoms","dynamic_function","error","macros","signature","term"],"struct":["AnyMatcher"],"trait":["Matcher"]};
+window.SIDEBAR_ITEMS = {"mod":["atoms","bitstrings","dynamic_function","error","macros","signature","term"],"struct":["AnyMatcher"],"trait":["Matcher"]};

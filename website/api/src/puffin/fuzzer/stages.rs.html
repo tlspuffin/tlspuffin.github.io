@@ -304,7 +304,7 @@
 {
     <span class="attr">#[allow(dead_code)]
     </span><span class="doccomment">/// Creates a new default mutational stage
-    </span><span class="kw">pub fn </span>new(mutator: M, max_iterations_per_stage: u64) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(mutator: M, max_iterations_per_stage: u64) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             mutator,
             phantom: PhantomData,
@@ -416,8 +416,8 @@
 {
     <span class="attr">#[allow(dead_code)]
     </span><span class="doccomment">/// Create a new [`PuffinScheduledMutator`] instance specifying mutations
-    </span><span class="kw">pub fn </span>new(mutations: MT, max_mutations_per_iteration: u64) -&gt; <span class="self">Self </span>{
-        PuffinScheduledMutator {
+    </span><span class="kw">pub const fn </span>new(mutations: MT, max_mutations_per_iteration: u64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
             mutations,
             phantom: PhantomData,
             max_mutations_per_iteration,

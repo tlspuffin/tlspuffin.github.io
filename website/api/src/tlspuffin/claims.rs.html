@@ -367,16 +367,95 @@
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use </span>puffin::agent::{AgentName, AgentType, TLSVersion};
 <span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::claims::Claim;
-<span class="kw">use </span>puffin::dummy_extract_knowledge;
 <span class="kw">use </span>puffin::error::Error;
-<span class="kw">use </span>puffin::protocol::{EvaluatedTerm, ProtocolTypes};
+<span class="kw">use </span>puffin::protocol::{EvaluatedTerm, Extractable, ProtocolTypes};
 <span class="kw">use </span>puffin::trace::{Knowledge, Source};
-<span class="kw">use </span>puffin::variable_data::VariableData;
+<span class="kw">use </span>puffin::{codec, dummy_codec, dummy_extract_knowledge, dummy_extract_knowledge_codec};
 <span class="kw">use </span>smallvec::SmallVec;
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
@@ -404,6 +483,19 @@
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TlsTranscript(<span class="kw">pub </span>[u8; <span class="number">64</span>], <span class="kw">pub </span>i32);
 
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TlsTranscript {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.<span class="number">0</span>);
+        b.extend(<span class="self">self</span>.<span class="number">1</span>.to_ne_bytes());
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>t: [u8; <span class="number">64</span>] = &lt;[u8; <span class="number">64</span>]&gt;::try_from(r.take(<span class="number">64</span>)<span class="question-mark">?</span>).ok()<span class="question-mark">?</span>;
+        <span class="kw">let </span>x = r.take(<span class="number">4</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(TlsTranscript(t, i32::from_ne_bytes(x.try_into().unwrap())))
+    }
+}
+
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptClientHello(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptClientHello {
@@ -412,6 +504,17 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TranscriptClientHello {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.as_slice())
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        &lt;TlsTranscript <span class="kw">as </span>codec::Codec&gt;::read(r).map(TranscriptClientHello)
+    }
+}
+
 <span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptClientHello);
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -422,6 +525,17 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TranscriptPartialClientHello {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.as_slice())
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        &lt;TlsTranscript <span class="kw">as </span>codec::Codec&gt;::read(r).map(TranscriptPartialClientHello)
+    }
+}
+
 <span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptPartialClientHello);
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -432,6 +546,17 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TranscriptServerHello {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.as_slice())
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        &lt;TlsTranscript <span class="kw">as </span>codec::Codec&gt;::read(r).map(TranscriptServerHello)
+    }
+}
+
 <span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptServerHello);
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -442,6 +567,17 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TranscriptServerFinished {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.as_slice())
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        &lt;TlsTranscript <span class="kw">as </span>codec::Codec&gt;::read(r).map(TranscriptServerFinished)
+    }
+}
+
 <span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptServerFinished);
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -452,6 +588,17 @@
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }
 }
+
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TranscriptClientFinished {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.as_slice())
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        &lt;TlsTranscript <span class="kw">as </span>codec::Codec&gt;::read(r).map(TranscriptClientFinished)
+    }
+}
+
 <span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptClientFinished);
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -464,22 +611,33 @@
 }
 <span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TranscriptCertificate);
 
+<span class="kw">impl </span>codec::Codec <span class="kw">for </span>TranscriptCertificate {
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        b.extend(<span class="self">self</span>.as_slice())
+    }
+
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        &lt;TlsTranscript <span class="kw">as </span>codec::Codec&gt;::read(r).map(TranscriptCertificate)
+    }
+}
+
 <span class="kw">pub trait </span>Transcript {
     <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8];
 }
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ClientHello;
-<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, ClientHello);
+<span class="comment">// We do not expect to encode/read claims!
+</span><span class="macro">dummy_extract_knowledge_codec!</span>(TLSProtocolTypes, ClientHello);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ServerHello;
-<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, ServerHello);
+<span class="macro">dummy_extract_knowledge_codec!</span>(TLSProtocolTypes, ServerHello);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Certificate;
-<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, Certificate);
+<span class="macro">dummy_extract_knowledge_codec!</span>(TLSProtocolTypes, Certificate);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>CertificateVerify;
-<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, CertificateVerify);
+<span class="macro">dummy_extract_knowledge_codec!</span>(TLSProtocolTypes, CertificateVerify);
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Finished {
     <span class="kw">pub </span>outbound: bool,
@@ -526,7 +684,7 @@
                     }
     */
 </span>}
-<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, Finished);
+<span class="macro">dummy_extract_knowledge_codec!</span>(TLSProtocolTypes, Finished);
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub enum </span>ClaimDataTranscript {
@@ -561,6 +719,8 @@
     <span class="kw">pub </span>data: ClaimData,
 }
 
+<span class="macro">dummy_codec!</span>(TLSProtocolTypes, TlsClaim);
+
 <span class="kw">impl </span>Claim&lt;TLSProtocolTypes&gt; <span class="kw">for </span>TlsClaim {
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
         <span class="self">self</span>.agent_name
@@ -594,25 +754,25 @@
         <span class="kw">type </span>Transcript = ClaimDataTranscript;
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
             ClaimData::Message(message) =&gt; <span class="kw">match </span>message {
-                Message::ClientHello(claim) =&gt; claim.boxed_term(),
-                Message::ServerHello(claim) =&gt; claim.boxed_term(),
-                Message::Certificate(claim) =&gt; claim.boxed_term(),
-                Message::CertificateVerify(claim) =&gt; claim.boxed_term(),
-                Message::Finished(claim) =&gt; claim.boxed_term(),
+                Message::ClientHello(claim) =&gt; claim.boxed(),
+                Message::ServerHello(claim) =&gt; claim.boxed(),
+                Message::Certificate(claim) =&gt; claim.boxed(),
+                Message::CertificateVerify(claim) =&gt; claim.boxed(),
+                Message::Finished(claim) =&gt; claim.boxed(),
             },
             ClaimData::Transcript(transcript) =&gt; <span class="kw">match </span>transcript {
-                Transcript::ClientHello(claim) =&gt; claim.boxed_term(),
-                Transcript::PartialClientHello(claim) =&gt; claim.boxed_term(),
-                Transcript::ServerHello(claim) =&gt; claim.boxed_term(),
-                Transcript::ServerFinished(claim) =&gt; claim.boxed_term(),
-                Transcript::ClientFinished(claim) =&gt; claim.boxed_term(),
-                Transcript::Certificate(claim) =&gt; claim.boxed_term(),
+                Transcript::ClientHello(claim) =&gt; claim.boxed(),
+                Transcript::PartialClientHello(claim) =&gt; claim.boxed(),
+                Transcript::ServerHello(claim) =&gt; claim.boxed(),
+                Transcript::ServerFinished(claim) =&gt; claim.boxed(),
+                Transcript::ClientFinished(claim) =&gt; claim.boxed(),
+                Transcript::Certificate(claim) =&gt; claim.boxed(),
             },
         }
     }
 }
 
-<span class="kw">impl </span>EvaluatedTerm&lt;TLSProtocolTypes&gt; <span class="kw">for </span>TlsClaim {
+<span class="kw">impl </span>Extractable&lt;TLSProtocolTypes&gt; <span class="kw">for </span>TlsClaim {
     <span class="kw">fn </span>extract_knowledge(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         _knowledges: <span class="kw-2">&amp;mut </span>Vec&lt;puffin::trace::Knowledge&lt;TLSProtocolTypes&gt;&gt;,

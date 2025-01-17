@@ -136,6 +136,36 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>itertools::Itertools;
@@ -144,7 +174,8 @@
 <span class="kw">use </span><span class="kw">super</span>::atoms::Function;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Variable;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::{
-    make_dynamic, DescribableFunction, DynamicFunction, DynamicFunctionShape, TypeShape,
+    make_dynamic, DescribableFunction, DynamicFunction, DynamicFunctionShape, FunctionAttributes,
+    TypeShape,
 };
 <span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
@@ -160,6 +191,7 @@
     <span class="kw">pub </span>functions_by_typ: HashMap&lt;TypeShape&lt;PT&gt;, Vec&lt;FunctionDefinition&lt;PT&gt;&gt;&gt;,
     <span class="kw">pub </span>functions: Vec&lt;FunctionDefinition&lt;PT&gt;&gt;,
     <span class="kw">pub </span>types_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, TypeShape&lt;PT&gt;&gt;,
+    <span class="kw">pub </span>attrs_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionAttributes&gt;,
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; std::fmt::Debug <span class="kw">for </span>Signature&lt;PT&gt; {
@@ -170,22 +202,29 @@
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Signature&lt;PT&gt; {
     <span class="doccomment">/// Construct a `Signature` from the given [`FunctionDefinition`]s.
-    </span><span class="kw">pub fn </span>new(definitions: Vec&lt;FunctionDefinition&lt;PT&gt;&gt;) -&gt; Signature&lt;PT&gt; {
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new(definitions: Vec&lt;(FunctionDefinition&lt;PT&gt;, FunctionAttributes)&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>attrs_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionAttributes&gt; = definitions
+            .clone()
+            .iter()
+            .map(|((shape, _dynamic_fn), attrs)| (shape.name, attrs.clone()))
+            .collect();
         <span class="kw">let </span>functions_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, FunctionDefinition&lt;PT&gt;&gt; = definitions
             .clone()
             .into_iter()
-            .map(|(shape, dynamic_fn)| (shape.name, (shape, dynamic_fn)))
+            .map(|((shape, dynamic_fn), _attrs)| (shape.name, (shape, dynamic_fn)))
             .collect();
 
         <span class="kw">let </span>functions_by_typ: HashMap&lt;TypeShape&lt;PT&gt;, Vec&lt;FunctionDefinition&lt;PT&gt;&gt;&gt; = definitions
             .clone()
             .into_iter()
+            .map(|(fd, _attrs)| fd)
             .into_group_map_by(|(shape, _dynamic_fn)| shape.return_type.clone());
 
         <span class="kw">let </span>types_by_name: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, TypeShape&lt;PT&gt;&gt; = definitions
             .clone()
             .into_iter()
-            .map(|(shape, _dynamic_fn)| {
+            .map(|((shape, _dynamic_fn), _attrs)| {
                 <span class="kw">let </span>used_types: Vec&lt;TypeShape&lt;PT&gt;&gt; = shape <span class="comment">// vector of the argument shapes + return type
                     </span>.argument_types
                     .iter()
@@ -199,25 +238,27 @@
             .map(|typ| (typ.name, typ))
             .collect();
 
-        Signature {
+        <span class="self">Self </span>{
             functions_by_name,
             functions_by_typ,
-            functions: definitions,
+            functions: definitions.into_iter().map(|(fd, _attrs)| fd).collect(),
             types_by_name,
+            attrs_by_name,
         }
     }
 
     <span class="doccomment">/// Create a new [`Function`] distinct from all existing [`Function`]s.
-    </span><span class="kw">pub fn </span>new_function&lt;F, Types&gt;(f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F) -&gt; Function&lt;PT&gt;
+    </span><span class="kw">pub fn </span>new_function&lt;F: <span class="lifetime">'static</span>, Types&gt;(f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F) -&gt; Function&lt;PT&gt;
     <span class="kw">where
-        </span>F: DescribableFunction&lt;PT, Types&gt; + <span class="lifetime">'static</span>,
+        </span>F: DescribableFunction&lt;PT, Types&gt;,
     {
         <span class="kw">let </span>(shape, dynamic_fn) = make_dynamic(f);
 
         Function::new(shape, dynamic_fn.clone())
     }
 
-    <span class="kw">pub fn </span>new_var_with_type&lt;T: <span class="lifetime">'static</span>, M: Matcher&gt;(
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new_var_with_type&lt;T: <span class="lifetime">'static</span>, M: Matcher&gt;(
         source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
         counter: u16,
@@ -229,7 +270,8 @@
         <span class="self">Self</span>::new_var(type_shape, source, matcher, counter)
     }
 
-    <span class="kw">pub fn </span>new_var&lt;M: Matcher&gt;(
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new_var&lt;M: Matcher&gt;(
         type_shape: TypeShape&lt;PT&gt;,
         source: <span class="prelude-ty">Option</span>&lt;Source&gt;,
         matcher: <span class="prelude-ty">Option</span>&lt;M&gt;,
@@ -257,7 +299,7 @@
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules!</span> define_signature {
-    (<span class="macro-nonterminal">$name_signature</span>:ident&lt;<span class="macro-nonterminal">$protocol_types</span>:ident&gt;, $(<span class="macro-nonterminal">$f</span>:path)+) =&gt; {
+    (<span class="macro-nonterminal">$name_signature</span>:ident&lt;<span class="macro-nonterminal">$protocol_types</span>:ident&gt;, $(<span class="macro-nonterminal">$f</span>:path $([<span class="macro-nonterminal">$flags</span>:expr])<span class="kw-2">*</span>)+) =&gt; {
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::create_static_signature</span>;
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::StaticSignature</span>;
         <span class="kw">use </span><span class="macro-nonterminal">$crate::algebra::signature::Signature</span>;
@@ -266,9 +308,27 @@
         /// for linking function implementations to serialized data.
         ///
         /// Note: Changes in function symbols may cause deserialization of term to fail.
+        </span><span class="attr">#[allow(unused_mut)]
         </span><span class="kw">pub static </span><span class="macro-nonterminal">$name_signature</span>: StaticSignature&lt;<span class="macro-nonterminal">$protocol_types</span>&gt; = create_static_signature(|| {
+
             <span class="kw">let </span>definitions = <span class="macro">vec!</span>[
-                $(<span class="macro-nonterminal">$crate::algebra::dynamic_function::make_dynamic</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$f</span>)),*
+                $(
+                    {
+                        <span class="kw">let </span><span class="kw-2">mut </span>attrs = FunctionAttributes::default();
+                        {  <span class="comment">// Process option attributes
+                            </span>$(
+                                <span class="kw">let </span>flag = <span class="macro">stringify!</span>(<span class="macro-nonterminal">$flags</span>);
+                                <span class="kw">match </span>flag {
+                                    <span class="string">"opaque" </span>=&gt; attrs.is_opaque = <span class="bool-val">true</span>,
+                                    <span class="string">"list" </span>=&gt; attrs.is_list = <span class="bool-val">true</span>,
+                                    <span class="string">"get" </span>=&gt; attrs.is_get = <span class="bool-val">true</span>,
+                                    <span class="kw">_ </span>=&gt; {},
+                                }
+                            )*
+                        }
+                        (<span class="macro-nonterminal">$crate::algebra::dynamic_function::make_dynamic</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$f</span>), attrs)
+                    }
+                ),+
             ];
             Signature::new(definitions)
         });

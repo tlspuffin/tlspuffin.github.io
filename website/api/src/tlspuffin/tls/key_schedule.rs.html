@@ -269,7 +269,7 @@
                     .output_len],
             ))
         }
-        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(FnError::Unknown(
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(FnError::Malformed(
             <span class="string">"Need at least a key share or a psk"</span>.to_owned(),
         )),
     };

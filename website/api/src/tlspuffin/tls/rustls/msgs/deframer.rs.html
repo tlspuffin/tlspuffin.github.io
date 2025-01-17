@@ -413,6 +413,14 @@
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
 <span class="kw">use </span>std::io;
 
@@ -561,12 +569,16 @@
     <span class="kw">const </span>EMPTY_APPLICATIONDATA_MESSAGE: <span class="kw-2">&amp;</span>[u8] =
         <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-empty-applicationdata.bin"</span>);
 
-    <span class="kw">const </span>INVALID_EMPTY_MESSAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-invalid-empty.bin"</span>);
-    <span class="kw">const </span>INVALID_CONTENTTYPE_MESSAGE: <span class="kw-2">&amp;</span>[u8] =
+    <span class="attr">#[allow(dead_code)]
+    </span><span class="kw">const </span>INVALID_EMPTY_MESSAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-invalid-empty.bin"</span>);
+    <span class="attr">#[allow(dead_code)]
+    </span><span class="kw">const </span>INVALID_CONTENTTYPE_MESSAGE: <span class="kw-2">&amp;</span>[u8] =
         <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-invalid-contenttype.bin"</span>);
-    <span class="kw">const </span>INVALID_VERSION_MESSAGE: <span class="kw-2">&amp;</span>[u8] =
+    <span class="attr">#[allow(dead_code)]
+    </span><span class="kw">const </span>INVALID_VERSION_MESSAGE: <span class="kw-2">&amp;</span>[u8] =
         <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-invalid-version.bin"</span>);
-    <span class="kw">const </span>INVALID_LENGTH_MESSAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-invalid-length.bin"</span>);
+    <span class="attr">#[allow(dead_code)]
+    </span><span class="kw">const </span>INVALID_LENGTH_MESSAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"../testdata/deframer-invalid-length.bin"</span>);
 
     <span class="kw">struct </span>ByteRead&lt;<span class="lifetime">'a</span>&gt; {
         buf: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
@@ -775,6 +787,7 @@
     }
 
     <span class="attr">#[test_log::test]
+    #[cfg(feature = <span class="string">"enable-guards"</span>)]
     </span><span class="kw">fn </span>test_invalid_contenttype_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -785,6 +798,7 @@
     }
 
     <span class="attr">#[test_log::test]
+    #[cfg(feature = <span class="string">"enable-guards"</span>)]
     </span><span class="kw">fn </span>test_invalid_version_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -795,6 +809,7 @@
     }
 
     <span class="attr">#[test_log::test]
+    #[cfg(feature = <span class="string">"enable-guards"</span>)]
     </span><span class="kw">fn </span>test_invalid_length_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(
@@ -819,6 +834,7 @@
     }
 
     <span class="attr">#[test_log::test]
+    #[cfg(feature = <span class="string">"enable-guards"</span>)]
     </span><span class="kw">fn </span>test_invalid_empty_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>d = MessageDeframer::new();
         assert_len(

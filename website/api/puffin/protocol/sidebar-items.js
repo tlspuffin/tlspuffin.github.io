@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["AsAny","EvaluatedTerm","OpaqueProtocolMessage","OpaqueProtocolMessageFlight","ProtocolBehavior","ProtocolMessage","ProtocolMessageDeframer","ProtocolMessageFlight","ProtocolTypes"]};
+window.SIDEBAR_ITEMS = {"trait":["AsAny","EvaluatedTerm","Extractable","OpaqueProtocolMessage","OpaqueProtocolMessageFlight","ProtocolBehavior","ProtocolMessage","ProtocolMessageDeframer","ProtocolMessageFlight","ProtocolTypes"]};

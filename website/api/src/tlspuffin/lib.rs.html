@@ -141,6 +141,20 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! TODO: Write intro: &lt;https://github.com/tlspuffin/tlspuffin/issues/94&gt;
 //!
 //! ### Used protocol and cryptographic libraries
@@ -158,7 +172,7 @@
 //! use puffin::agent::TLSVersion::*;
 //! use puffin::agent::{AgentDescriptor, AgentName};
 //! use puffin::algebra::signature::Signature;
-//! use puffin::algebra::Term;
+//! use puffin::algebra::{DYTerm, Term};
 //! use puffin::input_action;
 //! use puffin::trace::{
 //!     Action, InputAction, OutputAction, Query, Source, Step, Trace, TraceContext,
@@ -186,45 +200,60 @@
 //!         Step {
 //!             agent: server,
 //!             action: Action::Input(input_action! {
-//!                 Term::Application(
+//!                 (Term::from(DYTerm::Application(
 //!                     Signature::new_function(&amp;fn_client_hello),
 //!                     vec![
-//!                         Term::Variable(Signature::new_var_with_type::&lt;ProtocolVersion, _&gt;(
+//!                         Term::from(DYTerm::Variable(Signature::new_var_with_type::&lt;
+//!                             ProtocolVersion,
+//!                             _,
+//!                         &gt;(
 //!                             Some(Source::Agent(client)),
 //!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
 //!                             0,
-//!                         )),
-//!                         Term::Variable(Signature::new_var_with_type::&lt;Random, _&gt;(
-//!                             Some(Source::Agent(client)),
-//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                             0,
-//!                         )),
-//!                         Term::Variable(Signature::new_var_with_type::&lt;SessionID, _&gt;(
-//!                             Some(Source::Agent(client)),
-//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                             0,
-//!                         )),
-//!                         Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;CipherSuite&gt;, _&gt;(
-//!                             Some(Source::Agent(client)),
-//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                             0,
-//!                         )),
-//!                         Term::Variable(Signature::new_var_with_type::&lt;Vec&lt;Compression&gt;, _&gt;(
-//!                             Some(Source::Agent(client)),
-//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
-//!                             0,
-//!                         )),
-//!                         Term::Variable(
-//!                             Signature::new_var_with_type::&lt;Vec&lt;ClientExtension&gt;, _&gt;(
+//!                         ))),
+//!                         Term::from(DYTerm::Variable(
+//!                             Signature::new_var_with_type::&lt;Random, _&gt;(
 //!                                 Some(Source::Agent(client)),
 //!                                 Some(TlsQueryMatcher::Handshake(Some(
 //!                                     HandshakeType::ClientHello,
 //!                                 ))),
 //!                                 0,
 //!                             ),
-//!                         ),
+//!                         )),
+//!                         Term::from(DYTerm::Variable(Signature::new_var_with_type::&lt;
+//!                             SessionID,
+//!                             _,
+//!                         &gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         ))),
+//!                         Term::from(DYTerm::Variable(Signature::new_var_with_type::&lt;
+//!                             Vec&lt;CipherSuite&gt;,
+//!                             _,
+//!                         &gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         ))),
+//!                         Term::from(DYTerm::Variable(Signature::new_var_with_type::&lt;
+//!                             Vec&lt;Compression&gt;,
+//!                             _,
+//!                         &gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         ))),
+//!                         Term::from(DYTerm::Variable(Signature::new_var_with_type::&lt;
+//!                             Vec&lt;ClientExtension&gt;,
+//!                             _,
+//!                         &gt;(
+//!                             Some(Source::Agent(client)),
+//!                             Some(TlsQueryMatcher::Handshake(Some(HandshakeType::ClientHello))),
+//!                             0,
+//!                         ))),
 //!                     ],
-//!                 )
+//!                 )))
 //!             }),
 //!         },
 //!         // further steps here
@@ -233,7 +262,6 @@
 //! ```
 //!
 //! # Example with `term!` macro
-//!
 //! ```rust
 //! use puffin::agent::AgentName;
 //! use puffin::algebra::Term;

@@ -67,14 +67,19 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algebra::Term;
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algebra::term::TermType;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term};
 <span class="kw">use </span><span class="kw">crate</span>::execution::{ExecutionStatus, ForkError};
 <span class="kw">use </span><span class="kw">crate</span>::graphviz::write_graphviz;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Trace};
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Trace&lt;PT&gt; {
-    <span class="kw">pub fn </span>count_functions_by_name(<span class="kw-2">&amp;</span><span class="self">self</span>, find_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; usize {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>count_functions_by_name(<span class="kw-2">&amp;</span><span class="self">self</span>, find_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; usize {
         <span class="self">self</span>.steps
             .iter()
             .map(|step| <span class="kw">match </span><span class="kw-2">&amp;</span>step.action {
@@ -84,10 +89,11 @@
             .sum()
     }
 
-    <span class="kw">pub fn </span>count_functions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>count_functions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.steps
             .iter()
-            .flat_map(|step| <span class="kw">match </span><span class="kw-2">&amp;</span>step.action {
+            .filter_map(|step| <span class="kw">match </span><span class="kw-2">&amp;</span>step.action {
                 Action::Input(input) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>input.recipe),
                 Action::Output(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             })
@@ -97,7 +103,7 @@
 
     <span class="kw">pub fn </span>write_plots(<span class="kw-2">&amp;</span><span class="self">self</span>, i: u16) {
         write_graphviz(
-            <span class="macro">format!</span>(<span class="string">"test_mutation{}.svg"</span>, i).as_str(),
+            <span class="macro">format!</span>(<span class="string">"test_mutation{i}.svg"</span>).as_str(),
             <span class="string">"svg"</span>,
             <span class="self">self</span>.dot_graph(<span class="bool-val">true</span>).as_str(),
         )
@@ -108,8 +114,8 @@
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Term&lt;PT&gt; {
     <span class="kw">pub fn </span>count_functions_by_name(<span class="kw-2">&amp;</span><span class="self">self</span>, find_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; usize {
         <span class="kw">let </span><span class="kw-2">mut </span>found = <span class="number">0</span>;
-        <span class="kw">for </span>term <span class="kw">in </span><span class="self">self</span>.into_iter() {
-            <span class="kw">if let </span>Term::Application(func, <span class="kw">_</span>) = term {
+        <span class="kw">for </span>term <span class="kw">in </span><span class="self">self </span>{
+            <span class="kw">if let </span>DYTerm::Application(func, <span class="kw">_</span>) = <span class="kw-2">&amp;</span>term.term {
                 <span class="kw">if </span>func.name() == find_name {
                     found += <span class="number">1</span>;
                 }

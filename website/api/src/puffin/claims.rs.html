@@ -109,6 +109,12 @@
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::{Ref, RefCell, RefMut};
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::marker::PhantomData;
@@ -121,9 +127,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolTypes};
-<span class="kw">use </span><span class="kw">crate</span>::variable_data::VariableData;
 
-<span class="kw">pub trait </span>Claim&lt;PT: ProtocolTypes&gt;: EvaluatedTerm&lt;PT&gt; + VariableData&lt;PT&gt; + Debug {
+<span class="kw">pub trait </span>Claim&lt;PT: ProtocolTypes&gt;: EvaluatedTerm&lt;PT&gt; + Debug {
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName;
     <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeShape&lt;PT&gt;;
     <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;&gt;;
@@ -145,18 +150,21 @@
     }
 
     <span class="doccomment">/// finds the last claim matching `type`
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>find_last_claim_by_type&lt;T: <span class="lifetime">'static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_name: AgentName) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>C&gt; {
         <span class="self">self</span>.find_last_claim(agent_name, TypeShape::&lt;PT&gt;::of::&lt;T&gt;())
     }
 
-    <span class="kw">pub fn </span>find_last_claim(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_name: AgentName, shape: TypeShape&lt;PT&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>C&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>find_last_claim(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_name: AgentName, shape: TypeShape&lt;PT&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>C&gt; {
         <span class="self">self</span>.claims
             .iter()
             .rev()
             .find(|claim| claim.id() == shape &amp;&amp; claim.agent_name() == agent_name)
     }
 
-    <span class="kw">pub fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[C] {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[C] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.claims
     }
 }
@@ -188,7 +196,8 @@
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; ClaimList&lt;PT, C&gt; {
-    <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             claims: <span class="macro">vec!</span>[],
             phantom: PhantomData,
@@ -206,17 +215,20 @@
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes, C: Claim&lt;PT&gt;&gt; GlobalClaimList&lt;PT, C&gt; {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             claims: Rc::new(RefCell::new(ClaimList::new())),
         }
     }
 
-    <span class="kw">pub fn </span>deref_borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, ClaimList&lt;PT, C&gt;&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>deref_borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, ClaimList&lt;PT, C&gt;&gt; {
         <span class="self">self</span>.claims.deref().borrow()
     }
 
-    <span class="kw">pub fn </span>deref_borrow_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, ClaimList&lt;PT, C&gt;&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>deref_borrow_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, ClaimList&lt;PT, C&gt;&gt; {
         <span class="self">self</span>.claims.deref().borrow_mut()
     }
 }

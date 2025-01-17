@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["format_args","hash_type_id","make_dynamic"],"macro":["dynamic_fn"],"struct":["DynamicFunctionShape","TypeShape"],"trait":["DescribableFunction","DynamicFunction"]};
+window.SIDEBAR_ITEMS = {"fn":["format_args","hash_type_id","make_dynamic"],"macro":["dynamic_fn"],"struct":["DynamicFunctionShape","FunctionAttributes","TypeShape"],"trait":["DescribableFunction","DynamicFunction"]};

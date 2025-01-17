@@ -936,11 +936,39 @@
 <a href="#936" id="936">936</a>
 <a href="#937" id="937">937</a>
 <a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module define the execution [`Trace`]s.
 //!
 //! Each [`Trace`]s consist of several [`Step`]s, of which each has either an [`OutputAction`] or
 //! [`InputAction`]. This is a declarative way of modeling communication between [`Agent`]s. The
-//! [`TraceContext`] holds data, also known as [`VariableData`], which is created by [`Agent`]s
+//! [`TraceContext`] holds data, also known as [`Knowledge`], which is created by [`Agent`]s
 //! during the concrete execution of the Trace. It also holds the [`Agent`]s with the references to
 //! concrete PUT.
 //!
@@ -964,19 +992,16 @@
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::{Agent, AgentDescriptor, AgentName};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::bitstrings::Payloads;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_prefix, Matcher, Term};
-<span class="kw">use </span><span class="kw">crate</span>::claims::{Claim, GlobalClaimList, SecurityViolationPolicy};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{remove_prefix, Matcher, Term, TermType};
+<span class="kw">use </span><span class="kw">crate</span>::claims::{GlobalClaimList, SecurityViolationPolicy};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{
-    EvaluatedTerm, OpaqueProtocolMessage, OpaqueProtocolMessageFlight, ProtocolBehavior,
-    ProtocolMessage, ProtocolMessageFlight, ProtocolTypes,
-};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
 <span class="kw">use </span><span class="kw">crate</span>::stream::Stream;
-<span class="kw">use </span><span class="kw">crate</span>::variable_data::VariableData;
+<span class="kw">use </span><span class="kw">crate</span>::trace::Action::Input;
 
 <span class="attr">#[derive(Debug, Deserialize, Serialize, Clone, Hash, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Query&lt;M&gt; {
@@ -1006,24 +1031,24 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Source {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Agent(x) =&gt; <span class="macro">write!</span>(f, <span class="string">"agent:{}"</span>, x),
-            <span class="self">Self</span>::Label(x) =&gt; <span class="macro">write!</span>(f, <span class="string">"label:{:?}"</span>, x),
+            <span class="self">Self</span>::Agent(x) =&gt; <span class="macro">write!</span>(f, <span class="string">"agent:{x}"</span>),
+            <span class="self">Self</span>::Label(x) =&gt; <span class="macro">write!</span>(f, <span class="string">"label:{x:?}"</span>),
         }
     }
 }
 
 <span class="doccomment">/// [Knowledge] describes an atomic piece of knowledge inferred by the
-/// [`crate::protocol::EvaluatedTerm::extract_knowledge`] function
+/// [`crate::protocol::Extractable::extract_knowledge`] function
 /// [Knowledge] is made of the data, the source of the output, the
 /// TLS message type and the internal type.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Knowledge&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt; {
     <span class="kw">pub </span>source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
     <span class="kw">pub </span>matcher: <span class="prelude-ty">Option</span>&lt;PT::Matcher&gt;,
-    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">dyn </span>VariableData&lt;PT&gt;,
+    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;,
 }
 
-<span class="doccomment">/// [RawKnowledge] stores
+<span class="doccomment">/// [`RawKnowledge`] stores
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>RawKnowledge&lt;PT: ProtocolTypes&gt; {
     <span class="kw">pub </span>source: Source,
@@ -1069,7 +1094,7 @@
             remove_prefix(<span class="self">self</span>.data.type_name()),
             ctx.number_matching_message_with_source(source.clone(), data_type_id, <span class="kw-2">&amp;</span><span class="self">self</span>.matcher)
         );
-        <span class="macro">log::trace!</span>(<span class="string">"Knowledge data: {:?}"</span>, <span class="self">self</span>.data);
+        <span class="macro">log::debug!</span>(<span class="string">"Knowledge data: {:?}"</span>, <span class="self">self</span>.data);
     }
 }
 
@@ -1085,7 +1110,8 @@
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; KnowledgeStore&lt;PT&gt; {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             raw_knowledge: <span class="macro">vec!</span>[],
         }
@@ -1160,7 +1186,13 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         query_type_shape: TypeShape&lt;PT&gt;,
         query: <span class="kw-2">&amp;</span>Query&lt;PT::Matcher&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>VariableData&lt;PT&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>EvaluatedTerm&lt;PT&gt;)&gt; {
+        <span class="macro">log::trace!</span>(
+            <span class="string">"Looking for variable {:?} with query_type_shape {:?} and query {:?}"</span>,
+            <span class="self">self</span>,
+            query_type_shape,
+            query
+        );
         <span class="kw">let </span>query_type_id: TypeId = query_type_shape.into();
 
         <span class="kw">let </span><span class="kw-2">mut </span>possibilities: Vec&lt;Knowledge&lt;PT&gt;&gt; = <span class="self">self
@@ -1174,7 +1206,7 @@
             })
             .collect();
 
-        possibilities.sort_by_key(|a| a.specificity());
+        possibilities.sort_by_key(Knowledge::specificity);
 
         possibilities
             .get(query.counter <span class="kw">as </span>usize)
@@ -1199,7 +1231,8 @@
         }
     }
 
-    <span class="kw">pub fn </span>with_mapping(<span class="kw-2">mut </span><span class="self">self</span>, descriptors: <span class="kw-2">&amp;</span>[(AgentName, PutDescriptor)]) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>with_mapping(<span class="kw-2">mut </span><span class="self">self</span>, descriptors: <span class="kw-2">&amp;</span>[(AgentName, PutDescriptor)]) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.descriptors.extend(descriptors.iter().cloned());
         <span class="self">self
     </span>}
@@ -1255,8 +1288,8 @@
 
 <span class="doccomment">/// The [`TraceContext`] represents the state of an execution.
 ///
-/// The [`TraceContext`] contains a list of [`VariableData`], which is known as the knowledge
-/// of the attacker. [`VariableData`] can contain data of various types like for example
+/// The [`TraceContext`] contains a list of [`EvaluatedTerm`], which is known as the knowledge
+/// of the attacker. [`EvaluatedTerm`] can contain data of various types like for example
 /// client and server extensions, cipher suits or session ID It also holds the concrete
 /// references to the [`Agent`]s and the underlying streams, which contain the messages
 /// which have need exchanged and are not yet processed by an output step.
@@ -1280,7 +1313,7 @@
             <span class="self">self</span>.knowledge_store.raw_knowledge.len()
         )<span class="question-mark">?</span>;
         <span class="kw">for </span>k <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.knowledge_store.raw_knowledge {
-            <span class="macro">write!</span>(f, <span class="string">"\n   {},          --  {:?}"</span>, k, k)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"\n   {k},          --  {k:?}"</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1297,7 +1330,8 @@
 }
 
 <span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; TraceContext&lt;PB&gt; {
-    <span class="kw">pub fn </span>new(spawner: Spawner&lt;PB&gt;) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new(spawner: Spawner&lt;PB&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// We keep a global list of all claims throughout the execution. Each claim is identified
         // by the AgentName. A rename of an Agent does not interfere with this.
         </span><span class="kw">let </span>claims = GlobalClaimList::new();
@@ -1345,7 +1379,8 @@
             .number_matching_message(type_id, tls_message_type)
     }
 
-    <span class="kw">pub fn </span>find_claim(
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>find_claim(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         agent_name: AgentName,
         query_type_shape: TypeShape&lt;PB::ProtocolTypes&gt;,
@@ -1353,7 +1388,7 @@
         <span class="self">self</span>.claims
             .deref_borrow()
             .find_last_claim(agent_name, query_type_shape)
-            .map(|claim| claim.inner())
+            .map(<span class="kw">super</span>::claims::Claim::inner)
     }
 
     <span class="doccomment">/// Returns the variable which matches best -&gt; highest specificity
@@ -1362,7 +1397,12 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         query_type_shape: TypeShape&lt;PB::ProtocolTypes&gt;,
         query: <span class="kw-2">&amp;</span>Query&lt;&lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>VariableData&lt;PB::ProtocolTypes&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>EvaluatedTerm&lt;PB::ProtocolTypes&gt;)&gt; {
+        <span class="macro">log::trace!</span>(
+            <span class="string">"Looking for variable in {:?} with query {:?}"</span>,
+            <span class="self">self</span>.knowledge_store,
+            query
+        );
         <span class="self">self</span>.knowledge_store.find_variable(query_type_shape, query)
     }
 
@@ -1378,9 +1418,8 @@
 
         iter.find(|agent| agent.name() == name).ok_or_else(|| {
             Error::Agent(<span class="macro">format!</span>(
-                <span class="string">"Could not find agent {}. Did you forget to call spawn_agents?"</span>,
-                name
-            ))
+                <span class="string">"Could not find agent {name}. Did you forget to call spawn_agents?"
+            </span>))
         })
     }
 
@@ -1388,14 +1427,16 @@
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.agents.iter();
         iter.find(|agent| agent.name() == name).ok_or_else(|| {
             Error::Agent(<span class="macro">format!</span>(
-                <span class="string">"Could not find agent {}. Did you forget to call spawn_agents?"</span>,
-                name
-            ))
+                <span class="string">"Could not find agent {name}. Did you forget to call spawn_agents?"
+            </span>))
         })
     }
 
-    <span class="kw">pub fn </span>agents_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.agents.iter().all(|agent| agent.is_state_successful())
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>agents_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.agents
+            .iter()
+            .all(<span class="kw">super</span>::agent::Agent::is_state_successful)
     }
 }
 
@@ -1409,11 +1450,14 @@
 
 <span class="doccomment">/// A [`Trace`] consists of several [`Step`]s. Each has either a [`OutputAction`] or an
 /// [`InputAction`]. Each [`Step`]s references an [`Agent`] by name. Furthermore, a trace also has a
-/// list of *AgentDescriptors* which act like a blueprint to spawn [`Agent`]s with a corresponding
+/// list of *`AgentDescriptors`* which act like a blueprint to spawn [`Agent`]s with a corresponding
 /// server or client role and a specific TLs version. Essentially they are an [`Agent`] without a
 /// stream.
 </span><span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Trace&lt;PT&gt; {
-    <span class="kw">fn </span>spawn_agents&lt;PB: ProtocolBehavior&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">pub fn </span>spawn_agents&lt;PB: ProtocolBehavior&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">for </span>descriptor <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.descriptors {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(reusable) = ctx
                 .agents
@@ -1431,7 +1475,11 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub fn </span>execute&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">pub fn </span>execute_until_step&lt;PB&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;,
+        nb_steps: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
     {
@@ -1440,7 +1488,7 @@
         }
 
         <span class="self">self</span>.spawn_agents(ctx)<span class="question-mark">?</span>;
-        <span class="kw">let </span>steps = <span class="kw-2">&amp;</span><span class="self">self</span>.steps;
+        <span class="kw">let </span>steps = <span class="kw-2">&amp;</span><span class="self">self</span>.steps[<span class="number">0</span>..nb_steps];
         <span class="kw">for </span>(i, step) <span class="kw">in </span>steps.iter().enumerate() {
             <span class="macro">log::debug!</span>(<span class="string">"Executing step #{}"</span>, i);
             step.execute(ctx)<span class="question-mark">?</span>;
@@ -1451,12 +1499,50 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="kw">pub fn </span>execute&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">where
+        </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
+    {
+        <span class="self">self</span>.execute_until_step(ctx, <span class="self">self</span>.steps.len())
+    }
+
     <span class="kw">pub fn </span>serialize_postcard(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, postcard::Error&gt; {
         postcard::to_allocvec(<span class="kw-2">&amp;</span><span class="self">self</span>)
     }
 
-    <span class="kw">pub fn </span>deserialize_postcard(slice: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Trace&lt;PT&gt;, postcard::Error&gt; {
-        postcard::from_bytes::&lt;Trace&lt;PT&gt;&gt;(slice)
+    <span class="kw">pub fn </span>deserialize_postcard(slice: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, postcard::Error&gt; {
+        postcard::from_bytes::&lt;<span class="self">Self</span>&gt;(slice)
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>all_payloads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Payloads&gt; {
+        <span class="self">self</span>.steps
+            .iter()
+            .filter_map(|e| <span class="kw">match </span><span class="kw-2">&amp;</span>e.action {
+                Input(r) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>r.recipe),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+            })
+            .flat_map(|t| t.all_payloads())
+            .collect()
+    }
+
+    <span class="kw">pub fn </span>all_payloads_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;mut </span>Payloads&gt; {
+        <span class="self">self</span>.steps
+            .iter_mut()
+            .filter_map(|e| <span class="kw">match </span><span class="kw-2">&amp;mut </span>e.action {
+                Input(r) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>r.recipe),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+            })
+            .flat_map(|t| t.all_payloads_mut())
+            .collect()
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_symbolic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.steps.iter().all(|e| <span class="kw">match </span><span class="kw-2">&amp;</span>e.action {
+            Input(r) =&gt; r.recipe.is_symbolic(),
+            <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
+        })
     }
 }
 
@@ -1476,8 +1562,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; AsRef&lt;Trace&lt;PT&gt;&gt; <span class="kw">for </span>Trace&lt;PT&gt; {
-    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Trace&lt;PT&gt; {
+<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; AsRef&lt;<span class="self">Self</span>&gt; <span class="kw">for </span>Trace&lt;PT&gt; {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
         <span class="self">self
     </span>}
 }
@@ -1490,12 +1576,12 @@
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; Step&lt;PT&gt; {
-    <span class="kw">fn </span>execute&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">pub fn </span>execute&lt;PB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
     {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.action {
-            Action::Input(input) =&gt; input.execute(<span class="self">self</span>.agent, ctx).and_then(|<span class="kw">_</span>| {
+            Action::Input(input) =&gt; input.execute(<span class="self">self</span>.agent, ctx).and_then(|()| {
                 <span class="comment">// NOTE force output after each InputAction step
                 </span>(OutputAction {
                     phantom: Default::default(),
@@ -1527,8 +1613,8 @@
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; fmt::Display <span class="kw">for </span>Action&lt;PT&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Action::Input(input) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, input),
-            Action::Output(output) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, output),
+            <span class="self">Self</span>::Input(input) =&gt; <span class="macro">write!</span>(f, <span class="string">"{input}"</span>),
+            <span class="self">Self</span>::Output(output) =&gt; <span class="macro">write!</span>(f, <span class="string">"{output}"</span>),
         }
     }
 }
@@ -1544,10 +1630,11 @@
 }
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; OutputAction&lt;PT&gt; {
-    <span class="kw">pub fn </span>new_step(agent: AgentName) -&gt; Step&lt;PT&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>new_step(agent: AgentName) -&gt; Step&lt;PT&gt; {
         Step {
             agent,
-            action: Action::Output(OutputAction {
+            action: Action::Output(<span class="self">Self </span>{
                 phantom: Default::default(),
             }),
         }
@@ -1601,12 +1688,12 @@
 }
 
 <span class="doccomment">/// Processes messages in the inbound channel. Uses the recipe field to evaluate to a rustls Message
-/// or a MultiMessage.
+/// or a `MultiMessage`.
 </span><span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; InputAction&lt;PT&gt; {
-    <span class="kw">pub fn </span>new_step(agent: AgentName, recipe: Term&lt;PT&gt;) -&gt; Step&lt;PT&gt; {
+    <span class="kw">pub const fn </span>new_step(agent: AgentName, recipe: Term&lt;PT&gt;) -&gt; Step&lt;PT&gt; {
         Step {
             agent,
-            action: Action::Input(InputAction {
+            action: Action::Input(<span class="self">Self </span>{
                 recipe,
                 precomputations: <span class="macro">vec!</span>[],
             }),
@@ -1618,15 +1705,15 @@
         </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
     {
         <span class="kw">for </span>precomputation <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.precomputations {
-            <span class="kw">let </span>eval = precomputation.recipe.evaluate(ctx)<span class="question-mark">?</span>;
-            ctx.knowledge_store.add_raw_boxed_knowledge(
+            <span class="kw">let </span>eval = precomputation.recipe.evaluate_dy(ctx)<span class="question-mark">?</span>; <span class="comment">// We do not accept payloads in precomputation recipes
+            </span>ctx.knowledge_store.add_raw_boxed_knowledge(
                 eval,
                 Source::Label(precomputation.label.clone()),
                 <span class="prelude-val">Some</span>(precomputation.recipe.clone()),
             );
         }
 
-        <span class="kw">let </span>message = as_message_flight::&lt;PB&gt;(<span class="self">self</span>.recipe.evaluate(ctx)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>message = <span class="self">self</span>.recipe.evaluate(ctx)<span class="question-mark">?</span>;
         <span class="kw">let </span>agent = ctx.find_agent_mut(agent_name)<span class="question-mark">?</span>;
 
         agent.add_to_inbound(<span class="kw-2">&amp;</span>message);
@@ -1766,37 +1853,6 @@
             precomputations: <span class="macro">vec!</span>[],
         }
     };
-}
-
-<span class="kw">fn </span>as_message_flight&lt;PB: ProtocolBehavior&gt;(
-    value: Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;PB::ProtocolTypes&gt;&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;PB::OpaqueProtocolMessageFlight, Error&gt; {
-    <span class="kw">let </span>opaque: PB::OpaqueProtocolMessageFlight = <span class="kw">if let </span><span class="prelude-val">Some</span>(flight) =
-        value.as_any().downcast_ref::&lt;PB::ProtocolMessageFlight&gt;()
-    {
-        flight.debug(<span class="string">"Input message flight"</span>);
-        flight.to_owned().into()
-    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(flight) = value
-        .as_any()
-        .downcast_ref::&lt;PB::OpaqueProtocolMessageFlight&gt;()
-    {
-        flight.debug(<span class="string">"Input opaque message flight"</span>);
-        flight.to_owned()
-    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(msg) = value.as_any().downcast_ref::&lt;PB::ProtocolMessage&gt;() {
-        msg.debug(<span class="string">"Input message"</span>);
-        <span class="kw">let </span>message_flight: PB::ProtocolMessageFlight = msg.clone().into();
-        message_flight.into()
-    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(opaque_message) = value.as_any().downcast_ref::&lt;PB::OpaqueProtocolMessage&gt;()
-    {
-        opaque_message.debug(<span class="string">"Input opaque message"</span>);
-        opaque_message.to_owned().into()
-    } <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(FnError::Unknown(String::from(
-                <span class="string">"Recipe is not a `ProtocolMessage`, `OpaqueProtocolMessage`, `MessageFlight`, `OpaqueMessageFlight` !"</span>,
-            ))
-            .into());
-    };
-    <span class="prelude-val">Ok</span>(opaque)
 }
 
 <span class="attr">#[cfg(test)]

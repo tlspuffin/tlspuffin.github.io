@@ -25,30 +25,36 @@
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="attr">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+<span class="attr">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>FnError {
     Unknown(String),
     <span class="doccomment">/// Error which happened because a cryptographic operation failed.
     </span>Crypto(String),
+    <span class="doccomment">/// Error which happens because the term is malformed (e.g. a field is missing)
+    </span>Malformed(String),
 }
 
 <span class="kw">impl </span>std::error::Error <span class="kw">for </span>FnError {}
 
 <span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>FnError {
     <span class="kw">fn </span>from(message: String) -&gt; <span class="self">Self </span>{
-        FnError::Unknown(message)
+        <span class="self">Self</span>::Unknown(message)
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>FnError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            FnError::Unknown(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"error in fn: {}"</span>, msg),
-            FnError::Crypto(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"error in fn from rustls: {}"</span>, msg),
+            <span class="self">Self</span>::Unknown(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"[!!UNKNOWN!!] error in fn: {msg}"</span>),
+            <span class="self">Self</span>::Crypto(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"[Crypto] error in fn from rustls: {msg}"</span>),
+            <span class="self">Self</span>::Malformed(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"[Malformed] error in fn from rustls: {msg}"</span>),
         }
     }
 }

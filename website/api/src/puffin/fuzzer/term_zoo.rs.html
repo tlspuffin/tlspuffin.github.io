@@ -94,6 +94,33 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Generates a zoo of terms form a [`Signature`]. For each function symbol in the signature
 //! a closed term is generated and added to the zoo.
 
@@ -101,8 +128,8 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Function;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::{FunctionDefinition, Signature};
-<span class="kw">use </span><span class="kw">crate</span>::algebra::Term;
-<span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::util::Choosable;
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::utils::Choosable;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
 
 <span class="kw">const </span>MAX_DEPTH: u16 = <span class="number">8</span>; <span class="comment">// how deep terms we allow max
@@ -114,27 +141,53 @@
 
 <span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; TermZoo&lt;PT&gt; {
     <span class="kw">pub fn </span>generate&lt;R: Rand&gt;(signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>terms = signature
-            .functions
-            .iter()
-            .filter_map(|def| {
-                <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES;
+        <span class="self">Self</span>::generate_many(signature, rand, <span class="number">1</span>, <span class="prelude-val">None</span>)
+    }
+
+    <span class="kw">pub fn </span>generate_many&lt;R: Rand&gt;(
+        signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;,
+        rand: <span class="kw-2">&amp;mut </span>R,
+        how_many: usize,
+        filter: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FunctionDefinition&lt;PT&gt;&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>acc = <span class="macro">vec!</span>[];
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(def) = filter {
+            <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES <span class="kw">as </span>usize * how_many;
+            <span class="kw">let </span><span class="kw-2">mut </span>many = <span class="number">0</span>;
+
+            <span class="kw">loop </span>{
+                <span class="kw">if </span>counter == <span class="number">0 </span>|| many &gt;= how_many {
+                    <span class="kw">break</span>;
+                }
+
+                counter -= <span class="number">1</span>;
+
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(term) = <span class="self">Self</span>::generate_term(signature, def, MAX_DEPTH, rand) {
+                    many += <span class="number">1</span>;
+                    acc.push(term);
+                }
+            }
+        } <span class="kw">else </span>{
+            <span class="kw">for </span>def <span class="kw">in </span><span class="kw-2">&amp;</span>signature.functions {
+                <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES <span class="kw">as </span>usize * how_many;
+                <span class="kw">let </span><span class="kw-2">mut </span>many = <span class="number">0</span>;
 
                 <span class="kw">loop </span>{
-                    <span class="kw">if </span>counter == <span class="number">0 </span>{
-                        <span class="kw">break </span><span class="prelude-val">None</span>;
+                    <span class="kw">if </span>counter == <span class="number">0 </span>|| many &gt;= how_many {
+                        <span class="kw">break</span>;
                     }
 
                     counter -= <span class="number">1</span>;
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(term) = <span class="self">Self</span>::generate_term(signature, def, MAX_DEPTH, rand) {
-                        <span class="kw">break </span><span class="prelude-val">Some</span>(term);
+                        many += <span class="number">1</span>;
+                        acc.push(term);
                     }
                 }
-            })
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            }
+        }
 
-        <span class="self">Self </span>{ terms }
+        <span class="self">Self </span>{ terms: acc }
     }
 
     <span class="kw">fn </span>generate_term&lt;R: Rand&gt;(
@@ -158,7 +211,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(subterm) =
                         <span class="self">Self</span>::generate_term(signature, possibility, depth - <span class="number">1</span>, rand)
                     {
-                        subterms.push(subterm)
+                        subterms.push(subterm);
                     } <span class="kw">else </span>{
                         <span class="comment">// Max depth reached
                         </span><span class="kw">return </span><span class="prelude-val">None</span>;
@@ -173,10 +226,10 @@
             }
         }
 
-        <span class="prelude-val">Some</span>(Term::Application(
+        <span class="prelude-val">Some</span>(Term::from(DYTerm::Application(
             Function::new(shape.clone(), dynamic_fn.clone()),
             subterms,
-        ))
+        )))
     }
 
     <span class="kw">pub fn </span>choose_filtered&lt;P, R: Rand&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: P, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt;
@@ -186,7 +239,8 @@
         <span class="self">self</span>.terms.choose_filtered(filter, rand)
     }
 
-    <span class="kw">pub fn </span>terms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Term&lt;PT&gt;] {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>terms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Term&lt;PT&gt;] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.terms
     }
 }

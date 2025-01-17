@@ -650,6 +650,13 @@
 <a href="#650" id="650">650</a>
 <a href="#651" id="651">651</a>
 <a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -685,8 +692,20 @@
     <span class="prelude-val">Ok</span>(new_extensions)
 }
 
+<span class="kw">pub fn </span>fn_client_extensions_make(
+    extensions: <span class="kw-2">&amp;</span>Vec&lt;ClientExtension&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtensions, FnError&gt; {
+    <span class="prelude-val">Ok</span>(ClientExtensions(extensions.clone()))
+}
+
 <span class="kw">pub fn </span>fn_server_extensions_new() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ServerExtension&gt;, FnError&gt; {
     <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])
+}
+
+<span class="kw">pub fn </span>fn_server_extensions_make(
+    extensions: <span class="kw-2">&amp;</span>Vec&lt;ServerExtension&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtensions, FnError&gt; {
+    <span class="prelude-val">Ok</span>(ServerExtensions(extensions.clone()))
 }
 
 <span class="kw">pub fn </span>fn_server_extensions_append(
@@ -699,6 +718,11 @@
     <span class="prelude-val">Ok</span>(new_extensions)
 }
 
+<span class="kw">pub fn </span>fn_hello_retry_extensions_make(
+    extensions: <span class="kw-2">&amp;</span>Vec&lt;HelloRetryExtension&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;HelloRetryExtensions, FnError&gt; {
+    <span class="prelude-val">Ok</span>(HelloRetryExtensions(extensions.clone()))
+}
 <span class="kw">pub fn </span>fn_hello_retry_extensions_new() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;HelloRetryExtension&gt;, FnError&gt; {
     <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])
 }
@@ -804,20 +828,15 @@
 </span>}
 <span class="doccomment">/// StatusRequest =&gt; 0x0005,
 </span><span class="kw">pub fn </span>fn_status_request_extension(
-    responder_ids: <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;u8&gt;&gt;,
-    extensions: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    responder_ids: <span class="kw-2">&amp;</span>VecU16OfPayloadU16,
+    extensions: <span class="kw-2">&amp;</span>PayloadU16,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
     <span class="comment">// todo unclear where the arguments come from here, needs manual trace implementation
     //      https://github.com/tlspuffin/tlspuffin/issues/155
     </span><span class="prelude-val">Ok</span>(ClientExtension::CertificateStatusRequest(
         CertificateStatusRequest::OCSP(OCSPCertificateStatusRequest {
-            responder_ids: VecU16OfPayloadU16(
-                responder_ids
-                    .iter()
-                    .map(|data| PayloadU16::new(data.clone()))
-                    .collect(),
-            ),
-            extensions: PayloadU16::new(extensions.clone()),
+            responder_ids: responder_ids.clone(),
+            extensions: extensions.clone(),
         }),
     ))
 }
@@ -826,12 +845,12 @@
 }
 
 <span class="kw">pub fn </span>fn_status_request_certificate_extension(
-    ocsp_response: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    ocsp_response: <span class="kw-2">&amp;</span>PayloadU24,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateExtension, FnError&gt; {
     <span class="comment">// todo unclear where the arguments come from here, needs manual trace implementation
     //      https://github.com/tlspuffin/tlspuffin/issues/155
     </span><span class="prelude-val">Ok</span>(CertificateExtension::CertificateStatus(CertificateStatus {
-        ocsp_response: PayloadU24::new(ocsp_response.clone()),
+        ocsp_response: ocsp_response.clone(),
     }))
 }
 <span class="macro">nyi_fn!</span> {
@@ -899,24 +918,14 @@
     <span class="prelude-val">Ok</span>(new)
 }
 <span class="kw">pub fn </span>fn_al_protocol_negotiation(
-    protocol_name_list: <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;u8&gt;&gt;,
+    protocol_name_list: <span class="kw-2">&amp;</span>VecU16OfPayloadU8,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(ClientExtension::Protocols(VecU16OfPayloadU8(
-        protocol_name_list
-            .iter()
-            .map(|data| PayloadU8::new(data.clone()))
-            .collect(),
-    )))
+    <span class="prelude-val">Ok</span>(ClientExtension::Protocols(protocol_name_list.clone()))
 }
 <span class="kw">pub fn </span>fn_al_protocol_server_negotiation(
-    protocol_name_list: <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;u8&gt;&gt;,
+    protocol_name_list: <span class="kw-2">&amp;</span>VecU16OfPayloadU8,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(ServerExtension::Protocols(VecU16OfPayloadU8(
-        protocol_name_list
-            .iter()
-            .map(|data| PayloadU8::new(data.clone()))
-            .collect(),
-    )))
+    <span class="prelude-val">Ok</span>(ServerExtension::Protocols(protocol_name_list.clone()))
 }
 <span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// status_request_v2 =&gt; 0x0011
@@ -1019,11 +1028,13 @@
     <span class="doccomment">/// supported_ekt_ciphers =&gt; 0x0027,
 </span>}
 <span class="doccomment">/// PreSharedKey =&gt; 0x0029,
-</span><span class="kw">pub fn </span>fn_new_preshared_key_identity(identity: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;PresharedKeyIdentity, FnError&gt; {
+</span><span class="kw">pub fn </span>fn_new_preshared_key_identity(
+    identity: <span class="kw-2">&amp;</span>PayloadU16,
+) -&gt; <span class="prelude-ty">Result</span>&lt;PresharedKeyIdentity, FnError&gt; {
     <span class="comment">// todo unclear where the arguments come from here, needs manual trace implementation
     //      https://github.com/tlspuffin/tlspuffin/issues/155
     </span><span class="prelude-val">Ok</span>(PresharedKeyIdentity {
-        identity: PayloadU16::new(identity.clone()),
+        identity: identity.clone(),
         obfuscated_ticket_age: <span class="number">10</span>,
     })
 }
@@ -1104,11 +1115,14 @@
     <span class="prelude-val">Ok</span>(ServerExtension::SupportedVersions(ProtocolVersion::TLSv1_3))
 }
 <span class="doccomment">/// Cookie =&gt; 0x002c,
-</span><span class="kw">pub fn </span>fn_cookie_extension(cookie: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(ClientExtension::Cookie(PayloadU16::new(cookie.clone())))
+</span><span class="kw">pub fn </span>fn_cookie_extension(cookie: <span class="kw-2">&amp;</span>PayloadU16) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
+    <span class="prelude-val">Ok</span>(ClientExtension::Cookie(cookie.clone()))
 }
-<span class="kw">pub fn </span>fn_cookie_hello_retry_extension(cookie: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;HelloRetryExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(HelloRetryExtension::Cookie(PayloadU16::new(cookie.clone())))
+
+<span class="kw">pub fn </span>fn_cookie_hello_retry_extension(
+    cookie: <span class="kw-2">&amp;</span>PayloadU16,
+) -&gt; <span class="prelude-ty">Result</span>&lt;HelloRetryExtension, FnError&gt; {
+    <span class="prelude-val">Ok</span>(HelloRetryExtension::Cookie(cookie.clone()))
 }
 <span class="doccomment">/// PSKKeyExchangeModes =&gt; 0x002d,
 </span><span class="kw">pub fn </span>fn_psk_exchange_mode_dhe_ke_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
@@ -1166,31 +1180,31 @@
 </span><span class="kw">pub fn </span>fn_key_share_deterministic_extension(
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
-    fn_key_share_extension(<span class="kw-2">&amp;</span>deterministic_key_share(group)<span class="question-mark">?</span>, group)
+    fn_key_share_extension(<span class="kw-2">&amp;</span>PayloadU16::new(deterministic_key_share(group)<span class="question-mark">?</span>), group)
 }
 <span class="kw">pub fn </span>fn_key_share_extension(
-    key_share: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    key_share: <span class="kw-2">&amp;</span>PayloadU16,
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ClientExtension::KeyShare(KeyShareEntries(<span class="macro">vec!</span>[
         KeyShareEntry {
             group: <span class="kw-2">*</span>group,
-            payload: PayloadU16::new(key_share.clone()),
+            payload: key_share.clone(),
         },
     ])))
 }
 <span class="kw">pub fn </span>fn_key_share_deterministic_server_extension(
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
-    fn_key_share_server_extension(<span class="kw-2">&amp;</span>deterministic_key_share(group)<span class="question-mark">?</span>, group)
+    fn_key_share_server_extension(<span class="kw-2">&amp;</span>PayloadU16::new(deterministic_key_share(group)<span class="question-mark">?</span>), group)
 }
 <span class="kw">pub fn </span>fn_key_share_server_extension(
-    key_share: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    key_share: <span class="kw-2">&amp;</span>PayloadU16,
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::KeyShare(KeyShareEntry {
         group: <span class="kw-2">*</span>group,
-        payload: PayloadU16::new(key_share.clone()),
+        payload: key_share.clone(),
     }))
 }
 <span class="kw">pub fn </span>fn_key_share_hello_retry_extension(
@@ -1229,16 +1243,16 @@
 <span class="macro">nyi_fn!</span> {
     <span class="doccomment">/// ChannelId =&gt; 0x754f,
 </span>}
+
 <span class="doccomment">/// RenegotiationInfo =&gt; 0xff01,
-</span><span class="kw">pub fn </span>fn_renegotiation_info_extension(data: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(ClientExtension::RenegotiationInfo(PayloadU8::new(
-        data.clone(),
-    )))
+</span><span class="kw">pub fn </span>fn_renegotiation_info_extension(data: <span class="kw-2">&amp;</span>PayloadU8) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
+    <span class="prelude-val">Ok</span>(ClientExtension::RenegotiationInfo(data.clone()))
 }
-<span class="kw">pub fn </span>fn_renegotiation_info_server_extension(data: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(ServerExtension::RenegotiationInfo(PayloadU8::new(
-        data.clone(),
-    )))
+
+<span class="kw">pub fn </span>fn_renegotiation_info_server_extension(
+    data: <span class="kw-2">&amp;</span>PayloadU8,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
+    <span class="prelude-val">Ok</span>(ServerExtension::RenegotiationInfo(data.clone()))
 }
 <span class="doccomment">/// TransportParametersDraft =&gt; 0xffa5
 </span><span class="kw">pub fn </span>fn_transport_parameters_draft_extension(

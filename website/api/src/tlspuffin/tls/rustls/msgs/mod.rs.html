@@ -73,8 +73,8 @@
 </span><span class="kw">mod </span>message_test;
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>puffin::codec::Reader;
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>puffin::codec::{Codec, Reader};
 
     <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>smoketest() {
@@ -85,7 +85,7 @@
         <span class="kw">while </span>r.any_left() {
             <span class="kw">let </span>m = OpaqueMessage::read(<span class="kw-2">&amp;mut </span>r).unwrap();
 
-            <span class="kw">let </span>out = m.clone().encode();
+            <span class="kw">let </span>out = m.clone().get_encoding();
             <span class="macro">assert!</span>(!out.is_empty());
 
             Message::try_from(m.into_plain_message()).unwrap();

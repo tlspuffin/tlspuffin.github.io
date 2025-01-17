@@ -678,7 +678,7 @@
     }
 
     <span class="kw">fn </span>set_start_time(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: Duration) {
-        <span class="self">self</span>.monitor.set_start_time(time)
+        <span class="self">self</span>.monitor.set_start_time(time);
     }
 
     <span class="kw">fn </span>display(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event_msg: String, sender_id: ClientId) {
@@ -702,7 +702,7 @@
 <span class="kw">impl </span>Display <span class="kw">for </span>Statistics {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Statistics::Client(client_stats) =&gt; {
+            <span class="self">Self</span>::Client(client_stats) =&gt; {
                 <span class="macro">write!</span>(
                     f,
                     <span class="string">"(CLIENT) corpus: {}, obj: {}, execs: {}, exec/sec: {}"</span>,
@@ -722,7 +722,7 @@
                 }
             }
 
-            Statistics::Global(global_stats) =&gt; {
+            <span class="self">Self</span>::Global(global_stats) =&gt; {
                 <span class="macro">write!</span>(
                     f,
                     <span class="string">"(GLOBAL) clients: {}, corpus: {}, obj: {}, execs: {}, exec/sec: {}"</span>,
@@ -887,7 +887,7 @@
 }
 
 <span class="kw">impl </span>ErrorStatistics {
-    <span class="kw">pub fn </span>new(total_execs: u64) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub const fn </span>new(total_execs: u64) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             total_execs,
             fn_error: <span class="number">0</span>,
@@ -910,7 +910,7 @@
                 RuntimeStats::AgentError(c) =&gt; <span class="self">self</span>.ag_error += get_number(client_stats, c.name),
                 RuntimeStats::StreamError(c) =&gt; <span class="self">self</span>.str_error += get_number(client_stats, c.name),
                 RuntimeStats::ExtractionError(c) =&gt; {
-                    <span class="self">self</span>.ext_error += get_number(client_stats, c.name)
+                    <span class="self">self</span>.ext_error += get_number(client_stats, c.name);
                 }
                 <span class="kw">_ </span>=&gt; {}
             }
@@ -930,7 +930,7 @@
 }
 
 <span class="kw">impl </span>TraceStatistics {
-    <span class="kw">pub fn </span>new(user_stats: <span class="kw-2">&amp;</span>ClientStats) -&gt; TraceStatistics {
+    <span class="kw">pub fn </span>new(user_stats: <span class="kw-2">&amp;</span>ClientStats) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>trace_stats = <span class="self">Self </span>{
             min_trace_length: <span class="prelude-val">None</span>,
             max_trace_length: <span class="prelude-val">None</span>,
@@ -978,7 +978,7 @@
     </span>F: FnMut(ClientId, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>Statistics) + Clone + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source: ClientId, msg: <span class="kw-2">&amp;</span>str, stats: <span class="kw-2">&amp;</span>Statistics) {
-        <span class="self">self</span>(source, msg, stats)
+        <span class="self">self</span>(source, msg, stats);
     }
 }
 

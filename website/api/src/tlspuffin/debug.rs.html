@@ -73,7 +73,7 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::Reader;
+</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::{Codec, Reader};
 
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage};
 
@@ -116,7 +116,7 @@
         } <span class="kw">else </span>{
             info.to_string() + <span class="string">" | "
         </span>},
-        message.clone().encode().len(),
+        message.clone().get_encoding().len(),
         message.version,
         message.typ,
     );

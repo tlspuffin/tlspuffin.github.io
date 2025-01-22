@@ -525,10 +525,6 @@
 <a href="#525" id="525">525</a>
 <a href="#526" id="526">526</a>
 <a href="#527" id="527">527</a>
-<a href="#528" id="528">528</a>
-<a href="#529" id="529">529</a>
-<a href="#530" id="530">530</a>
-<a href="#531" id="531">531</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::OsStr;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, ErrorKind, Read, Write};
 <span class="kw">use </span>std::net::{AddrParseError, IpAddr, SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
@@ -546,11 +542,10 @@
 <span class="kw">use </span>puffin::error::Error;
 <span class="kw">use </span>puffin::protocol::ProtocolBehavior;
 <span class="kw">use </span>puffin::put::{Put, PutOptions};
-<span class="kw">use </span>puffin::put_registry::{Factory, PutKind, TCP_PUT};
+<span class="kw">use </span>puffin::put_registry::{Factory, TCP_PUT};
 <span class="kw">use </span>puffin::stream::Stream;
-<span class="kw">use </span>puffin::VERSION_STR;
 
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior, TLSProtocolTypes};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior};
 
 <span class="kw">pub fn </span>new_tcp_factory() -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TLSProtocolBehavior&gt;&gt; {
     <span class="kw">struct </span>TCPFactory;
@@ -558,10 +553,7 @@
         <span class="kw">fn </span>create(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
-                TLSProtocolTypes,
-                &lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim,
-            &gt;,
+            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
             options: <span class="kw-2">&amp;</span>PutOptions,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;TLSProtocolBehavior&gt;&gt;, Error&gt; {
             <span class="kw">if </span>options.get_option(<span class="string">"args"</span>).is_some() {
@@ -602,10 +594,6 @@
             }
         }
 
-        <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutKind {
-            PutKind::Rust
-        }
-
         <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
             String::from(TCP_PUT)
         }
@@ -613,9 +601,13 @@
         <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(String, String)&gt; {
             <span class="macro">vec!</span>[(
                 <span class="string">"harness"</span>.to_string(),
-                <span class="macro">format!</span>(<span class="string">"{} ({})"</span>, TCP_PUT, VERSION_STR),
+                <span class="macro">format!</span>(<span class="string">"{} {}"</span>, TCP_PUT, puffin_build::puffin::full_version()),
             )]
         }
+
+        <span class="kw">fn </span>supports(<span class="kw-2">&amp;</span><span class="self">self</span>, _capability: <span class="kw-2">&amp;</span>str) -&gt; bool {
+            <span class="bool-val">false
+        </span>}
 
         <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TLSProtocolBehavior&gt;&gt; {
             Box::new(TCPFactory)
@@ -828,7 +820,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
-    <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 
@@ -864,7 +856,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
-    <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 

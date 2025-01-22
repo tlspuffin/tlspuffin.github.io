@@ -119,11 +119,6 @@
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fmt;
 
@@ -225,24 +220,19 @@
     }
 }
 
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>PutKind {
-    CPUT,
-    Rust,
-}
-
 <span class="doccomment">/// Factory for instantiating programs-under-test.
 </span><span class="kw">pub trait </span>Factory&lt;PB: ProtocolBehavior&gt; {
     <span class="kw">fn </span>create(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::ProtocolTypes, PB::Claim&gt;,
+        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::Claim&gt;,
         options: <span class="kw-2">&amp;</span>PutOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;, Error&gt;;
 
-    <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutKind;
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String;
     <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(String, String)&gt;;
+
+    <span class="kw">fn </span>supports(<span class="kw-2">&amp;</span><span class="self">self</span>, capability: <span class="kw-2">&amp;</span>str) -&gt; bool;
 
     <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;PB&gt;&gt;;
 

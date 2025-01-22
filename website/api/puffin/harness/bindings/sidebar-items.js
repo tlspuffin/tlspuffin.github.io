@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["RESULT_CODE"],"fn":["_log"],"static":["PUFFIN"],"struct":["AGENT_INTERFACE","AGENT_TYPE","CLAIMER_CB","Claim","PUFFIN_BINDINGS"],"type":["AGENT","RESULT"]};

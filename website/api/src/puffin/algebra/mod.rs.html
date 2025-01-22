@@ -858,6 +858,8 @@
 <a href="#858" id="858">858</a>
 <a href="#859" id="859">859</a>
 <a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *term* module defines typed[`DYTerm`]s of the form `fn_add(x: u8, fn_square(y: u16)) → u16`.
 //!
 //! Each function like `fn_add` or `fn_square` has a shape. The variables `x` and `y` each have a
@@ -956,6 +958,7 @@
     <span class="kw">use </span>std::fmt;
     <span class="kw">use </span>std::io::Read;
 
+    <span class="kw">use </span>puffin_build::puffin;
     <span class="kw">use </span>serde::{Deserialize, Serialize};
 
     <span class="kw">use </span><span class="kw">crate</span>::agent::{AgentDescriptor, AgentName, TLSVersion};
@@ -970,12 +973,12 @@
         ProtocolBehavior, ProtocolMessage, ProtocolMessageDeframer, ProtocolMessageFlight,
         ProtocolTypes,
     };
-    <span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutOptions};
-    <span class="kw">use </span><span class="kw">crate</span>::put_registry::{Factory, PutKind};
+    <span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutDescriptor, PutOptions};
+    <span class="kw">use </span><span class="kw">crate</span>::put_registry::Factory;
     <span class="kw">use </span><span class="kw">crate</span>::trace::{Action, InputAction, Knowledge, Source, Step, Trace};
     <span class="kw">use crate</span>::{
         codec, define_signature, dummy_codec, dummy_extract_knowledge,
-        dummy_extract_knowledge_codec, term, VERSION_STR,
+        dummy_extract_knowledge_codec, term,
     };
 
     <span class="attr">#[derive(Debug, Clone)]
@@ -1266,7 +1269,9 @@
         }
     }
 
-    <span class="kw">impl </span>Claim&lt;TestProtocolTypes&gt; <span class="kw">for </span>TestClaim {
+    <span class="kw">impl </span>Claim <span class="kw">for </span>TestClaim {
+        <span class="kw">type </span>PT = TestProtocolTypes;
+
         <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
@@ -1353,7 +1358,9 @@
     }
 
     <span class="kw">pub struct </span>TestSecurityViolationPolicy;
-    <span class="kw">impl </span>SecurityViolationPolicy&lt;TestProtocolTypes, TestClaim&gt; <span class="kw">for </span>TestSecurityViolationPolicy {
+    <span class="kw">impl </span>SecurityViolationPolicy <span class="kw">for </span>TestSecurityViolationPolicy {
+        <span class="kw">type </span>C = TestClaim;
+
         <span class="kw">fn </span>check_violation(_claims: <span class="kw-2">&amp;</span>[TestClaim]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
@@ -1469,7 +1476,7 @@
         <span class="kw">type </span>ProtocolTypes = TestProtocolTypes;
         <span class="kw">type </span>SecurityViolationPolicy = TestSecurityViolationPolicy;
 
-        <span class="kw">fn </span>create_corpus() -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::ProtocolTypes&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; {
+        <span class="kw">fn </span>create_corpus(_put: PutDescriptor) -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::ProtocolTypes&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
         }
 
@@ -1487,17 +1494,10 @@
         <span class="kw">fn </span>create(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             _agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
-            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
-                TestProtocolTypes,
-                &lt;TestProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim,
-            &gt;,
+            _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TestProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
             _options: <span class="kw-2">&amp;</span>PutOptions,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;TestProtocolBehavior&gt;&gt;, Error&gt; {
             <span class="macro">panic!</span>(<span class="string">"Not implemented for test stub"</span>);
-        }
-
-        <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutKind {
-            PutKind::Rust
         }
 
         <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
@@ -1507,9 +1507,13 @@
         <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(String, String)&gt; {
             <span class="macro">vec!</span>[(
                 <span class="string">"harness"</span>.to_string(),
-                <span class="macro">format!</span>(<span class="string">"{} ({})"</span>, <span class="self">self</span>.name(), VERSION_STR),
+                <span class="macro">format!</span>(<span class="string">"{} {}"</span>, <span class="self">self</span>.name(), puffin::full_version()),
             )]
         }
+
+        <span class="kw">fn </span>supports(<span class="kw-2">&amp;</span><span class="self">self</span>, _capability: <span class="kw-2">&amp;</span>str) -&gt; bool {
+            <span class="bool-val">false
+        </span>}
 
         <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TestProtocolBehavior&gt;&gt; {
             Box::new(TestFactory {})

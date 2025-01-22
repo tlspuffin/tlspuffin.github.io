@@ -164,17 +164,19 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>puffin::agent::{AgentType, TLSVersion};
 <span class="kw">use </span>puffin::claims::SecurityViolationPolicy;
 
 <span class="kw">use </span><span class="kw">crate</span>::claims::{ClaimData, ClaimDataMessage, Finished, TlsClaim};
-<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::static_certs::{ALICE_CERT, BOB_CERT};
 
 <span class="kw">pub struct </span>TlsSecurityViolationPolicy;
 
-<span class="kw">impl </span>SecurityViolationPolicy&lt;TLSProtocolTypes, TlsClaim&gt; <span class="kw">for </span>TlsSecurityViolationPolicy {
+<span class="kw">impl </span>SecurityViolationPolicy <span class="kw">for </span>TlsSecurityViolationPolicy {
+    <span class="kw">type </span>C = TlsClaim;
+
     <span class="kw">fn </span>check_violation(claims: <span class="kw-2">&amp;</span>[TlsClaim]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>((claim_a, claim_b)) = find_two_finished_messages(claims) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(((client_claim, client), (server_claim, server))) =

@@ -429,24 +429,6 @@
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use </span>puffin::agent::{AgentName, AgentType, TLSVersion};
@@ -459,26 +441,6 @@
 <span class="kw">use </span>smallvec::SmallVec;
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
-
-<span class="attr">#[cfg(not(has_instr = <span class="string">"claimer"</span>))]
-</span><span class="kw">pub mod </span>dummy_registration {
-    <span class="attr">#[no_mangle]
-    </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>register_claimer(
-        _tls_like: <span class="kw-2">*const </span>::std::os::raw::c_void,
-        _claimer: security_claims::claim_t,
-        _ctx: <span class="kw-2">*mut </span>::std::os::raw::c_void,
-    ) {
-        <span class="comment">// NOTE dummy implementation when the C ffi implementation is missing
-    </span>}
-
-    <span class="attr">#[no_mangle]
-    </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>deregister_claimer(
-        _tls_like: <span class="kw-2">*const </span>::std::os::raw::c_void,
-    ) -&gt; <span class="kw-2">*mut </span>::std::os::raw::c_void {
-        <span class="comment">// NOTE dummy implementation when the C ffi implementation is missing
-        </span>::std::ptr::null_mut()
-    }
-}
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TlsTranscript(<span class="kw">pub </span>[u8; <span class="number">64</span>], <span class="kw">pub </span>i32);
@@ -721,7 +683,9 @@
 
 <span class="macro">dummy_codec!</span>(TLSProtocolTypes, TlsClaim);
 
-<span class="kw">impl </span>Claim&lt;TLSProtocolTypes&gt; <span class="kw">for </span>TlsClaim {
+<span class="kw">impl </span>Claim <span class="kw">for </span>TlsClaim {
+    <span class="kw">type </span>PT = TLSProtocolTypes;
+
     <span class="kw">fn </span>agent_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AgentName {
         <span class="self">self</span>.agent_name
     }

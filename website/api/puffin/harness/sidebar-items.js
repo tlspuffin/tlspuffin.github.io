@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CErrorKind","RESULT_CODE"],"fn":["_log","c_log_debug","c_log_error","c_log_info","c_log_trace","c_log_warn","make_result","to_string"],"macro":["define_extern_c_log"],"mod":["bindings"],"static":["PUFFIN"],"struct":["AGENT_INTERFACE","AGENT_TYPE","CError","CLAIMER_CB","Claim","PUFFIN_BINDINGS"],"type":["AGENT","RESULT"]};

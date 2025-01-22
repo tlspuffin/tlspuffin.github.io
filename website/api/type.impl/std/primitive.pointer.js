@@ -1,9 +1,9 @@
 (function() {
-    var type_impls = Object.fromEntries([["security_claims",[]],["tlspuffin_harness_sys",[]]]);
+    var type_impls = Object.fromEntries([["puffin",[]],["security_claims",[]],["tlspuffin",[]]]);
     if (window.register_type_impls) {
         window.register_type_impls(type_impls);
     } else {
         window.pending_type_impls = type_impls;
     }
 })()
-//{"start":55,"fragment_lengths":[22,29]}
+//{"start":55,"fragment_lengths":[13,23,17]}

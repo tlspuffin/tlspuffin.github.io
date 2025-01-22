@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["BUILDER_DIR"],"enum":["Builder","Sources","Value"],"fn":["dir"],"struct":["Config","ConfigDir","Library","Options","VendorDir"],"type":["Array"]};

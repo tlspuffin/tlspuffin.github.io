@@ -21,19 +21,6 @@
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
-<a href="#24" id="24">24</a>
-<a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
-<a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(unused_doc_comments)]
 
 </span><span class="kw">pub mod </span>agent;
@@ -46,6 +33,7 @@
 <span class="kw">pub mod </span>experiment;
 <span class="kw">pub mod </span>fuzzer;
 <span class="kw">pub mod </span>graphviz;
+<span class="kw">pub mod </span>harness;
 <span class="kw">pub mod </span>log;
 <span class="kw">pub mod </span>protocol;
 <span class="kw">pub mod </span>put;
@@ -56,18 +44,4 @@
 <span class="kw">pub mod </span>trace_helper;
 
 <span class="kw">pub use </span>{libafl, libafl_bolts};
-
-<span class="kw">pub const </span>GIT_REF: <span class="kw-2">&amp;</span>str = <span class="kw">match </span><span class="macro">option_env!</span>(<span class="string">"GIT_REF"</span>) {
-    <span class="prelude-val">Some</span>(env) =&gt; env,
-    <span class="prelude-val">None </span>=&gt; <span class="string">"undefined"</span>,
-};
-
-<span class="kw">pub const </span>MAYBE_GIT_REF: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; = <span class="macro">option_env!</span>(<span class="string">"GIT_REF"</span>);
-
-<span class="kw">pub const </span>GIT_MSG: <span class="kw-2">&amp;</span>str = <span class="kw">match </span><span class="macro">option_env!</span>(<span class="string">"GIT_MSG"</span>) {
-    <span class="prelude-val">Some</span>(env) =&gt; env,
-    <span class="prelude-val">None </span>=&gt; <span class="string">"undefined"</span>,
-};
-
-<span class="kw">pub const </span>VERSION_STR: <span class="kw-2">&amp;</span>str = <span class="macro">env!</span>(<span class="string">"VERSION_STR"</span>);
 </code></pre></div></section></main></body></html>

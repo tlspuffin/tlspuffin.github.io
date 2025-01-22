@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Builder","Sources"],"mod":["build","metadata"],"struct":["Config","Library","Metadata","Options"]};

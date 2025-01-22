@@ -217,6 +217,7 @@
 <a href="#217" id="217">217</a>
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::any::TypeId;
 
 <span class="kw">use </span>puffin::algebra::signature::Signature;
@@ -227,6 +228,7 @@
     EvaluatedTerm, Extractable, OpaqueProtocolMessageFlight, ProtocolBehavior, ProtocolMessage,
     ProtocolMessageDeframer, ProtocolMessageFlight, ProtocolTypes,
 };
+<span class="kw">use </span>puffin::put::PutDescriptor;
 <span class="kw">use </span>puffin::trace::{Knowledge, Source, Trace};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
@@ -425,7 +427,7 @@
     <span class="kw">type </span>ProtocolTypes = SshProtocolTypes;
     <span class="kw">type </span>SecurityViolationPolicy = SshSecurityViolationPolicy;
 
-    <span class="kw">fn </span>create_corpus() -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::ProtocolTypes&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; {
+    <span class="kw">fn </span>create_corpus(_put: PutDescriptor) -&gt; Vec&lt;(Trace&lt;<span class="self">Self</span>::ProtocolTypes&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; {
         <span class="macro">vec!</span>[] <span class="comment">// TODO
     </span>}
 

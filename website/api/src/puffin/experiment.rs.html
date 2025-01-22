@@ -94,10 +94,10 @@
 <span class="kw">use </span>chrono::Local;
 <span class="kw">use </span>clap::ArgMatches;
 <span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>puffin_build::puffin;
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use crate</span>::{GIT_MSG, GIT_REF};
 
 <span class="attr">#[must_use]
 </span><span class="kw">pub fn </span>format_title&lt;PB: ProtocolBehavior&gt;(
@@ -123,7 +123,7 @@
         --{default_put_short}-{num_cores}c{without_bit_level}{without_dy_mutations}{put_use_clear}{minimizer}__\
         {title}--{hour}--{index}"</span>,
         date = date,
-        title = title.unwrap_or(GIT_REF),
+        title = title.unwrap_or(<span class="kw-2">&amp;</span>puffin::git_ref().unwrap_or_default()),
         index = index.unwrap_or(<span class="number">0</span>)
     )
 }
@@ -159,8 +159,8 @@
             ))
             .join(<span class="string">", "</span>),
         date = Local::now().to_rfc3339(),
-        git_ref = GIT_REF,
-        git_msg = GIT_MSG,
+        git_ref = puffin::git_ref().as_deref().unwrap_or(<span class="string">"unknown"</span>),
+        git_msg = puffin::git_msg().as_deref().unwrap_or(<span class="string">"unknown"</span>),
         command = commands,
         description = description_text
     );

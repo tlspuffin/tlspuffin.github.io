@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["full_version","git_msg","git_ref","project_dir","version"]};

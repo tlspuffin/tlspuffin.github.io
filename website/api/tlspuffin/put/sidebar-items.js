@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TlsPutConfig"]};
+window.SIDEBAR_ITEMS = {"fn":["destroy","make_claimer","make_descriptor","notify"],"macro":["ccall","pem","r_ccall","take_res"],"struct":["CAgent","CPut","CReader","TlsPutConfig"]};

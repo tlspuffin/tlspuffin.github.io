@@ -1244,7 +1244,7 @@
 
     <span class="kw">pub fn </span>spawn(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::ProtocolTypes, PB::Claim&gt;,
+        claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::Claim&gt;,
         descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Agent&lt;PB&gt;, Error&gt; {
         <span class="kw">let </span>put_descriptor = <span class="self">self
@@ -1298,7 +1298,7 @@
     <span class="doccomment">/// The knowledge of the attacker
     </span><span class="kw">pub </span>knowledge_store: KnowledgeStore&lt;PB::ProtocolTypes&gt;,
     agents: Vec&lt;Agent&lt;PB&gt;&gt;,
-    claims: GlobalClaimList&lt;PB::ProtocolTypes, PB::Claim&gt;,
+    claims: GlobalClaimList&lt;PB::Claim&gt;,
 
     spawner: Spawner&lt;PB&gt;,
 
@@ -1334,7 +1334,7 @@
     </span><span class="kw">pub fn </span>new(spawner: Spawner&lt;PB&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// We keep a global list of all claims throughout the execution. Each claim is identified
         // by the AgentName. A rename of an Agent does not interfere with this.
-        </span><span class="kw">let </span>claims = GlobalClaimList::new();
+        </span><span class="kw">let </span>claims = GlobalClaimList::&lt;PB::Claim&gt;::new();
 
         <span class="self">Self </span>{
             knowledge_store: KnowledgeStore::new(),

@@ -293,6 +293,9 @@
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
 <a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
 </pre></div><pre class="rust"><code><span class="comment">// FIXME stabilize sshpuffin and reactivate the dead_code lint
 //
 //     Currently sshpuffin contains many functions that are unused but will be
@@ -315,15 +318,14 @@
 <span class="kw">use </span>puffin::codec::Codec;
 <span class="kw">use </span>puffin::error::Error;
 <span class="kw">use </span>puffin::put::{Put, PutOptions};
-<span class="kw">use </span>puffin::put_registry::{Factory, PutKind};
+<span class="kw">use </span>puffin::put_registry::Factory;
 <span class="kw">use </span>puffin::stream::Stream;
-<span class="kw">use </span>puffin::VERSION_STR;
 
 <span class="kw">use </span><span class="kw">crate</span>::libssh::ssh::{
     SessionOption, SessionState, SshAuthResult, SshBind, SshBindOption, SshKey, SshRequest,
     SshResult, SshSession,
 };
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{RawSshMessageFlight, SshProtocolBehavior, SshProtocolTypes};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{RawSshMessageFlight, SshProtocolBehavior};
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::LIBSSH_RUST_PUT;
 
 <span class="kw">pub mod </span>ssh;
@@ -375,7 +377,6 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
             _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
-                SshProtocolTypes,
                 &lt;SshProtocolBehavior <span class="kw">as </span>puffin::protocol::ProtocolBehavior&gt;::Claim,
             &gt;,
             _options: <span class="kw-2">&amp;</span>PutOptions,
@@ -437,10 +438,6 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
             }))
         }
 
-        <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PutKind {
-            PutKind::Rust
-        }
-
         <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
             String::from(LIBSSH_RUST_PUT)
         }
@@ -449,7 +446,11 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
             <span class="macro">vec!</span>[
                 (
                     <span class="string">"harness"</span>.to_string(),
-                    <span class="macro">format!</span>(<span class="string">"{} ({})"</span>, LIBSSH_RUST_PUT, VERSION_STR),
+                    <span class="macro">format!</span>(
+                        <span class="string">"{} {}"</span>,
+                        LIBSSH_RUST_PUT,
+                        puffin_build::puffin::full_version()
+                    ),
                 ),
                 (
                     <span class="string">"library"</span>.to_string(),
@@ -457,6 +458,10 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
                 ),
             ]
         }
+
+        <span class="kw">fn </span>supports(<span class="kw-2">&amp;</span><span class="self">self</span>, _capability: <span class="kw-2">&amp;</span>str) -&gt; bool {
+            <span class="bool-val">false
+        </span>}
 
         <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;SshProtocolBehavior&gt;&gt; {
             Box::new(LibSSLFactory)
@@ -563,13 +568,14 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
-    <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="comment">// TODO: We can use internal state
         </span><span class="kw">match </span><span class="self">self</span>.state {
             PutState::ExchangingKeys =&gt; <span class="string">"ExchangingKeys"</span>,
             PutState::Authenticating =&gt; <span class="string">"Authenticating"</span>,
             PutState::Done =&gt; <span class="string">"Done"</span>,
         }
+        .to_owned()
     }
 
     <span class="kw">fn </span>is_state_successful(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {

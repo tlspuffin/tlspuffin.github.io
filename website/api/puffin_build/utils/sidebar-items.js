@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["make_rust_identifier"],"mod":["clang","cmake","git","value"]};

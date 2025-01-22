@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["cmake","git","vendor"]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["error","harness","library","puffin","utils","vendor_dir"],"type":["Result"]};

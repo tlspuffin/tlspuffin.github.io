@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["TCP_PUT"],"enum":["PutKind"],"struct":["PutRegistry"],"trait":["Factory"]};
+window.SIDEBAR_ITEMS = {"constant":["TCP_PUT"],"struct":["PutRegistry"],"trait":["Factory"]};

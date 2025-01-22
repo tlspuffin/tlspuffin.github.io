@@ -536,6 +536,8 @@
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
 <a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::path::PathBuf;
@@ -550,6 +552,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_monitor::StatsMonitor;
 <span class="kw">use </span><span class="kw">crate</span>::log::{config_fuzzing, config_fuzzing_client};
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
+<span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
 <span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
 
@@ -917,6 +920,7 @@
 <span class="doccomment">/// Starts the fuzzing loop
 </span><span class="kw">pub fn </span>start&lt;PB&gt;(
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
+    put: PutDescriptor,
     config: FuzzerConfig,
     log_handle: Handle,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
@@ -971,7 +975,7 @@
                 &lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::signature(),
                 put_registry,
             ))
-            .with_initial_inputs(PB::create_corpus())
+            .with_initial_inputs(PB::create_corpus(put.clone()))
             .with_rand(StdRand::new())
             .with_corpus(
                 <span class="comment">//InMemoryCorpus::new(),

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["GlobalFactory"],"fn":["all","register"],"macro":["for_puts","registration_c","registration_rust"],"static":["PUTS"]};

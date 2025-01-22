@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["apply","expand_cfg"],"enum":["ConfigPredicate"],"fn":["bind_value","replace_ident"],"macro":["replace"],"struct":["Expansion","MacroCall","Replacement"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["RawSshMessageFlight","SshMessageFlight","SshProtocolBehavior","SshProtocolTypes"]};
+window.SIDEBAR_ITEMS = {"enum":["AgentType"],"struct":["RawSshMessageFlight","SshDescriptorConfig","SshMessageFlight","SshProtocolBehavior","SshProtocolTypes"]};

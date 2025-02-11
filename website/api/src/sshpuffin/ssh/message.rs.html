@@ -518,21 +518,11 @@
 <a href="#518" id="518">518</a>
 <a href="#519" id="519">519</a>
 <a href="#520" id="520">520</a>
-<a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
-<a href="#524" id="524">524</a>
-<a href="#525" id="525">525</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::{Codec, Reader};
 <span class="kw">use </span>puffin::error::Error;
-<span class="kw">use </span>puffin::protocol::{
-    EvaluatedTerm, Extractable, OpaqueProtocolMessage, ProtocolMessage, ProtocolTypes,
-};
+<span class="kw">use </span>puffin::protocol::{Extractable, OpaqueProtocolMessage, ProtocolMessage, ProtocolTypes};
 <span class="kw">use </span>puffin::trace::{Knowledge, Source};
-<span class="kw">use </span>puffin::{
-    atom_extract_knowledge, codec, dummy_codec, dummy_extract_knowledge,
-    dummy_extract_knowledge_codec,
-};
+<span class="kw">use </span>puffin::{atom_extract_knowledge, dummy_extract_knowledge};
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::SshProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::query::SshQueryMatcher;

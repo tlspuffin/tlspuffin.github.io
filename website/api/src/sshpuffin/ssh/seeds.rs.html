@@ -184,13 +184,11 @@
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
+</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span>puffin::term;
 <span class="kw">use </span>puffin::trace::{InputAction, OutputAction, Trace};
 
-<span class="kw">use </span><span class="kw">crate</span>::protocol::SshProtocolTypes;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{AgentType, SshDescriptorConfig, SshProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::ssh::fn_impl::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::ssh::message::<span class="kw-2">*</span>;
 
@@ -198,22 +196,20 @@
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[
-            AgentDescriptor {
-                name: client,
-                tls_version: TLSVersion::V1_3, <span class="comment">// FIXME: Remove?
-                </span>typ: AgentType::Client,
-                try_reuse: <span class="bool-val">false</span>,             <span class="comment">// FIXME: Remove?
-                </span>client_authentication: <span class="bool-val">false</span>, <span class="comment">// FIXME: Remove?
-                </span>server_authentication: <span class="bool-val">false</span>, <span class="comment">// FIXME: Remove?
-            </span>},
-            AgentDescriptor {
-                name: server,
-                tls_version: TLSVersion::V1_3, <span class="comment">// FIXME: Remove?
-                </span>typ: AgentType::Server,
-                try_reuse: <span class="bool-val">false</span>,             <span class="comment">// FIXME: Remove?
-                </span>client_authentication: <span class="bool-val">false</span>, <span class="comment">// FIXME: Remove?
-                </span>server_authentication: <span class="bool-val">false</span>, <span class="comment">// FIXME: Remove?
-            </span>},
+            AgentDescriptor::from_config(
+                client,
+                SshDescriptorConfig {
+                    typ: AgentType::Client,
+                    try_reuse: <span class="bool-val">false</span>, <span class="comment">// FIXME: Remove?
+                </span>},
+            ),
+            AgentDescriptor::from_config(
+                server,
+                SshDescriptorConfig {
+                    typ: AgentType::Server,
+                    try_reuse: <span class="bool-val">false</span>, <span class="comment">// FIXME: Remove?
+                </span>},
+            ),
         ],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),

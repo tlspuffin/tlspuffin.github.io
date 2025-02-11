@@ -133,13 +133,15 @@
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::claims::GlobalClaimList;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::{Put, PutOptions};
 
 <span class="comment">// FIXME TCP_PUT should be defined in the tlspuffin package
@@ -252,7 +254,9 @@
 </span><span class="kw">pub trait </span>Factory&lt;PB: ProtocolBehavior&gt; {
     <span class="kw">fn </span>create(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;
+            &lt;&lt;PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig,
+        &gt;,
         claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::Claim&gt;,
         options: <span class="kw-2">&amp;</span>PutOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;, Error&gt;;

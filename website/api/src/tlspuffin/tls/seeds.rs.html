@@ -2487,17 +2487,31 @@
 <a href="#2487" id="2487">2487</a>
 <a href="#2488" id="2488">2488</a>
 <a href="#2489" id="2489">2489</a>
+<a href="#2490" id="2490">2490</a>
+<a href="#2491" id="2491">2491</a>
+<a href="#2492" id="2492">2492</a>
+<a href="#2493" id="2493">2493</a>
+<a href="#2494" id="2494">2494</a>
+<a href="#2495" id="2495">2495</a>
+<a href="#2496" id="2496">2496</a>
+<a href="#2497" id="2497">2497</a>
+<a href="#2498" id="2498">2498</a>
+<a href="#2499" id="2499">2499</a>
+<a href="#2500" id="2500">2500</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Implementation of  special traces. Each may represent a special TLS execution like a full
 //! handshake or an execution which crashes OpenSSL.
 </span><span class="attr">#![allow(dead_code)]
 
-</span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType, TLSVersion};
+</span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::algebra::{DYTerm, Term};
 <span class="kw">use </span>puffin::trace::{Action, InputAction, OutputAction, Precomputation, Step, Trace};
 <span class="kw">use </span>puffin::{input_action, term};
 
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{MessageFlight, TLSProtocolBehavior, TLSProtocolTypes};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{
+    AgentType, MessageFlight, TLSDescriptorConfig, TLSProtocolBehavior, TLSProtocolTypes,
+    TLSVersion,
+};
 <span class="kw">use </span><span class="kw">crate</span>::query::TlsQueryMatcher;
 <span class="kw">use </span><span class="kw">crate</span>::tls::fn_impl::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{CipherSuite, Compression, HandshakeType, ProtocolVersion};
@@ -2511,20 +2525,24 @@
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[
-            AgentDescriptor {
-                name: client,
-                tls_version: TLSVersion::V1_3,
-                typ: AgentType::Client,
-                client_authentication: <span class="bool-val">true</span>,
-                ..AgentDescriptor::default()
-            },
-            AgentDescriptor {
-                name: server,
-                tls_version: TLSVersion::V1_3,
-                typ: AgentType::Server,
-                client_authentication: <span class="bool-val">true</span>,
-                ..AgentDescriptor::default()
-            },
+            AgentDescriptor::from_config(
+                client,
+                TLSDescriptorConfig {
+                    tls_version: TLSVersion::V1_3,
+                    typ: AgentType::Client,
+                    client_authentication: <span class="bool-val">true</span>,
+                    ..TLSDescriptorConfig::default()
+                },
+            ),
+            AgentDescriptor::from_config(
+                server,
+                TLSDescriptorConfig {
+                    tls_version: TLSVersion::V1_3,
+                    typ: AgentType::Server,
+                    client_authentication: <span class="bool-val">true</span>,
+                    ..TLSDescriptorConfig::default()
+                },
+            ),
         ],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),
@@ -2647,8 +2665,8 @@
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[
-            AgentDescriptor::new_client(client, TLSVersion::V1_3),
-            AgentDescriptor::new_server(server, TLSVersion::V1_3),
+            TLSDescriptorConfig::new_client(client, TLSVersion::V1_3),
+            TLSDescriptorConfig::new_server(server, TLSVersion::V1_3),
         ],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),
@@ -2686,8 +2704,8 @@
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[
-            AgentDescriptor::new_client(client, TLSVersion::V1_3),
-            AgentDescriptor::new_server(server, TLSVersion::V1_3),
+            TLSDescriptorConfig::new_client(client, TLSVersion::V1_3),
+            TLSDescriptorConfig::new_server(server, TLSVersion::V1_3),
         ],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),
@@ -2769,8 +2787,8 @@
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[
-            AgentDescriptor::new_client(client, TLSVersion::V1_2),
-            AgentDescriptor::new_server(server, TLSVersion::V1_2),
+            TLSDescriptorConfig::new_client(client, TLSVersion::V1_2),
+            TLSDescriptorConfig::new_server(server, TLSVersion::V1_2),
         ],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),
@@ -2884,8 +2902,8 @@
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
         descriptors: <span class="macro">vec!</span>[
-            AgentDescriptor::new_client(client, TLSVersion::V1_3),
-            AgentDescriptor::new_server(server, TLSVersion::V1_3),
+            TLSDescriptorConfig::new_client(client, TLSVersion::V1_3),
+            TLSDescriptorConfig::new_server(server, TLSVersion::V1_3),
         ],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),
@@ -3127,12 +3145,14 @@
 
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor {
-            name: client,
-            tls_version: TLSVersion::V1_3,
-            typ: AgentType::Client,
-            ..AgentDescriptor::default()
-        }],
+        descriptors: <span class="macro">vec!</span>[AgentDescriptor::from_config(
+            client,
+            TLSDescriptorConfig {
+                tls_version: TLSVersion::V1_3,
+                typ: AgentType::Client,
+                ..TLSDescriptorConfig::default()
+            },
+        )],
         steps: <span class="macro">vec!</span>[
             OutputAction::new_step(client),
             Step {
@@ -3291,13 +3311,15 @@
 
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor {
-            name: server,
-            tls_version: TLSVersion::V1_3,
-            typ: AgentType::Server,
-            client_authentication: <span class="bool-val">true</span>,
-            ..AgentDescriptor::default()
-        }],
+        descriptors: <span class="macro">vec!</span>[AgentDescriptor::from_config(
+            server,
+            TLSDescriptorConfig {
+                tls_version: TLSVersion::V1_3,
+                typ: AgentType::Server,
+                client_authentication: <span class="bool-val">true</span>,
+                ..TLSDescriptorConfig::default()
+            },
+        )],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -3398,7 +3420,7 @@
 
     Trace {
         prior_traces: <span class="macro">vec!</span>[],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -3530,7 +3552,7 @@
 
     <span class="kw">let </span>trace = Trace {
         prior_traces: <span class="macro">vec!</span>[],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_2)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_2)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -3669,7 +3691,7 @@
 
     Trace {
         prior_traces: <span class="macro">vec!</span>[initial_handshake],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -3797,7 +3819,7 @@
 
     Trace {
         prior_traces: <span class="macro">vec!</span>[initial_handshake],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -3955,7 +3977,7 @@
 
     <span class="kw">let </span>trace = Trace {
         prior_traces: <span class="macro">vec!</span>[],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -4145,7 +4167,7 @@
 
     <span class="kw">let </span>trace = Trace {
         prior_traces: <span class="macro">vec!</span>[],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,
@@ -4334,7 +4356,7 @@
 
     Trace {
         prior_traces: <span class="macro">vec!</span>[initial_handshake],
-        descriptors: <span class="macro">vec!</span>[AgentDescriptor::new_server(server, TLSVersion::V1_3)],
+        descriptors: <span class="macro">vec!</span>[TLSDescriptorConfig::new_server(server, TLSVersion::V1_3)],
         steps: <span class="macro">vec!</span>[
             Step {
                 agent: server,

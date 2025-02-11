@@ -312,7 +312,7 @@
 <span class="kw">use </span>std::os::unix::io::{IntoRawFd, RawFd};
 <span class="kw">use </span>std::os::unix::net::{UnixListener, UnixStream};
 
-<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType};
+<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span>puffin::algebra::ConcreteMessage;
 <span class="kw">use </span>puffin::claims::GlobalClaimList;
 <span class="kw">use </span>puffin::codec::Codec;
@@ -325,7 +325,7 @@
     SessionOption, SessionState, SshAuthResult, SshBind, SshBindOption, SshKey, SshRequest,
     SshResult, SshSession,
 };
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{RawSshMessageFlight, SshProtocolBehavior};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{AgentType, RawSshMessageFlight, SshDescriptorConfig, SshProtocolBehavior};
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::LIBSSH_RUST_PUT;
 
 <span class="kw">pub mod </span>ssh;
@@ -375,7 +375,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
     <span class="kw">impl </span>Factory&lt;SshProtocolBehavior&gt; <span class="kw">for </span>LibSSLFactory {
         <span class="kw">fn </span>create(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-            agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+            agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;SshDescriptorConfig&gt;,
             _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;
                 &lt;SshProtocolBehavior <span class="kw">as </span>puffin::protocol::ProtocolBehavior&gt;::Claim,
             &gt;,
@@ -408,7 +408,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
 
             <span class="kw">let </span>put_fd = put_stream.into_raw_fd();
 
-            <span class="kw">match </span><span class="kw-2">&amp;</span>agent_descriptor.typ {
+            <span class="kw">match </span><span class="kw-2">&amp;</span>agent_descriptor.protocol_config.typ {
                 AgentType::Server =&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>bind = SshBind::new().unwrap();
 
@@ -480,7 +480,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
 
 <span class="kw">pub struct </span>LibSSL {
     fuzz_stream: UnixStream,
-    agent_descriptor: AgentDescriptor,
+    agent_descriptor: AgentDescriptor&lt;SshDescriptorConfig&gt;,
     session: SshSession,
 
     state: PutState,
@@ -505,7 +505,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
 <span class="kw">impl </span>Put&lt;SshProtocolBehavior&gt; <span class="kw">for </span>LibSSL {
     <span class="kw">fn </span>progress(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>session = <span class="kw-2">&amp;mut </span><span class="self">self</span>.session;
-        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor.typ {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor.protocol_config.typ {
             AgentType::Server =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.state {
                 PutState::ExchangingKeys =&gt; <span class="kw">match </span>session.handle_key_exchange() {
                     <span class="prelude-val">Ok</span>(kex) =&gt; {
@@ -564,7 +564,7 @@ FVCIVIuCGO0unWSrPlL7FFPldcYMTy7S33HmlzIuywlUdqD8qCMbA1IP2a9+oD9SAhzk4f
         <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 
-    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor {
+    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor&lt;SshDescriptorConfig&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 

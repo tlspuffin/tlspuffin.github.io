@@ -92,13 +92,15 @@
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::hash::Hash;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::stream::Stream;
 
 <span class="attr">#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
@@ -170,7 +172,9 @@
     <span class="doccomment">/// In-place reset of the state
     </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_name: AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
 
-    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor;
+    <span class="kw">fn </span>descriptor(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor&lt;&lt;&lt;PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig&gt;;
 
     <span class="doccomment">/// Returns a textual representation of the state in which self is
     </span><span class="kw">fn </span>describe_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String;

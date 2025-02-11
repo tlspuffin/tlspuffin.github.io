@@ -6,15 +6,15 @@ cryptographic operations specific for TLS.</p>
 <p>We forked the <a href="https://github.com/ctz/rustls">rustls</a> library for cryptographic operations like deriving secrets. We also use it to encode and decode TLS messages.</p>
 <p>The cryptographic library <a href="https://github.com/briansmith/ring">ring</a> allows us to use the derived secrets to encrypt and decrypt TLS messages.</p>
 <h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>puffin::agent::TLSVersion::<span class="kw-2">*</span>;
-<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span>puffin::algebra::signature::Signature;
 <span class="kw">use </span>puffin::algebra::{DYTerm, Term};
 <span class="kw">use </span>puffin::input_action;
 <span class="kw">use </span>puffin::trace::{
     Action, InputAction, OutputAction, Query, Source, Step, Trace, TraceContext,
 };
-<span class="kw">use </span>tlspuffin::protocol::TLSProtocolTypes;
+<span class="kw">use </span>tlspuffin::protocol::TLSVersion::<span class="kw-2">*</span>;
+<span class="kw">use </span>tlspuffin::protocol::{TLSDescriptorConfig, TLSProtocolTypes};
 <span class="kw">use </span>tlspuffin::query::TlsQueryMatcher;
 <span class="kw">use </span>tlspuffin::tls::fn_impl::fn_client_hello;
 <span class="kw">use </span>tlspuffin::tls::rustls::msgs::enums::{
@@ -28,8 +28,8 @@ cryptographic operations specific for TLS.</p>
 <span class="kw">let </span>trace = Trace::&lt;TLSProtocolTypes&gt; {
     prior_traces: <span class="macro">vec!</span>[],
     descriptors: <span class="macro">vec!</span>[
-        AgentDescriptor::new_client(client, V1_3),
-        AgentDescriptor::new_server(server, V1_3),
+        TLSDescriptorConfig::new_client(client, V1_3),
+        TLSDescriptorConfig::new_server(server, V1_3),
     ],
     steps: <span class="macro">vec!</span>[
         OutputAction::new_step(client),

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AgentType","TLSVersion"],"struct":["Agent","AgentDescriptor","AgentName"]};
+window.SIDEBAR_ITEMS = {"struct":["Agent","AgentDescriptor","AgentName"],"trait":["ProtocolDescriptorConfig"]};

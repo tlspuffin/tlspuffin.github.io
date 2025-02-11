@@ -525,6 +525,12 @@
 <a href="#525" id="525">525</a>
 <a href="#526" id="526">526</a>
 <a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ffi::OsStr;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, ErrorKind, Read, Write};
 <span class="kw">use </span>std::net::{AddrParseError, IpAddr, SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
@@ -535,7 +541,7 @@
 <span class="kw">use </span>std::thread;
 <span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName, AgentType};
+<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
 <span class="kw">use </span>puffin::algebra::ConcreteMessage;
 <span class="kw">use </span>puffin::claims::GlobalClaimList;
 <span class="kw">use </span>puffin::codec::Codec;
@@ -545,14 +551,14 @@
 <span class="kw">use </span>puffin::put_registry::{Factory, TCP_PUT};
 <span class="kw">use </span>puffin::stream::Stream;
 
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{AgentType, OpaqueMessageFlight, TLSDescriptorConfig, TLSProtocolBehavior};
 
 <span class="kw">pub fn </span>new_tcp_factory() -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TLSProtocolBehavior&gt;&gt; {
     <span class="kw">struct </span>TCPFactory;
     <span class="kw">impl </span>Factory&lt;TLSProtocolBehavior&gt; <span class="kw">for </span>TCPFactory {
         <span class="kw">fn </span>create(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-            agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+            agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt;,
             _claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
             options: <span class="kw-2">&amp;</span>PutOptions,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;TLSProtocolBehavior&gt;&gt;, Error&gt; {
@@ -572,7 +578,7 @@
                     .get_option(<span class="string">"cwd"</span>)
                     .map(|cwd| <span class="prelude-val">Some</span>(cwd.to_owned()))
                     .unwrap_or_default();
-                <span class="kw">if </span>agent_descriptor.typ == AgentType::Client {
+                <span class="kw">if </span>agent_descriptor.protocol_config.typ == AgentType::Client {
                     <span class="kw">let </span><span class="kw-2">mut </span>server = TcpServerPut::new(agent_descriptor, options)<span class="question-mark">?</span>;
                     server.set_process(TLSProcess::new(<span class="kw-2">&amp;</span>prog, <span class="kw-2">&amp;</span>args, cwd.as_ref()));
                     <span class="prelude-val">Ok</span>(Box::new(server))
@@ -584,7 +590,7 @@
                 }
             } <span class="kw">else </span>{
                 <span class="macro">log::info!</span>(<span class="string">"Trace contains no TCP running information so we fall back to external TCP client and servers."</span>);
-                <span class="kw">if </span>agent_descriptor.typ == AgentType::Client {
+                <span class="kw">if </span>agent_descriptor.protocol_config.typ == AgentType::Client {
                     <span class="kw">let </span>server = TcpServerPut::new(agent_descriptor, options)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(Box::new(server))
                 } <span class="kw">else </span>{
@@ -631,7 +637,7 @@
 /// ```
 </span><span class="kw">pub struct </span>TcpClientPut {
     stream: TcpStream,
-    agent_descriptor: AgentDescriptor,
+    agent_descriptor: AgentDescriptor&lt;TLSDescriptorConfig&gt;,
     process: <span class="prelude-ty">Option</span>&lt;TLSProcess&gt;,
 }
 
@@ -650,7 +656,10 @@
 }
 
 <span class="kw">impl </span>TcpClientPut {
-    <span class="kw">fn </span>new(agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor, options: <span class="kw-2">&amp;</span>PutOptions) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    <span class="kw">fn </span>new(
+        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt;,
+        options: <span class="kw-2">&amp;</span>PutOptions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>addr = addr_from_config(options).map_err(|err| Error::Put(err.to_string()))<span class="question-mark">?</span>;
         <span class="kw">let </span>stream = <span class="self">Self</span>::new_stream(addr)<span class="question-mark">?</span>;
 
@@ -696,12 +705,15 @@
 <span class="kw">pub struct </span>TcpServerPut {
     stream: <span class="prelude-ty">Option</span>&lt;(TcpStream, TcpListener)&gt;,
     stream_receiver: mpsc::Receiver&lt;(TcpStream, TcpListener)&gt;,
-    agent_descriptor: AgentDescriptor,
+    agent_descriptor: AgentDescriptor&lt;TLSDescriptorConfig&gt;,
     process: <span class="prelude-ty">Option</span>&lt;TLSProcess&gt;,
 }
 
 <span class="kw">impl </span>TcpServerPut {
-    <span class="kw">fn </span>new(agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor, options: <span class="kw-2">&amp;</span>PutOptions) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    <span class="kw">fn </span>new(
+        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt;,
+        options: <span class="kw-2">&amp;</span>PutOptions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>(sender, stream_receiver) = channel();
         <span class="kw">let </span>addr = addr_from_config(options).map_err(|err| Error::Put(err.to_string()))<span class="question-mark">?</span>;
 
@@ -816,7 +828,7 @@
         <span class="macro">panic!</span>(<span class="string">"Not supported"</span>)
     }
 
-    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor {
+    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
@@ -852,7 +864,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor {
+    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.agent_descriptor
     }
 
@@ -947,12 +959,12 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>puffin::agent::TLSVersion;
     <span class="kw">use </span>puffin::execution::{Runner, TraceRunner};
     <span class="kw">use </span>puffin::put::PutDescriptor;
     <span class="kw">use </span>puffin::put_registry::TCP_PUT;
     <span class="kw">use </span>puffin::trace::Spawner;
 
+    <span class="kw">use </span><span class="kw">crate</span>::protocol::TLSVersion;
     <span class="attr">#[allow(unused_imports)]
     </span><span class="kw">use crate</span>::{test_utils::prelude::<span class="kw-2">*</span>, tls::seeds::<span class="kw-2">*</span>};
 

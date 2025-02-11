@@ -964,6 +964,12 @@
 <a href="#964" id="964">964</a>
 <a href="#965" id="965">965</a>
 <a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module define the execution [`Trace`]s.
 //!
 //! Each [`Trace`]s consist of several [`Step`]s, of which each has either an [`OutputAction`] or
@@ -1245,7 +1251,7 @@
     <span class="kw">pub fn </span>spawn(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;PB::Claim&gt;,
-        descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+        descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;&lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Agent&lt;PB&gt;, Error&gt; {
         <span class="kw">let </span>put_descriptor = <span class="self">self
             </span>.descriptors
@@ -1406,7 +1412,10 @@
         <span class="self">self</span>.knowledge_store.find_variable(query_type_shape, query)
     }
 
-    <span class="kw">pub fn </span>spawn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, descriptor: <span class="kw-2">&amp;</span>AgentDescriptor) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">pub fn </span>spawn(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;&lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>agent = <span class="self">self</span>.spawner.spawn(<span class="kw-2">&amp;</span><span class="self">self</span>.claims, descriptor)<span class="question-mark">?</span>;
         <span class="self">self</span>.agents.push(agent);
 
@@ -1443,7 +1452,7 @@
 <span class="attr">#[derive(Clone, Deserialize, Serialize, Hash)]
 #[serde(bound = <span class="string">"PT: ProtocolTypes"</span>)]
 </span><span class="kw">pub struct </span>Trace&lt;PT: ProtocolTypes&gt; {
-    <span class="kw">pub </span>descriptors: Vec&lt;AgentDescriptor&gt;,
+    <span class="kw">pub </span>descriptors: Vec&lt;AgentDescriptor&lt;PT::PUTConfig&gt;&gt;,
     <span class="kw">pub </span>steps: Vec&lt;Step&lt;PT&gt;&gt;,
     <span class="kw">pub </span>prior_traces: Vec&lt;Trace&lt;PT&gt;&gt;,
 }
@@ -1457,7 +1466,10 @@
     <span class="kw">pub fn </span>spawn_agents&lt;PB: ProtocolBehavior&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         ctx: <span class="kw-2">&amp;mut </span>TraceContext&lt;PB&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">where
+        </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
+    {
         <span class="kw">for </span>descriptor <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.descriptors {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(reusable) = ctx
                 .agents

@@ -196,46 +196,6 @@
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! [`Agent`]s represent communication participants like Alice, Bob or Eve.
 //!
 //! Note that attackers are usually not represented by these [`Agent`]s but instead through a recipe
@@ -244,24 +204,20 @@
 //! Each [`Agent`] has an *inbound* and an *outbound* channel (see [`crate::stream`])
 
 </span><span class="kw">use </span>core::fmt;
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::hash::Hash;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::ConcreteMessage;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::Put;
 <span class="kw">use </span><span class="kw">crate</span>::stream::Stream;
 
 <span class="doccomment">/// Copyable reference to an [`Agent`]. It identifies exactly one agent.
 </span><span class="attr">#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>AgentName(u8);
-
-<span class="attr">#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
-</span><span class="kw">pub enum </span>AgentType {
-    Server,
-    Client,
-}
 
 <span class="kw">impl </span>AgentName {
     <span class="attr">#[must_use]
@@ -299,6 +255,15 @@
     </span>}
 }
 
+<span class="doccomment">/// Contains the protocol specific configuration of an agent
+</span><span class="kw">pub trait </span>ProtocolDescriptorConfig:
+    Default + Debug + Clone + Serialize + Hash + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Deserialize&lt;<span class="lifetime">'a</span>&gt;
+{
+    <span class="doccomment">/// Indicates wheter a agent is reusable, ie. it's configuration is compatible with the new
+    /// agent to spawn
+    </span><span class="kw">fn </span>is_reusable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool;
+}
+
 <span class="doccomment">/// [`AgentDescriptor`]s act like a blueprint to spawn [`Agent`]s with a corresponding server or
 /// client role and a specific TLs version. Essentially they are an [`Agent`] without a stream.
 ///
@@ -307,96 +272,43 @@
 /// every invocation of the seed. Values in the [`crate::put::PutDescriptor`] are supposed to
 /// differ between invocations.
 </span><span class="attr">#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq, Hash)]
-</span><span class="kw">pub struct </span>AgentDescriptor {
+#[serde(bound = <span class="string">"C: ProtocolDescriptorConfig"</span>)]
+</span><span class="kw">pub struct </span>AgentDescriptor&lt;C: ProtocolDescriptorConfig&gt; {
     <span class="kw">pub </span>name: AgentName,
-    <span class="kw">pub </span>tls_version: TLSVersion,
-    <span class="doccomment">/// Whether the agent which holds this descriptor is a server.
-    </span><span class="kw">pub </span>typ: AgentType,
-    <span class="doccomment">/// Whether we want to try to reuse a previous agent. This is needed for TLS session resumption
-    /// as openssl agents rotate ticket keys if they are recreated.
-    </span><span class="kw">pub </span>try_reuse: bool,
-    <span class="doccomment">/// If agent is a server:
-    ///   Make client auth. a requirement.
-    /// If agent is a client:
-    ///   Send a static certificate.
-    ///
-    /// Default: false
-    </span><span class="kw">pub </span>client_authentication: bool,
-    <span class="doccomment">/// If agent is a server:
-    ///   No effect, servers always send certificates in TLS.
-    /// If agent is a client:
-    ///   Make server auth. a requirement.
-    ///
-    /// Default: true
-    </span><span class="kw">pub </span>server_authentication: bool,
+
+    <span class="doccomment">/// Contains the protocol specific configuration of the Agent
+    </span><span class="kw">pub </span>protocol_config: C,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>AgentDescriptor {
+<span class="kw">impl</span>&lt;C: ProtocolDescriptorConfig&gt; AgentDescriptor&lt;C&gt; {
+    <span class="kw">pub fn </span>from_config(name: AgentName, put_config: C) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            name,
+            protocol_config: put_config,
+        }
+    }
+
+    <span class="kw">pub fn </span>from_name(name: AgentName) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            name,
+            protocol_config: C::default(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;C: ProtocolDescriptorConfig&gt; Default <span class="kw">for </span>AgentDescriptor&lt;C&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             name: AgentName::first(),
-            tls_version: TLSVersion::V1_3,
-            typ: AgentType::Server,
-            try_reuse: <span class="bool-val">false</span>,
-            client_authentication: <span class="bool-val">false</span>,
-            server_authentication: <span class="bool-val">true</span>,
+            protocol_config: C::default(),
         }
     }
-}
-
-<span class="kw">impl </span>AgentDescriptor {
-    <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new_reusable_server(name: AgentName, tls_version: TLSVersion) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            name,
-            tls_version,
-            typ: AgentType::Server,
-            try_reuse: <span class="bool-val">true</span>,
-            ..<span class="self">Self</span>::default()
-        }
-    }
-
-    <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new_reusable_client(name: AgentName, tls_version: TLSVersion) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            name,
-            tls_version,
-            typ: AgentType::Client,
-            try_reuse: <span class="bool-val">true</span>,
-            ..<span class="self">Self</span>::default()
-        }
-    }
-
-    <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new_server(name: AgentName, tls_version: TLSVersion) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            name,
-            tls_version,
-            typ: AgentType::Server,
-            ..<span class="self">Self</span>::default()
-        }
-    }
-
-    <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new_client(name: AgentName, tls_version: TLSVersion) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            name,
-            tls_version,
-            typ: AgentType::Client,
-            ..<span class="self">Self</span>::default()
-        }
-    }
-}
-
-<span class="attr">#[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
-</span><span class="kw">pub enum </span>TLSVersion {
-    V1_3,
-    V1_2,
 }
 
 <span class="doccomment">/// An [`Agent`] holds a non-cloneable reference to a Stream.
 </span><span class="kw">pub struct </span>Agent&lt;PB: ProtocolBehavior&gt; {
-    descriptor: AgentDescriptor,
+    descriptor:
+        AgentDescriptor&lt;&lt;&lt;PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig&gt;,
     put: Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;,
 }
 
@@ -418,7 +330,10 @@
 
 <span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; Agent&lt;PB&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new(descriptor: AgentDescriptor, put: Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(
+        descriptor: AgentDescriptor&lt;&lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig&gt;,
+        put: Box&lt;<span class="kw">dyn </span>Put&lt;PB&gt;&gt;,
+    ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ descriptor, put }
     }
 
@@ -444,8 +359,13 @@
 
     <span class="doccomment">/// Checks whether the agent is reusable with the descriptor.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>is_reusable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>AgentDescriptor) -&gt; bool {
-        <span class="self">self</span>.descriptor.typ == other.typ &amp;&amp; <span class="self">self</span>.descriptor.tls_version == other.tls_version
+    </span><span class="kw">pub fn </span>is_reusable_with(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        other: <span class="kw-2">&amp;</span>AgentDescriptor&lt;&lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::PUTConfig&gt;,
+    ) -&gt; bool {
+        <span class="self">self</span>.descriptor
+            .protocol_config
+            .is_reusable_with(<span class="kw-2">&amp;</span>other.protocol_config)
     }
 
     <span class="attr">#[must_use]

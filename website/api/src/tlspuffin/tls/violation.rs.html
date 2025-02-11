@@ -166,10 +166,10 @@
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>puffin::agent::{AgentType, TLSVersion};
 <span class="kw">use </span>puffin::claims::SecurityViolationPolicy;
 
 <span class="kw">use </span><span class="kw">crate</span>::claims::{ClaimData, ClaimDataMessage, Finished, TlsClaim};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{AgentType, TLSVersion};
 <span class="kw">use </span><span class="kw">crate</span>::static_certs::{ALICE_CERT, BOB_CERT};
 
 <span class="kw">pub struct </span>TlsSecurityViolationPolicy;

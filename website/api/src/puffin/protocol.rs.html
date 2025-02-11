@@ -241,6 +241,8 @@
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::any::{Any, TypeId};
 <span class="kw">use </span>std::fmt::{Debug, Display};
 <span class="kw">use </span>std::hash::Hash;
@@ -248,6 +250,7 @@
 <span class="kw">use </span>serde::de::DeserializeOwned;
 <span class="kw">use </span>serde::Serialize;
 
+<span class="kw">use </span><span class="kw">crate</span>::agent::ProtocolDescriptorConfig;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::Signature;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::Matcher;
 <span class="kw">use </span><span class="kw">crate</span>::claims::{Claim, SecurityViolationPolicy};
@@ -366,6 +369,7 @@
     <span class="lifetime">'static </span>+ Clone + Hash + Display + Debug + Serialize + DeserializeOwned
 {
     <span class="kw">type </span>Matcher: Matcher;
+    <span class="kw">type </span>PUTConfig: ProtocolDescriptorConfig;
 
     <span class="doccomment">/// Get the signature that is used in the protocol
     </span><span class="kw">fn </span>signature() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;<span class="self">Self</span>&gt;;

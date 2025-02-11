@@ -421,12 +421,21 @@
 <a href="#421" id="421">421</a>
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::collections::HashSet;
+<span class="kw">use </span>std::ffi::CString;
 <span class="kw">use </span>std::io::Read;
 <span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentType};
+<span class="kw">use </span>puffin::agent::AgentDescriptor;
 <span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::claims::GlobalClaimList;
 <span class="kw">use </span>puffin::error::Error;
@@ -438,7 +447,10 @@
 <span class="kw">use </span>security_claims::Claim;
 
 <span class="kw">use </span><span class="kw">crate</span>::claims::TlsClaim;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::{OpaqueMessageFlight, TLSProtocolBehavior, TLSProtocolTypes};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{
+    AgentType, OpaqueMessageFlight, TLSDescriptorConfig, TLSProtocolBehavior, TLSProtocolTypes,
+    TLSVersion,
+};
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::bindings::{
     AGENT, CLAIMER_CB, PEM, TLS_AGENT_DESCRIPTOR, TLS_AGENT_ROLE, TLS_PUT_INTERFACE, TLS_VERSION,
 };
@@ -448,7 +460,7 @@
 <span class="doccomment">/// Static configuration for creating a new agent state for the PUT
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>TlsPutConfig {
-    <span class="kw">pub </span>descriptor: AgentDescriptor,
+    <span class="kw">pub </span>descriptor: AgentDescriptor&lt;TLSDescriptorConfig&gt;,
     <span class="kw">pub </span>claims: GlobalClaimList&lt;TlsClaim&gt;,
     <span class="kw">pub </span>authenticate_peer: bool,
     <span class="kw">pub </span>extract_deferred: Rc&lt;RefCell&lt;<span class="prelude-ty">Option</span>&lt;TypeShape&lt;TLSProtocolTypes&gt;&gt;&gt;&gt;,
@@ -457,7 +469,7 @@
 
 <span class="kw">impl </span>TlsPutConfig {
     <span class="kw">pub fn </span>new(
-        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt;,
         claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
         options: <span class="kw-2">&amp;</span>PutOptions,
     ) -&gt; TlsPutConfig {
@@ -469,10 +481,10 @@
         TlsPutConfig {
             descriptor: agent_descriptor.clone(),
             claims: claims.clone(),
-            authenticate_peer: agent_descriptor.typ == AgentType::Client
-                &amp;&amp; agent_descriptor.server_authentication
-                || agent_descriptor.typ == AgentType::Server
-                    &amp;&amp; agent_descriptor.client_authentication,
+            authenticate_peer: agent_descriptor.protocol_config.typ == AgentType::Client
+                &amp;&amp; agent_descriptor.protocol_config.server_authentication
+                || agent_descriptor.protocol_config.typ == AgentType::Server
+                    &amp;&amp; agent_descriptor.protocol_config.client_authentication,
             extract_deferred: Rc::new(RefCell::new(<span class="prelude-val">None</span>)),
             use_clear,
         }
@@ -509,7 +521,7 @@
 <span class="kw">impl </span>Factory&lt;TLSProtocolBehavior&gt; <span class="kw">for </span>CPut {
     <span class="kw">fn </span>create(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor,
+        agent_descriptor: <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt;,
         claims: <span class="kw-2">&amp;</span>GlobalClaimList&lt;&lt;TLSProtocolBehavior <span class="kw">as </span>ProtocolBehavior&gt;::Claim&gt;,
         options: <span class="kw-2">&amp;</span>PutOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Put&lt;TLSProtocolBehavior&gt;&gt;, Error&gt; {
@@ -603,13 +615,15 @@
 
         <span class="kw">let </span>server_store = [<span class="kw-2">&amp;</span>client_cert <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>, <span class="kw-2">&amp;</span>other_cert];
         <span class="kw">let </span>client_store = [<span class="kw-2">&amp;</span>server_cert <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>, <span class="kw-2">&amp;</span>other_cert];
+        <span class="kw">let </span>ciphers =
+            CString::new(config.descriptor.protocol_config.cipher_string.clone()).unwrap();
 
-        <span class="kw">let </span>descriptor = <span class="kw">match </span>config.descriptor.typ {
+        <span class="kw">let </span>descriptor = <span class="kw">match </span>config.descriptor.protocol_config.typ {
             AgentType::Server =&gt; {
-                make_descriptor(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>server_cert, <span class="kw-2">&amp;</span>server_pkey, <span class="kw-2">&amp;</span>server_store)
+                make_descriptor(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>server_cert, <span class="kw-2">&amp;</span>server_pkey, <span class="kw-2">&amp;</span>server_store, <span class="kw-2">&amp;</span>ciphers)
             }
             AgentType::Client =&gt; {
-                make_descriptor(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>client_cert, <span class="kw-2">&amp;</span>client_pkey, <span class="kw-2">&amp;</span>client_store)
+                make_descriptor(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>client_cert, <span class="kw-2">&amp;</span>client_pkey, <span class="kw-2">&amp;</span>client_store, <span class="kw-2">&amp;</span>ciphers)
             }
         };
 
@@ -635,8 +649,8 @@
             <span class="kw">use </span><span class="kw">crate</span>::claims::claims_helpers;
 
             <span class="kw">let </span>claims = <span class="self">self</span>.config.claims.clone();
-            <span class="kw">let </span>protocol_version = <span class="self">self</span>.config.descriptor.tls_version;
-            <span class="kw">let </span>origin = <span class="self">self</span>.config.descriptor.typ;
+            <span class="kw">let </span>protocol_version = <span class="self">self</span>.config.descriptor.protocol_config.tls_version;
+            <span class="kw">let </span>origin = <span class="self">self</span>.config.descriptor.protocol_config.typ;
             <span class="kw">let </span>agent_name = <span class="self">self</span>.config.descriptor.name;
 
             <span class="kw">let </span>claimer = make_claimer(<span class="kw">move </span>|claim: Claim| {
@@ -673,7 +687,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor {
+    <span class="kw">fn </span>descriptor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AgentDescriptor&lt;TLSDescriptorConfig&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.config.descriptor
     }
 
@@ -763,6 +777,7 @@
     cert: <span class="kw-2">*const </span>PEM,
     pkey: <span class="kw-2">*const </span>PEM,
     store: <span class="kw-2">&amp;</span>[<span class="kw-2">*const </span>PEM],
+    ciphers: <span class="kw-2">&amp;</span>CString,
 ) -&gt; TLS_AGENT_DESCRIPTOR {
     <span class="comment">// eprintln!("{:?}", cert);
     // eprintln!("{:?}", pkey);
@@ -772,16 +787,17 @@
 
     </span>TLS_AGENT_DESCRIPTOR {
         name: config.descriptor.name.into(),
-        role: <span class="kw">match </span>config.descriptor.typ {
+        role: <span class="kw">match </span>config.descriptor.protocol_config.typ {
             AgentType::Client =&gt; TLS_AGENT_ROLE::CLIENT,
             AgentType::Server =&gt; TLS_AGENT_ROLE::SERVER,
         },
-        tls_version: <span class="kw">match </span>config.descriptor.tls_version {
-            puffin::agent::TLSVersion::V1_3 =&gt; TLS_VERSION::V1_3,
-            puffin::agent::TLSVersion::V1_2 =&gt; TLS_VERSION::V1_2,
+        tls_version: <span class="kw">match </span>config.descriptor.protocol_config.tls_version {
+            TLSVersion::V1_3 =&gt; TLS_VERSION::V1_3,
+            TLSVersion::V1_2 =&gt; TLS_VERSION::V1_2,
         },
-        client_authentication: config.descriptor.client_authentication,
-        server_authentication: config.descriptor.server_authentication,
+        client_authentication: config.descriptor.protocol_config.client_authentication,
+        server_authentication: config.descriptor.protocol_config.server_authentication,
+        cipher_string: ciphers.as_ptr(),
 
         cert,
         pkey,

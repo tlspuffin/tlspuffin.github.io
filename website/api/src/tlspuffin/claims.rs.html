@@ -431,7 +431,7 @@
 <a href="#431" id="431">431</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">use </span>puffin::agent::{AgentName, AgentType, TLSVersion};
+<span class="kw">use </span>puffin::agent::AgentName;
 <span class="kw">use </span>puffin::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span>puffin::claims::Claim;
 <span class="kw">use </span>puffin::error::Error;
@@ -440,7 +440,7 @@
 <span class="kw">use </span>puffin::{codec, dummy_codec, dummy_extract_knowledge, dummy_extract_knowledge_codec};
 <span class="kw">use </span>smallvec::SmallVec;
 
-<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::{AgentType, TLSProtocolTypes, TLSVersion};
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TlsTranscript(<span class="kw">pub </span>[u8; <span class="number">64</span>], <span class="kw">pub </span>i32);
@@ -748,7 +748,6 @@
 }
 
 <span class="kw">pub mod </span>claims_helpers {
-    <span class="kw">use </span>puffin::agent::TLSVersion;
     <span class="kw">use </span>smallvec::SmallVec;
 
     <span class="kw">use </span><span class="kw">crate</span>::claims::{
@@ -756,6 +755,7 @@
         TranscriptCertificate, TranscriptClientFinished, TranscriptClientHello,
         TranscriptPartialClientHello, TranscriptServerFinished, TranscriptServerHello,
     };
+    <span class="kw">use </span><span class="kw">crate</span>::protocol::TLSVersion;
 
     <span class="kw">pub fn </span>to_claim_data(
         protocol_version: TLSVersion,

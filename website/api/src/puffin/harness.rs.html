@@ -103,6 +103,7 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>bindings {
     <span class="attr">#![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
@@ -175,6 +176,7 @@
         }),
     });
 
+    <span class="macro">log::trace!</span>(<span class="string">"PUT error log: {:?}"</span>, <span class="kw-2">&amp;</span>result);
     Box::into_raw(result) <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_
 </span>}
 

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Extractable"],"fn":["extract_fields","extract_variants","generate_impl","has_attr","map_type_definition"],"struct":["TypesParam"]};

@@ -538,8 +538,17 @@
 <a href="#538" id="538">538</a>
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::any::TypeId;
 
+<span class="kw">use </span>extractable_macro::Extractable;
 <span class="kw">use </span>puffin::codec;
 <span class="kw">use </span>puffin::codec::{Codec, Reader, VecCodecWoSize};
 <span class="kw">use </span>puffin::error::Error::Term;
@@ -567,7 +576,8 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::heartbeat::HeartbeatPayload;
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="attr">#[derive(Debug, Clone, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub enum </span>MessagePayload {
     Alert(AlertMessagePayload),
     Handshake(HandshakeMessagePayload),
@@ -683,12 +693,18 @@
 /// This type owns all memory for its interior parts. It is used to read/write from/to I/O
 /// buffers as well as for fragmenting, joining and encryption/decryption. It can be converted
 /// into a `Message` by decoding the payload.
-</span><span class="attr">#[derive(Clone, Debug)]
+</span><span class="attr">#[derive(Debug, Clone, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub struct </span>OpaqueMessage {
-    <span class="kw">pub </span>typ: ContentType,
-    <span class="kw">pub </span>version: ProtocolVersion,
-    <span class="kw">pub </span>payload: Payload,
+    <span class="attr">#[extractable_ignore]
+    </span><span class="kw">pub </span>typ: ContentType,
+    <span class="attr">#[extractable_ignore]
+    </span><span class="kw">pub </span>version: ProtocolVersion,
+    <span class="attr">#[extractable_ignore]
+    </span><span class="kw">pub </span>payload: Payload,
 }
+
+<span class="kw">impl </span>codec::VecCodecWoSize <span class="kw">for </span>OpaqueMessage {}
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>OpaqueMessage {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {

@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implements Extractable trait for structs, enums and unions"><title>Extractable in extractable_macro - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-fecee23daa4e8a6d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="extractable_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (4ac7bcbaa 2024-09-04)" data-channel="nightly" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../extractable_macro/index.html">extractable_<wbr>macro</a><span class="version">0.0.1</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Derive Macro <a href="index.html">extractable_macro</a>::<wbr><a class="derive" href="#">Extractable</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/extractable_macro/lib.rs.html#116-138">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[derive(Extractable)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[extractable]
+    #[extractable_ignore]
+    #[extractable_no_recursion]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implements Extractable trait for structs, enums and unions</p>
+<h2 id="types-requirements"><a class="doc-anchor" href="#types-requirements">§</a>Types requirements</h2>
+<p>All types must implement Clone, Debug and Codec</p>
+<h2 id="struct"><a class="doc-anchor" href="#struct">§</a>Struct</h2>
+<p>Extractable can be used on struct with named or unnamed fields</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Debug, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">struct </span>TestStruct {
+    a: u8,
+    b: f64,
+}</code></pre></div>
+<h3 id="ignore-a-field"><a class="doc-anchor" href="#ignore-a-field">§</a>Ignore a field</h3>
+<p>The <code>#[extractable_ignore]</code> annotation allows to skip a field when extracting knowledges</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Debug, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">struct </span>TestStruct {
+    a: u8,
+    <span class="attr">#[extractable_ignore]
+    </span>b: String, <span class="comment">// this field won't be added to the knowledges
+    </span>c: f64,
+}</code></pre></div>
+<h3 id="extract-a-field-that-doesnt-implement-extractable"><a class="doc-anchor" href="#extract-a-field-that-doesnt-implement-extractable">§</a>Extract a field that doesn’t implement Extractable</h3>
+<p>The <code>#[extractable_no_recursion]</code> annotation will add a field to the knowledge but won’t call
+<code>.extract_knowledge(...)</code> on this field. Use this on types that do no implement Extractable</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Debug, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">struct </span>TestStruct {
+    a: u8,
+    <span class="attr">#[extractable_no_recursion]
+    </span>b: CustomType,
+}</code></pre></div>
+<h2 id="enums"><a class="doc-anchor" href="#enums">§</a>Enums</h2>
+<p>Extractable can be used on enums with variant containing named or unnamed fields</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Debug, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">enum </span>TestEnum {
+    A,
+    B(String),
+    C{x: u8, y: u8},
+}</code></pre></div>
+<h3 id="ignore-a-field-1"><a class="doc-anchor" href="#ignore-a-field-1">§</a>Ignore a field</h3>
+<p>The <code>#[extractable_ignore]</code> annotation allows to skip a field when extracting knowledges</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Debug, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">enum </span>TestEnum {
+    A,
+    B(<span class="attr">#[extractable_ignore] </span>String),
+    C{x: u8, y: u8},
+}</code></pre></div>
+<h3 id="extract-a-field-that-doesnt-implement-extractable-1"><a class="doc-anchor" href="#extract-a-field-that-doesnt-implement-extractable-1">§</a>Extract a field that doesn’t implement Extractable</h3>
+<p>The <code>#[extractable_no_recursion]</code> annotation will add a field to the knowledge but won’t call
+<code>.extract_knowledge(...)</code> on this field. Use this on types that do no implement Extractable</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Debug, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">enum </span>TestEnum {
+    A,
+    B(String),
+    C{x: u8,<span class="attr">#[extractable_no_recursion] </span>y: u8},
+}</code></pre></div>
+<h2 id="unions"><a class="doc-anchor" href="#unions">§</a>Unions</h2>
+<p>Union types can only extract <code>self</code> and do not support annotations</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone, Copy, Extractable)]
+#[extractable(TestProtocolTypes)]
+</span><span class="kw">union </span>TestUnion {
+    x: u8,
+    y: char,
+}</code></pre></div>
+</div></details></section></div></main></body></html>

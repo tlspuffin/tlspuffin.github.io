@@ -32,14 +32,22 @@
 <a href="#32" id="32">32</a>
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::{Codec, Reader};
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>extractable_macro::Extractable;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
 
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::PayloadU16;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::HeartbeatMessageType;
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="attr">#[derive(Debug, Clone, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub struct </span>HeartbeatPayload {
-    <span class="kw">pub </span>typ: HeartbeatMessageType,
+    <span class="attr">#[extractable_ignore]
+    </span><span class="kw">pub </span>typ: HeartbeatMessageType,
     <span class="kw">pub </span>payload: PayloadU16,
     <span class="kw">pub </span>fake_length: <span class="prelude-ty">Option</span>&lt;u16&gt;,
 }

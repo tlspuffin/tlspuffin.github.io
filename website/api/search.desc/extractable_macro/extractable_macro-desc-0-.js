@@ -1,0 +1,1 @@
+searchState.loadedDescShard("extractable_macro", 0, "Implements Extractable trait for structs, enums and unions\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

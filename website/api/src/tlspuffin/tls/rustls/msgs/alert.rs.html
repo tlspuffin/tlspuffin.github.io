@@ -21,14 +21,24 @@
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::{Codec, Reader};
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>extractable_macro::Extractable;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
 
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{AlertDescription, AlertLevel};
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="attr">#[derive(Debug, Clone, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub struct </span>AlertMessagePayload {
-    <span class="kw">pub </span>level: AlertLevel,
-    <span class="kw">pub </span>description: AlertDescription,
+    <span class="attr">#[extractable_no_recursion]
+    </span><span class="kw">pub </span>level: AlertLevel,
+    <span class="attr">#[extractable_no_recursion]
+    </span><span class="kw">pub </span>description: AlertDescription,
 }
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>AlertMessagePayload {

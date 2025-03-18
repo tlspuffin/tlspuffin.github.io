@@ -145,20 +145,19 @@
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
+<span class="kw">use </span>extractable_macro::Extractable;
+<span class="kw">use </span>puffin::codec;
 <span class="kw">use </span>puffin::codec::{Codec, Reader};
-<span class="kw">use </span>puffin::error::Error;
-<span class="kw">use </span>puffin::protocol::{Extractable, ProtocolTypes};
-<span class="kw">use </span>puffin::trace::{Knowledge, Source};
-<span class="kw">use </span>puffin::{atom_extract_knowledge, codec};
 
 <span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key;
+
 <span class="doccomment">/// An externally length'd payload
-</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
-</span><span class="kw">pub struct </span>Payload(<span class="kw">pub </span>Vec&lt;u8&gt;);
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Extractable)]
+#[extractable(TLSProtocolTypes)]
+</span><span class="kw">pub struct </span>Payload(<span class="attr">#[extractable_no_recursion] </span><span class="kw">pub </span>Vec&lt;u8&gt;);
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>Payload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
@@ -199,7 +198,8 @@
 }
 
 <span class="doccomment">/// An arbitrary, unknown-content, u24-length-prefixed payload
-</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub struct </span>PayloadU24(<span class="kw">pub </span>Vec&lt;u8&gt;);
 
 <span class="kw">impl </span>PayloadU24 {
@@ -223,8 +223,9 @@
 }
 
 <span class="doccomment">/// An arbitrary, unknown-content, u16-length-prefixed payload
-</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
-</span><span class="kw">pub struct </span>PayloadU16(<span class="kw">pub </span>Vec&lt;u8&gt;);
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Extractable)]
+#[extractable(TLSProtocolTypes)]
+</span><span class="kw">pub struct </span>PayloadU16(<span class="attr">#[extractable_no_recursion] </span><span class="kw">pub </span>Vec&lt;u8&gt;);
 
 <span class="kw">impl </span>PayloadU16 {
     <span class="kw">pub fn </span>new(bytes: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
@@ -255,7 +256,8 @@
 }
 
 <span class="doccomment">/// An arbitrary, unknown-content, u8-length-prefixed payload
-</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub struct </span>PayloadU8(<span class="kw">pub </span>Vec&lt;u8&gt;);
 
 <span class="kw">impl </span>PayloadU8 {
@@ -290,8 +292,4 @@
 </span><span class="kw">impl </span>codec::VecCodecWoSize <span class="kw">for </span>PayloadU8 {}
 <span class="kw">impl </span>codec::VecCodecWoSize <span class="kw">for </span>PayloadU16 {}
 <span class="kw">impl </span>codec::VecCodecWoSize <span class="kw">for </span>PayloadU24 {}
-
-<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, PayloadU8);
-<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, PayloadU16);
-<span class="macro">atom_extract_knowledge!</span>(TLSProtocolTypes, PayloadU24);
 </code></pre></div></section></main></body></html>

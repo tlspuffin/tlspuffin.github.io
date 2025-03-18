@@ -54,9 +54,16 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
+<span class="kw">use </span>extractable_macro::Extractable;
 <span class="kw">use </span>puffin::codec::{Codec, Reader};
+
+<span class="kw">use </span><span class="kw">crate</span>::tls::TLSProtocolTypes;
 
 <span class="doccomment">/// This type contains a private key by value.
 ///
@@ -73,8 +80,9 @@
 /// The certificate must be DER-encoded X.509.
 ///
 /// The `rustls-pemfile` crate can be used to parse a PEM file.
-</span><span class="attr">#[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
-</span><span class="kw">pub struct </span>Certificate(<span class="kw">pub </span>Vec&lt;u8&gt;);
+</span><span class="attr">#[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd, Extractable)]
+#[extractable(TLSProtocolTypes)]
+</span><span class="kw">pub struct </span>Certificate(<span class="attr">#[extractable_no_recursion] </span><span class="kw">pub </span>Vec&lt;u8&gt;);
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>PrivateKey {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {

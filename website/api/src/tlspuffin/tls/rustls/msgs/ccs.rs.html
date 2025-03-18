@@ -14,9 +14,17 @@
 <a href="#14" id="14">14</a>
 <a href="#15" id="15">15</a>
 <a href="#16" id="16">16</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>puffin::codec::{Codec, Reader};
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>extractable_macro::Extractable;
+<span class="kw">use </span>puffin::codec::{Codec, Reader};
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="kw">use </span><span class="kw">crate</span>::protocol::TLSProtocolTypes;
+
+<span class="attr">#[derive(Debug, Clone, Extractable)]
+#[extractable(TLSProtocolTypes)]
 </span><span class="kw">pub struct </span>ChangeCipherSpecPayload;
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>ChangeCipherSpecPayload {

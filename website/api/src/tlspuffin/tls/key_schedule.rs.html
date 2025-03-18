@@ -135,12 +135,11 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::algebra::error::FnError;
 <span class="kw">use </span>ring::digest;
 <span class="kw">use </span>ring::hkdf::Prk;
 
+<span class="kw">use </span><span class="kw">super</span>::rustls::msgs::handshake::Random;
 <span class="kw">use </span><span class="kw">crate</span>::tls::key_exchange::tls13_key_exchange;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key_log::NoKeyLog;
@@ -157,22 +156,18 @@
     psk: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     client: bool,
     group: <span class="kw-2">&amp;</span>NamedGroup,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>SupportedCipherSuite, Prk, KeyScheduleHandshake), FnError&gt; {
-    <span class="kw">let </span>client_random = <span class="kw-2">&amp;</span>[<span class="number">1u8</span>; <span class="number">32</span>]; <span class="comment">// todo see op_random() https://github.com/tlspuffin/tlspuffin/issues/129
-    </span><span class="kw">let </span>suite = <span class="kw-2">&amp;</span><span class="kw">crate</span>::tls::rustls::tls13::TLS13_AES_128_GCM_SHA256; <span class="comment">// todo see op_cipher_suites() https://github.com/tlspuffin/tlspuffin/issues/129
-    </span><span class="kw">let </span>key_schedule = dhe_key_schedule(suite, group, server_key_share, psk)<span class="question-mark">?</span>;
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>SupportedCipherSuite,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Prk, KeyScheduleHandshake), FnError&gt; {
+    <span class="kw">let </span>key_schedule = dhe_key_schedule(<span class="kw-2">&amp;</span>suite, group, server_key_share, psk)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(hs, client_secret, server_secret) = key_schedule.derive_handshake_secrets(
         <span class="kw-2">&amp;</span>server_hello.get_current_hash_raw(),
         <span class="kw-2">&amp;</span>NoKeyLog {},
-        client_random,
+        <span class="kw-2">&amp;</span>client_random.<span class="number">0</span>,
     );
 
-    <span class="prelude-val">Ok</span>((
-        suite,
-        <span class="kw">if </span>client { client_secret } <span class="kw">else </span>{ server_secret },
-        hs,
-    ))
+    <span class="prelude-val">Ok</span>((<span class="kw">if </span>client { client_secret } <span class="kw">else </span>{ server_secret }, hs))
 }
 
 <span class="kw">pub fn </span>tls13_application_traffic_secret(
@@ -182,29 +177,26 @@
     psk: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: bool,
-) -&gt; <span class="prelude-ty">Result</span>&lt;
-    (
-        <span class="kw-2">&amp;</span><span class="lifetime">'static </span>SupportedCipherSuite,
-        Prk,
-        KeyScheduleTrafficWithClientFinishedPending,
-    ),
-    FnError,
-&gt; {
-    <span class="kw">let </span>client_random = <span class="kw-2">&amp;</span>[<span class="number">1u8</span>; <span class="number">32</span>]; <span class="comment">// todo see op_random() https://github.com/tlspuffin/tlspuffin/issues/129
-    </span><span class="kw">let </span>(suite, _key, key_schedule) =
-        tls13_handshake_traffic_secret(server_hello, server_key_share, psk, client, group)<span class="question-mark">?</span>;
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>SupportedCipherSuite,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Prk, KeyScheduleTrafficWithClientFinishedPending), FnError&gt; {
+    <span class="kw">let </span>(_key, key_schedule) = tls13_handshake_traffic_secret(
+        server_hello,
+        server_key_share,
+        psk,
+        client,
+        group,
+        client_random,
+        suite,
+    )<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(pending, client_secret, server_secret) = key_schedule
         .into_traffic_with_client_finished_pending_raw(
             <span class="kw-2">&amp;</span>server_finished.get_current_hash_raw(),
             <span class="kw-2">&amp;</span>NoKeyLog {},
-            client_random,
+            <span class="kw-2">&amp;</span>client_random.<span class="number">0</span>,
         );
-    <span class="prelude-val">Ok</span>((
-        suite,
-        <span class="kw">if </span>client { client_secret } <span class="kw">else </span>{ server_secret },
-        pending,
-    ))
+    <span class="prelude-val">Ok</span>((<span class="kw">if </span>client { client_secret } <span class="kw">else </span>{ server_secret }, pending))
 }
 
 <span class="kw">pub fn </span>tls13_derive_psk(
@@ -214,14 +206,18 @@
     server_key_share: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     new_ticket_nonce: <span class="kw-2">&amp;</span>[u8],
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>SupportedCipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
-    <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw">_</span>, pending) = tls13_application_traffic_secret(
+    <span class="kw">let </span>(<span class="kw">_</span>, pending) = tls13_application_traffic_secret(
         server_hello,
         server_finished,
         server_key_share,
         <span class="kw-2">&amp;</span><span class="prelude-val">None</span>,
         group,
         <span class="bool-val">true</span>,
+        client_random,
+        suite,
     )<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(traffic, _tag, _client_secret) =

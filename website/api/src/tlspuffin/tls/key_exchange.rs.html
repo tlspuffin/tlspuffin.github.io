@@ -90,21 +90,14 @@
 <a href="#90" id="90">90</a>
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>puffin::algebra::error::FnError;
 <span class="kw">use </span>ring::test::rand::FixedByteRandom;
 
+<span class="kw">use </span><span class="kw">super</span>::rustls::suites::SupportedCipherSuite;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::conn::ConnectionRandoms;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::kx::{KeyExchange, SupportedKxGroup, ALL_KX_GROUPS};
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::NamedGroup;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::Random;
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls12;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls12::ConnectionSecrets;
 
 <span class="kw">fn </span>deterministic_key_exchange(skxg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>SupportedKxGroup) -&gt; <span class="prelude-ty">Result</span>&lt;KeyExchange, FnError&gt; {
@@ -158,19 +151,12 @@
     server_random: <span class="kw-2">&amp;</span>Random,
     server_ecdh_pubkey: <span class="kw-2">&amp;</span>[u8],
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: SupportedCipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionSecrets, FnError&gt; {
-    <span class="kw">let </span>suite = <span class="kw-2">&amp;</span>tls12::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256; <span class="comment">// todo https://github.com/tlspuffin/tlspuffin/issues/129
-
-    </span><span class="kw">let </span><span class="kw-2">mut </span>server_random_bytes = <span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">32</span>];
-
-    server_random.write_slice(<span class="kw-2">&amp;mut </span>server_random_bytes);
-
-    <span class="kw">let </span>server_random = server_random_bytes
-        .try_into()
-        .map_err(|<span class="kw">_</span>| FnError::Unknown(<span class="string">"Server random did not have length of 32"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="kw">let </span>randoms = ConnectionRandoms {
-        client: [<span class="number">1</span>; <span class="number">32</span>], <span class="comment">// todo https://github.com/tlspuffin/tlspuffin/issues/129
-        </span>server: server_random,
+        client: client_random.<span class="number">0</span>,
+        server: server_random.<span class="number">0</span>,
     };
     <span class="kw">let </span>kx = tls12_key_exchange(group)<span class="question-mark">?</span>;
     <span class="kw">let </span>suite = suite

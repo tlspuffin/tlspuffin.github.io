@@ -378,6 +378,7 @@
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides traits for calling rust functions dynamically.
 //!
 //! All functions which implement the `DynamicFunction` trait can be called by passing an array of
@@ -667,6 +668,7 @@
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 =&gt; R);
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 =&gt; R);
 <span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 T9 =&gt; R);
+<span class="macro">dynamic_fn!</span>(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 =&gt; R);
 
 <span class="kw">pub fn </span>make_dynamic&lt;F: <span class="lifetime">'static</span>, PT: ProtocolTypes, Types&gt;(
     f: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>F,

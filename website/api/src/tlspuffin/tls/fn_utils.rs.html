@@ -574,6 +574,75 @@
 <a href="#574" id="574">574</a>
 <a href="#575" id="575">575</a>
 <a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -588,14 +657,16 @@
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::key::Certificate;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::PayloadU8;
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{HandshakeType, NamedGroup};
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{CipherSuite, HandshakeType, NamedGroup};
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
     CertificateEntries, CertificateEntry, CertificateExtension, CertificateExtensions,
     HandshakeMessagePayload, HandshakePayload, Random, ServerECDHParams,
 };
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage, PlainMessage};
-<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls12;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::suites::SupportedCipherSuite;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls12::{<span class="self">self</span>, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256};
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls13::key_schedule::KeyScheduleEarly;
+<span class="kw">use </span><span class="kw">crate</span>::tls::rustls::tls13::{TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384};
 
 <span class="comment">// ----
 // seed_client_attacker()
@@ -640,6 +711,17 @@
     <span class="prelude-val">Ok</span>(new_flight)
 }
 
+<span class="kw">pub fn </span>suite_as_supported_suite(suite: <span class="kw-2">&amp;</span>CipherSuite) -&gt; <span class="prelude-ty">Result</span>&lt;SupportedCipherSuite, FnError&gt; {
+    <span class="kw">match </span>suite {
+        CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 =&gt; {
+            <span class="prelude-val">Ok</span>(TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
+        }
+        CipherSuite::TLS13_AES_128_GCM_SHA256 =&gt; <span class="prelude-val">Ok</span>(TLS13_AES_128_GCM_SHA256),
+        CipherSuite::TLS13_AES_256_GCM_SHA384 =&gt; <span class="prelude-val">Ok</span>(TLS13_AES_256_GCM_SHA384),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(FnError::Crypto(<span class="string">"Unsupported ciphersuite"</span>.into())),
+    }
+}
+
 <span class="doccomment">/// Decrypt a whole flight of handshake messages and return a Vec of decrypted messages
 </span><span class="kw">pub fn </span>fn_decrypt_handshake_flight(
     flight: <span class="kw-2">&amp;</span>MessageFlight,
@@ -649,6 +731,8 @@
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: <span class="kw-2">&amp;</span>bool,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;MessageFlight, FnError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>sequence_number = <span class="kw-2">*</span>sequence;
 
@@ -664,6 +748,8 @@
                 group,
                 client,
                 <span class="kw-2">&amp;</span>sequence_number,
+                client_random,
+                suite,
             )<span class="question-mark">?</span>;
 
             decrypted_flight.messages.extend(decrypted_msg);
@@ -684,15 +770,21 @@
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: <span class="kw-2">&amp;</span>bool,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Message&gt;, FnError&gt; {
-    <span class="kw">let </span>(suite, key, <span class="kw">_</span>) = tls13_handshake_traffic_secret(
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>(key, <span class="kw">_</span>) = tls13_handshake_traffic_secret(
         server_hello_transcript,
         server_key_share,
         psk,
         !<span class="kw-2">*</span>client,
         group,
+        client_random,
+        <span class="kw-2">&amp;</span>supported_suite,
     )<span class="question-mark">?</span>;
-    <span class="kw">let </span>decrypter = suite
+    <span class="kw">let </span>decrypter = supported_suite
         .tls13()
         .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_decrypter(<span class="kw-2">&amp;</span>key);
@@ -801,6 +893,8 @@
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: <span class="kw-2">&amp;</span>bool,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;MessageFlight, FnError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>sequence_number = <span class="kw-2">*</span>sequence;
 
@@ -817,6 +911,8 @@
                 group,
                 client,
                 <span class="kw-2">&amp;</span>sequence_number,
+                client_random,
+                suite,
             )<span class="question-mark">?</span>;
 
             decrypted_flight.push(decrypted_msg);
@@ -836,16 +932,22 @@
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: <span class="kw-2">&amp;</span>bool,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
-    <span class="kw">let </span>(suite, key, <span class="kw">_</span>) = tls13_application_traffic_secret(
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>(key, <span class="kw">_</span>) = tls13_application_traffic_secret(
         server_hello_transcript,
         server_finished_transcript,
         server_key_share,
         psk,
         group,
         !<span class="kw-2">*</span>client,
+        client_random,
+        <span class="kw-2">&amp;</span>supported_suite,
     )<span class="question-mark">?</span>;
-    <span class="kw">let </span>decrypter = suite
+    <span class="kw">let </span>decrypter = supported_suite
         .tls13()
         .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_decrypter(<span class="kw-2">&amp;</span>key);
@@ -869,10 +971,21 @@
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: <span class="kw-2">&amp;</span>bool,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, FnError&gt; {
-    <span class="kw">let </span>(suite, key, <span class="kw">_</span>) =
-        tls13_handshake_traffic_secret(server_hello, server_key_share, psk, <span class="kw-2">*</span>client, group)<span class="question-mark">?</span>;
-    <span class="kw">let </span>encrypter = suite
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>(key, <span class="kw">_</span>) = tls13_handshake_traffic_secret(
+        server_hello,
+        server_key_share,
+        psk,
+        <span class="kw-2">*</span>client,
+        group,
+        client_random,
+        <span class="kw-2">&amp;</span>supported_suite,
+    )<span class="question-mark">?</span>;
+    <span class="kw">let </span>encrypter = supported_suite
         .tls13()
         .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_encrypter(<span class="kw-2">&amp;</span>key);
@@ -890,16 +1003,22 @@
     psk: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     group: <span class="kw-2">&amp;</span>NamedGroup,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, FnError&gt; {
-    <span class="kw">let </span>(suite, key, <span class="kw">_</span>) = tls13_application_traffic_secret(
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>(key, <span class="kw">_</span>) = tls13_application_traffic_secret(
         server_hello_transcript,
         server_finished_transcript,
         server_key_share,
         psk,
         group,
         <span class="bool-val">true</span>,
+        client_random,
+        <span class="kw-2">&amp;</span>supported_suite,
     )<span class="question-mark">?</span>;
-    <span class="kw">let </span>encrypter = suite
+    <span class="kw">let </span>encrypter = supported_suite
         .tls13()
         .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.derive_encrypter(<span class="kw-2">&amp;</span>key);
@@ -918,7 +1037,10 @@
     server_key_share: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     new_ticket_nonce: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
     <span class="kw">let </span>psk = tls13_derive_psk(
         server_hello,
         server_finished,
@@ -926,12 +1048,18 @@
         server_key_share,
         new_ticket_nonce,
         group,
+        client_random,
+        <span class="kw-2">&amp;</span>supported_suite,
     )<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(psk)
 }
 
-<span class="kw">pub fn </span>fn_derive_binder(full_client_hello: <span class="kw-2">&amp;</span>Message, psk: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
+<span class="kw">pub fn </span>fn_derive_binder(
+    full_client_hello: <span class="kw-2">&amp;</span>Message,
+    psk: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="kw">let </span>client_hello_payload: HandshakeMessagePayload = <span class="kw">match </span>full_client_hello.payload.clone() {
         MessagePayload::Handshake(payload) =&gt; <span class="prelude-val">Some</span>(payload),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -940,12 +1068,12 @@
         FnError::Unknown(<span class="string">"Only can fill binder in HandshakeMessagePayload"</span>.to_owned())
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>suite = <span class="kw-2">&amp;</span><span class="kw">crate</span>::tls::rustls::tls13::TLS13_AES_128_GCM_SHA256; <span class="comment">// todo allow other cipher suites: https://github.com/tlspuffin/tlspuffin/issues/129
-    </span><span class="kw">let </span>hkdf_alg = suite
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+    <span class="kw">let </span>hkdf_alg = supported_suite
         .tls13()
         .ok_or_else(|| FnError::Crypto(<span class="string">"No tls 1.3 suite"</span>.to_owned()))<span class="question-mark">?
         </span>.hkdf_algorithm;
-    <span class="kw">let </span>suite_hash = suite.hash_algorithm();
+    <span class="kw">let </span>suite_hash = supported_suite.hash_algorithm();
 
     <span class="kw">let </span>transcript = HandshakeHash::new(suite_hash);
 
@@ -1061,8 +1189,18 @@
     group: <span class="kw-2">&amp;</span>NamedGroup,
     client: <span class="kw-2">&amp;</span>bool,
     sequence: <span class="kw-2">&amp;</span>u64,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, FnError&gt; {
-    <span class="kw">let </span>secrets = tls12_new_secrets(server_random, server_ecdh_pubkey, group)<span class="question-mark">?</span>;
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>secrets = tls12_new_secrets(
+        server_random,
+        server_ecdh_pubkey,
+        group,
+        client_random,
+        supported_suite,
+    )<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(_decrypter, encrypter) = secrets.make_cipher_pair(<span class="kw">match </span><span class="kw-2">*</span>client {
         <span class="bool-val">true </span>=&gt; Side::Client,

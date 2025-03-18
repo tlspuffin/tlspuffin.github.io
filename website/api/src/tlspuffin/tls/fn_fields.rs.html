@@ -243,12 +243,26 @@
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::algebra::error::FnError;
 <span class="kw">use </span>puffin::codec::{Codec, Reader};
 
+<span class="kw">use </span><span class="kw">super</span>::suite_as_supported_suite;
 <span class="kw">use </span><span class="kw">crate</span>::tls::key_exchange::tls12_new_secrets;
 <span class="kw">use </span><span class="kw">crate</span>::tls::key_schedule::dhe_key_schedule;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::hash_hs::HandshakeHash;
@@ -373,23 +387,24 @@
     server_key_share: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     psk: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
-    <span class="kw">let </span>client_random = <span class="kw-2">&amp;</span>[<span class="number">1u8</span>; <span class="number">32</span>]; <span class="comment">// todo see op_random() https://github.com/tlspuffin/tlspuffin/issues/129
-    </span><span class="kw">let </span>suite = <span class="kw-2">&amp;</span><span class="kw">crate</span>::tls::rustls::tls13::TLS13_AES_128_GCM_SHA256; <span class="comment">// todo see op_cipher_suites()
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
 
-    </span><span class="kw">let </span>key_schedule = dhe_key_schedule(suite, group, server_key_share, psk)<span class="question-mark">?</span>;
+    <span class="kw">let </span>key_schedule = dhe_key_schedule(<span class="kw-2">&amp;</span>supported_suite, group, server_key_share, psk)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(hs, _client_secret, _server_secret) = key_schedule.derive_handshake_secrets(
         <span class="kw-2">&amp;</span>server_hello.get_current_hash_raw(),
         <span class="kw-2">&amp;</span>NoKeyLog,
-        client_random,
+        <span class="kw-2">&amp;</span>client_random.<span class="number">0</span>,
     );
 
     <span class="kw">let </span>(pending, _client_secret, _server_secret) = hs
         .into_traffic_with_client_finished_pending_raw(
             <span class="kw-2">&amp;</span>server_hello.get_current_hash_raw(),
             <span class="kw-2">&amp;</span>NoKeyLog,
-            client_random,
+            <span class="kw-2">&amp;</span>client_random.<span class="number">0</span>,
         );
 
     <span class="kw">let </span>(_traffic, tag, _client_secret) =
@@ -403,16 +418,17 @@
     server_key_share: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     group: <span class="kw-2">&amp;</span>NamedGroup,
     psk: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
-    <span class="kw">let </span>client_random = <span class="kw-2">&amp;</span>[<span class="number">1u8</span>; <span class="number">32</span>]; <span class="comment">// todo see op_random() https://github.com/tlspuffin/tlspuffin/issues/129
-    </span><span class="kw">let </span>suite = <span class="kw-2">&amp;</span><span class="kw">crate</span>::tls::rustls::tls13::TLS13_AES_128_GCM_SHA256; <span class="comment">// todo see op_cipher_suites()
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
 
-    </span><span class="kw">let </span>key_schedule = dhe_key_schedule(suite, group, server_key_share, psk)<span class="question-mark">?</span>;
+    <span class="kw">let </span>key_schedule = dhe_key_schedule(<span class="kw-2">&amp;</span>supported_suite, group, server_key_share, psk)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(hs, _client_secret, _server_secret) = key_schedule.derive_handshake_secrets(
         <span class="kw-2">&amp;</span>server_hello.get_current_hash_raw(),
         <span class="kw-2">&amp;</span>NoKeyLog,
-        client_random,
+        <span class="kw-2">&amp;</span>client_random.<span class="number">0</span>,
     );
 
     <span class="kw">let </span>tag = hs.sign_server_finish_raw(<span class="kw-2">&amp;</span>server_finished.get_current_hash_raw());
@@ -429,8 +445,18 @@
     server_ecdh_pubkey: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
     transcript: <span class="kw-2">&amp;</span>HandshakeHash,
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    client_random: <span class="kw-2">&amp;</span>Random,
+    suite: <span class="kw-2">&amp;</span>CipherSuite,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
-    <span class="kw">let </span>secrets = tls12_new_secrets(server_random, server_ecdh_pubkey, group)<span class="question-mark">?</span>;
+    <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>secrets = tls12_new_secrets(
+        server_random,
+        server_ecdh_pubkey,
+        group,
+        client_random,
+        supported_suite,
+    )<span class="question-mark">?</span>;
 
     <span class="kw">let </span>vh = transcript.get_current_hash();
     <span class="prelude-val">Ok</span>(secrets.client_verify_data(<span class="kw-2">&amp;</span>vh))

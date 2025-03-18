@@ -1113,6 +1113,40 @@
 <a href="#1113" id="1113">1113</a>
 <a href="#1114" id="1114">1114</a>
 <a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>puffin::agent::{AgentDescriptor, AgentName};
@@ -1167,8 +1201,10 @@
             fn_no_psk,
             fn_named_group_secp384r1,
             fn_true,
-            fn_seq_0  <span class="comment">// sequence 0
-        </span>)
+            fn_seq_0,  <span class="comment">// sequence 0
+            </span>fn_new_random,
+            fn_cipher_suite13_aes_128_gcm_sha256
+        )
     };
 
     <span class="comment">// ApplicationData 0 is EncryptedExtensions
@@ -1214,7 +1250,9 @@
                 (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
                 (fn_get_server_key_share(((server, <span class="number">0</span>)))),
                 fn_no_psk,
-                fn_named_group_secp384r1
+                fn_named_group_secp384r1,
+                fn_new_random,
+                fn_cipher_suite13_aes_128_gcm_sha256
             ))
         )
     };
@@ -1248,8 +1286,10 @@
                             fn_no_psk,
                             fn_named_group_secp384r1,
                             fn_true,
-                            fn_seq_0  <span class="comment">// sequence 0
-                        </span>)
+                            fn_seq_0,  <span class="comment">// sequence 0
+                            </span>fn_new_random,
+                            fn_cipher_suite13_aes_128_gcm_sha256
+                        )
                     }
                 }),
             },
@@ -1263,8 +1303,10 @@
                             fn_no_psk,
                             fn_named_group_secp384r1,
                             fn_true,
-                            fn_seq_1  <span class="comment">// sequence 1
-                        </span>)
+                            fn_seq_1,  <span class="comment">// sequence 1
+                            </span>fn_new_random,
+                            fn_cipher_suite13_aes_128_gcm_sha256
+                        )
                     }
                 }),
             },
@@ -1278,8 +1320,10 @@
                             fn_no_psk,
                             fn_named_group_secp384r1,
                             fn_true,
-                            fn_seq_2  <span class="comment">// sequence 2
-                        </span>)
+                            fn_seq_2,  <span class="comment">// sequence 2
+                            </span>fn_new_random,
+                            fn_cipher_suite13_aes_128_gcm_sha256
+                        )
                     }
                 }),
             },
@@ -1325,8 +1369,10 @@
             fn_no_psk,
             fn_named_group_secp384r1,
             fn_true,
-            fn_seq_0  <span class="comment">// sequence 0
-        </span>)
+            fn_seq_0,  <span class="comment">// sequence 0
+            </span>fn_new_random,
+            fn_cipher_suite13_aes_128_gcm_sha256
+        )
     };
 
     <span class="comment">// ApplicationData 0 is EncryptedExtensions
@@ -1354,7 +1400,9 @@
                 (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
                 (fn_get_server_key_share(((server, <span class="number">0</span>)))),
                 fn_no_psk,
-                fn_named_group_secp384r1
+                fn_named_group_secp384r1,
+                fn_new_random,
+                fn_cipher_suite13_aes_128_gcm_sha256
             ))
         )
     };
@@ -1388,8 +1436,10 @@
                             fn_no_psk,
                             fn_named_group_secp384r1,
                             fn_true,
-                            fn_seq_0  <span class="comment">// sequence 0
-                        </span>)
+                            fn_seq_0,  <span class="comment">// sequence 0
+                            </span>fn_new_random,
+                            fn_cipher_suite13_aes_128_gcm_sha256
+                        )
                     }
                 }),
             },
@@ -1403,8 +1453,10 @@
                             fn_no_psk,
                             fn_named_group_secp384r1,
                             fn_true,
-                            fn_seq_1  <span class="comment">// sequence 1
-                        </span>)
+                            fn_seq_1,  <span class="comment">// sequence 1
+                            </span>fn_new_random,
+                            fn_cipher_suite13_aes_128_gcm_sha256
+                        )
                     }
                 }),
             },
@@ -1461,7 +1513,9 @@
                     </span>)),
                     fn_named_group_secp384r1,
                     fn_true,
-                    fn_seq_1
+                    fn_seq_1,
+                    fn_new_random,
+                    fn_cipher_suite12
                 )
             }
         }),
@@ -1667,7 +1721,9 @@
                 (fn_server_hello_transcript(((server, <span class="number">0</span>)))),
                 (fn_get_server_key_share(((server, <span class="number">0</span>)))),
                 fn_no_psk,
-                fn_named_group_secp384r1
+                fn_named_group_secp384r1,
+                fn_new_random,
+                fn_cipher_suite13_aes_128_gcm_sha256
             ))
         )
     };
@@ -1701,8 +1757,10 @@
                             fn_no_psk,
                             fn_named_group_secp384r1,
                             fn_true,
-                            fn_seq_0  <span class="comment">// sequence 0
-                        </span>)
+                            fn_seq_0,  <span class="comment">// sequence 0
+                            </span>fn_new_random,
+                            fn_cipher_suite13_aes_128_gcm_sha256
+                        )
                     }
                 }),
             },
@@ -1834,8 +1892,10 @@
             fn_no_psk,
             fn_named_group_secp384r1,
             fn_true,
-            fn_seq_0 <span class="comment">// sequence restarts at 0 because we are decrypting now traffic
-        </span>)
+            fn_seq_0, <span class="comment">// sequence restarts at 0 because we are decrypting now traffic
+            </span>fn_new_random,
+            fn_cipher_suite13_aes_128_gcm_sha256
+        )
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term!</span> { fn_new_cipher_suites() };
@@ -1904,14 +1964,17 @@
             (fn_client_finished_transcript(((initial_server, <span class="number">0</span>)))),
             (fn_get_server_key_share(((initial_server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerHello)))]))),
             (fn_get_ticket_nonce((@new_ticket_message))),
-            fn_named_group_secp384r1
+            fn_named_group_secp384r1,
+            fn_new_random,
+            fn_cipher_suite13_aes_128_gcm_sha256
         )
     };
 
     <span class="kw">let </span>binder = <span class="macro">term!</span> {
         fn_derive_binder(
             (@client_hello),
-            (@psk)
+            (@psk),
+            fn_cipher_suite13_aes_128_gcm_sha256
         )
     };
 
@@ -1978,8 +2041,10 @@
             fn_no_psk,
             fn_named_group_secp384r1,
             fn_true,
-            fn_seq_0 <span class="comment">// sequence restarts at 0 because we are decrypting now traffic
-        </span>)
+            fn_seq_0, <span class="comment">// sequence restarts at 0 because we are decrypting now traffic
+            </span>fn_new_random,
+            fn_cipher_suite13_aes_128_gcm_sha256
+        )
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites = <span class="macro">term!</span> { fn_new_cipher_suites() };
@@ -2041,14 +2106,17 @@
             (@client_finished_transcript),
             (fn_get_server_key_share(((initial_server, <span class="number">0</span>)[<span class="prelude-val">Some</span>(TlsQueryMatcher::Handshake(<span class="prelude-val">Some</span>(HandshakeType::ServerHello)))]))),
             (fn_get_ticket_nonce((@new_ticket_message))),
-            fn_named_group_secp384r1
+            fn_named_group_secp384r1,
+            fn_new_random,
+            fn_cipher_suite13_aes_128_gcm_sha256
         )
     };
 
     <span class="kw">let </span>binder = <span class="macro">term!</span> {
         fn_derive_binder(
             (@client_hello),
-            (@psk)
+            (@psk),
+            fn_cipher_suite13_aes_128_gcm_sha256
         )
     };
 

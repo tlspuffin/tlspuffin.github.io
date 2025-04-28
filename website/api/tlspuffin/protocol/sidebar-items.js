@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AgentType","TLSVersion"],"struct":["MessageFlight","OpaqueMessageFlight","TLSDescriptorConfig","TLSProtocolBehavior","TLSProtocolTypes"]};
+window.SIDEBAR_ITEMS = {"constant":["TLS_DEFAULT_CIPHER"],"enum":["AgentType","TLSVersion"],"struct":["MessageFlight","OpaqueMessageFlight","TLSDescriptorConfig","TLSProtocolBehavior","TLSProtocolTypes"]};

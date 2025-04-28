@@ -390,6 +390,11 @@
 <a href="#390" id="390">390</a>
 <a href="#391" id="391">391</a>
 <a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::any::TypeId;
 
 <span class="kw">use </span>extractable_macro::Extractable;
@@ -680,7 +685,8 @@
     /// as openssl agents rotate ticket keys if they are recreated.
     </span><span class="kw">pub </span>try_reuse: bool,
     <span class="doccomment">/// List of available TLS ciphers
-    </span><span class="kw">pub </span>cipher_string: String,
+    </span><span class="kw">pub </span>cipher_string_tls13: String,
+    <span class="kw">pub </span>cipher_string_tls12: String,
     <span class="doccomment">/// List of available TLS groups/curves
     /// If `None`, use the default PUT groups
     </span><span class="kw">pub </span>groups: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -718,10 +724,13 @@
     <span class="kw">fn </span>is_reusable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.typ == other.typ
             &amp;&amp; <span class="self">self</span>.tls_version == other.tls_version
-            &amp;&amp; <span class="self">self</span>.cipher_string == other.cipher_string
+            &amp;&amp; <span class="self">self</span>.cipher_string_tls13 == other.cipher_string_tls13
+            &amp;&amp; <span class="self">self</span>.cipher_string_tls12 == other.cipher_string_tls12
             &amp;&amp; <span class="self">self</span>.groups == other.groups
     }
 }
+
+<span class="kw">const </span>TLS_DEFAULT_CIPHER: <span class="kw-2">&amp;</span>str = <span class="string">"ALL:!EXPORT:!LOW:!aNULL:!eNULL:!SSLv2"</span>;
 
 <span class="kw">impl </span>Default <span class="kw">for </span>TLSDescriptorConfig {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
@@ -731,7 +740,8 @@
             server_authentication: <span class="bool-val">true</span>,
             try_reuse: <span class="bool-val">false</span>,
             typ: AgentType::Server,
-            cipher_string: String::from(<span class="string">"ALL:!EXPORT:!LOW:!aNULL:!eNULL:!SSLv2"</span>),
+            cipher_string_tls13: TLS_DEFAULT_CIPHER.into(),
+            cipher_string_tls12: TLS_DEFAULT_CIPHER.into(),
             groups: <span class="prelude-val">None</span>,
         }
     }

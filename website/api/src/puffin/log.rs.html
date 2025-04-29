@@ -85,70 +85,35 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::env;
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">use </span>log::LevelFilter;
 <span class="kw">use </span>log4rs::append::console::ConsoleAppender;
-<span class="kw">use </span>log4rs::append::file::FileAppender;
-<span class="kw">use </span>log4rs::config::{Appender, Logger, Root};
+<span class="kw">use </span>log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
+<span class="kw">use </span>log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
+<span class="kw">use </span>log4rs::append::rolling_file::policy::compound::CompoundPolicy;
+<span class="kw">use </span>log4rs::append::rolling_file::RollingFileAppender;
+<span class="kw">use </span>log4rs::config::{load_config_file, Appender, Root};
 <span class="kw">use </span>log4rs::encode::pattern::PatternEncoder;
-<span class="kw">use </span>log4rs::{<span class="self">self</span>, Config};
+<span class="kw">use </span>log4rs::Config;
 
-<span class="attr">#[must_use]
-</span><span class="kw">pub fn </span>config_default() -&gt; log4rs::Config {
+<span class="kw">pub fn </span>config_default() -&gt; Config {
     Config::builder()
         .appender(appender_stderr(<span class="string">"stderr"</span>))
-        .build(Root::builder().appender(<span class="string">"stderr"</span>).build(log_level()))
-        .unwrap()
-}
-
-<span class="kw">pub fn </span>config_fuzzing&lt;P&gt;(path: P) -&gt; log4rs::Config
-<span class="kw">where
-    </span>P: AsRef&lt;Path&gt;,
-{
-    Config::builder()
-        .appender(appender_stderr(<span class="string">"stderr"</span>))
-        .appender(appender_tofile(<span class="string">"tofile"</span>, path))
-        .logger(
-            Logger::builder()
+        .appender(appender_tofile(<span class="string">"tofile"</span>, <span class="string">"log/stderr.log"</span>))
+        .build(
+            Root::builder()
+                .appender(<span class="string">"stderr"</span>)
                 .appender(<span class="string">"tofile"</span>)
-                .additive(<span class="bool-val">false</span>)
-                .build(<span class="string">"libafl"</span>, log_level()),
+                .build(log_level()),
         )
-        .build(Root::builder().appender(<span class="string">"stderr"</span>).build(log_level()))
         .unwrap()
 }
 
-<span class="kw">pub fn </span>config_fuzzing_client&lt;P&gt;(path: P) -&gt; log4rs::Config
-<span class="kw">where
-    </span>P: AsRef&lt;Path&gt;,
-{
-    <span class="kw">let </span>level = <span class="kw">if </span>log_level() &gt; log::LevelFilter::Warn {
-        log::LevelFilter::Warn
-    } <span class="kw">else </span>{
-        log_level()
-    };
-
-    Config::builder()
-        .appender(appender_stderr(<span class="string">"stderr"</span>))
-        .appender(appender_tofile(<span class="string">"tofile"</span>, path))
-        .build(Root::builder().appender(<span class="string">"tofile"</span>).build(level))
-        .unwrap()
+<span class="kw">pub fn </span>load_fuzzing_client() -&gt; Config {
+    load_config_file(<span class="string">"client_log_config.yml"</span>, Default::default()).unwrap()
 }
 
 <span class="kw">fn </span>appender_stderr&lt;S&gt;(name: S) -&gt; Appender
@@ -173,12 +138,21 @@
     </span>S: AsRef&lt;str&gt;,
     P: AsRef&lt;Path&gt;,
 {
+    <span class="kw">let </span>window_size = <span class="number">20</span>; <span class="comment">// log0, log1, log2, .., log19
+    </span><span class="kw">let </span>fixed_window_roller = FixedWindowRoller::builder()
+        .build(<span class="string">"log{}"</span>, window_size)
+        .unwrap();
+    <span class="kw">let </span>size_limit = <span class="number">100 </span>* <span class="number">1024 </span>* <span class="number">1024</span>; <span class="comment">// 100MB as max log file size to roll
+    </span><span class="kw">let </span>size_trigger = SizeTrigger::new(size_limit);
+    <span class="kw">let </span>compound_policy =
+        CompoundPolicy::new(Box::new(size_trigger), Box::new(fixed_window_roller));
+
     Appender::builder().build(
         name.as_ref(),
         Box::new(
-            FileAppender::builder()
+            RollingFileAppender::builder()
                 .encoder(Box::new(PatternEncoder::new(<span class="string">"{d}\t{l}\t{m}{n}"</span>)))
-                .build(log_path)
+                .build(log_path, Box::new(compound_policy))
                 .unwrap(),
         ),
     )
@@ -196,6 +170,6 @@
     </span>env::var(<span class="string">"RUST_LOG"</span>)
         .ok()
         .and_then(|level| LevelFilter::from_str(<span class="kw-2">&amp;</span>level).ok())
-        .unwrap_or(LevelFilter::Info)
+        .unwrap_or(LevelFilter::Warn)
 }
 </code></pre></div></section></main></body></html>

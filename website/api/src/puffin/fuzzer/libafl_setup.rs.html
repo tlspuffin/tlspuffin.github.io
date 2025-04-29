@@ -535,9 +535,6 @@
 <a href="#535" id="535">535</a>
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
-<a href="#538" id="538">538</a>
-<a href="#539" id="539">539</a>
-<a href="#540" id="540">540</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::path::PathBuf;
@@ -550,7 +547,7 @@
 <span class="kw">use </span><span class="kw">super</span>::harness;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::{trace_mutations, MutationConfig};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_monitor::StatsMonitor;
-<span class="kw">use </span><span class="kw">crate</span>::log::{config_fuzzing, config_fuzzing_client};
+<span class="kw">use </span><span class="kw">crate</span>::log::load_fuzzing_client;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
@@ -951,15 +948,12 @@
 
     <span class="macro">log::info!</span>(<span class="string">"Running on cores: {}"</span>, <span class="kw-2">&amp;</span>core_definition);
     <span class="macro">log::info!</span>(<span class="string">"Config: {:?}\n\nlog_handle: {:?}"</span>, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>log_handle);
-    log_handle.set_config(config_fuzzing(log_file));
 
     <span class="kw">let </span><span class="kw-2">mut </span>run_client = |state: <span class="prelude-ty">Option</span>&lt;StdState&lt;Trace&lt;PB::ProtocolTypes&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;,
                           event_manager: LlmpRestartingEventManager&lt;<span class="kw">_</span>, StdShMemProvider&gt;,
                           _core_id: CoreId|
      -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        log_handle
-            .clone()
-            .set_config(config_fuzzing_client(log_file));
+        log_handle.clone().set_config(load_fuzzing_client());
 
         <span class="kw">let </span>harness_fn = <span class="kw-2">&amp;mut </span>(|input: <span class="kw-2">&amp;</span><span class="kw">_</span>| harness::harness::&lt;PB&gt;(put_registry, input));
 

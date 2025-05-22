@@ -429,6 +429,15 @@
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use </span>puffin::agent::AgentName;
@@ -806,6 +815,15 @@
             // Transcripts in these messages are not up-to-date. They get updated after the Message
             // has been processed
             </span>security_claims::ClaimType::CLAIM_FINISHED =&gt; {
+                <span class="kw">let </span>peer_certificate = <span class="kw">if </span>claim.peer_authentication == <span class="number">1
+                    </span>&amp;&amp; <span class="macro">matches!</span>(claim.peer_cert.data_length, <span class="number">1</span>..<span class="number">10240</span>)
+                {
+                    SmallVec::from_slice(
+                        <span class="kw-2">&amp;</span>claim.peer_cert.data[..claim.peer_cert.data_length <span class="kw">as </span>usize],
+                    )
+                } <span class="kw">else </span>{
+                    Default::default()
+                };
                 <span class="prelude-val">Some</span>(ClaimData::Message(ClaimDataMessage::Finished(Finished {
                     outbound: claim.write &gt; <span class="number">0</span>,
                     client_random: SmallVec::from(claim.client_random.data),
@@ -813,9 +831,9 @@
                     session_id: SmallVec::from_slice(
                         <span class="kw-2">&amp;</span>claim.session_id.data[..claim.session_id.length <span class="kw">as </span>usize],
                     ),
-                    authenticate_peer: <span class="bool-val">false</span>,             <span class="comment">// FIXME
-                    </span>peer_certificate: Default::default(), <span class="comment">// FIXME
-                    </span>master_secret: <span class="kw">match </span>protocol_version {
+                    authenticate_peer: claim.peer_authentication == <span class="number">1</span>,
+                    peer_certificate,
+                    master_secret: <span class="kw">match </span>protocol_version {
                         TLSVersion::V1_3 =&gt; SmallVec::from_slice(<span class="kw-2">&amp;</span>claim.master_secret.secret),
                         TLSVersion::V1_2 =&gt; SmallVec::from_slice(<span class="kw-2">&amp;</span>claim.master_secret_12.secret),
                     },

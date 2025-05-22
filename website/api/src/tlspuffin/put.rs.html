@@ -469,6 +469,12 @@
 <a href="#469" id="469">469</a>
 <a href="#470" id="470">470</a>
 <a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::collections::HashSet;
 <span class="kw">use </span>std::ffi::CString;
@@ -754,7 +760,13 @@
 
     <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_name: puffin::agent::AgentName) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="self">self</span>.config.descriptor.name = new_name;
-        <span class="macro">r_ccall!</span>(<span class="self">self</span>.put, reset, <span class="self">self</span>.c_agent, new_name.into())<span class="question-mark">?</span>;
+        <span class="macro">r_ccall!</span>(
+            <span class="self">self</span>.put,
+            reset,
+            <span class="self">self</span>.c_agent,
+            new_name.into(),
+            <span class="self">self</span>.config.use_clear <span class="kw">as </span>u8
+        )<span class="question-mark">?</span>;
         <span class="self">self</span>.register_claimer();
         <span class="prelude-val">Ok</span>(())
     }

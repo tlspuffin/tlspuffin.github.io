@@ -256,6 +256,16 @@
 <a href="#256" id="256">256</a>
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::mpsc;
 <span class="kw">use </span>std::time::Duration;
 
@@ -276,6 +286,14 @@
     <span class="kw">type </span>E;
 
     <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
+    {
+        <span class="self">self</span>.execute_config(trace, <span class="bool-val">true</span>)
+    }
+
+    <span class="kw">fn </span>execute_config&lt;T&gt;(<span class="self">self</span>, trace: T, with_reseed: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;;
 }
@@ -300,12 +318,14 @@
     <span class="kw">type </span>PB = PB;
     <span class="kw">type </span>R = TraceContext&lt;<span class="self">Self</span>::PB&gt;;
 
-    <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">fn </span>execute_config&lt;T&gt;(<span class="self">self</span>, trace: T, with_reseed: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
-        <span class="comment">// We reseed all PUTs before executing a trace!
-        </span><span class="self">self</span>.registry.determinism_reseed_all_factories();
+        <span class="kw">if </span>with_reseed {
+            <span class="comment">// We reseed all PUTs before executing a trace!
+            </span><span class="self">self</span>.registry.determinism_reseed_all_factories();
+        }
 
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(<span class="self">self</span>.spawner.clone());
         trace.as_ref().execute(<span class="kw-2">&amp;mut </span>ctx)<span class="question-mark">?</span>;
@@ -347,7 +367,7 @@
     <span class="kw">type </span>PB = T::PB;
     <span class="kw">type </span>R = ExecutionStatus;
 
-    <span class="kw">fn </span>execute&lt;Tr&gt;(<span class="self">self</span>, trace: Tr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">fn </span>execute_config&lt;Tr&gt;(<span class="self">self</span>, trace: Tr, with_reseed: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>Tr: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
@@ -355,7 +375,7 @@
 
         run_in_subprocess(
             || {
-                <span class="kw">let </span>ret = <span class="kw">match </span>runner.execute(trace) {
+                <span class="kw">let </span>ret = <span class="kw">match </span>runner.execute_config(trace, with_reseed) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
                 };

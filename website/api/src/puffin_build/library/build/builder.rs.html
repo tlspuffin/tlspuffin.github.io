@@ -62,6 +62,11 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::path::{Path, PathBuf};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -85,6 +90,7 @@
         out_dir: <span class="kw">impl </span>AsRef&lt;Path&gt;,
         version: <span class="kw">impl </span>AsRef&lt;str&gt;,
         options: <span class="kw">impl </span>AsRef&lt;Options&gt;,
+        cput: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::BuiltIn { .. } | <span class="self">Self</span>::CMake { .. } =&gt; {
@@ -108,6 +114,10 @@
                 cmake_conf
                     .cfg_args
                     .push(<span class="macro">format!</span>(<span class="string">"-DVENDOR_VERSION={}"</span>, version.as_ref()));
+
+                cmake_conf
+                    .cfg_args
+                    .push(<span class="macro">format!</span>(<span class="string">"-DCPUT={}"</span>, <span class="kw">if </span>cput { <span class="string">"1" </span>} <span class="kw">else </span>{ <span class="string">"0" </span>}));
 
                 <span class="kw">for </span>(name, value) <span class="kw">in </span>options.as_ref().into_iter() {
                     cmake_conf

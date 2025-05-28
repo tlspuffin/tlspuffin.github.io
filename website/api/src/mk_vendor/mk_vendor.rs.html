@@ -150,7 +150,7 @@
                         library_dir.remove()<span class="question-mark">?
                     </span>}
 
-                    library_dir.make(config)
+                    library_dir.make(config, <span class="bool-val">true</span>)
                 })
             {
                 <span class="macro">log::error!</span>(<span class="string">"Error while building vendor library '{name}': {e}"</span>);

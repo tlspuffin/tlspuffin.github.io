@@ -69,6 +69,11 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fs;
 <span class="kw">use </span>std::path::Path;
@@ -122,11 +127,16 @@
             .cloned()
     }
 
-    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, out_dir: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, out_dir: <span class="kw">impl </span>AsRef&lt;Path&gt;, cput: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>sources_dir = out_dir.as_ref().join(<span class="string">"src"</span>);
         <span class="kw">let </span>sources = <span class="self">self</span>.sources.download(sources_dir)<span class="question-mark">?</span>;
-        <span class="self">self</span>.builder
-            .build(sources, out_dir, <span class="self">self</span>.sources.version(), <span class="kw-2">&amp;</span><span class="self">self</span>.options)
+        <span class="self">self</span>.builder.build(
+            sources,
+            out_dir,
+            <span class="self">self</span>.sources.version(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.options,
+            cput,
+        )
     }
 
     <span class="kw">pub fn </span>option(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, value: <span class="kw">impl </span>Into&lt;Value&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{

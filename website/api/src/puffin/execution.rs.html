@@ -328,7 +328,7 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(<span class="self">self</span>.spawner.clone());
-        trace.as_ref().execute(<span class="kw-2">&amp;mut </span>ctx)<span class="question-mark">?</span>;
+        trace.as_ref().execute(<span class="kw-2">&amp;mut </span>ctx, <span class="kw-2">&amp;mut </span><span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ctx)
     }
 }

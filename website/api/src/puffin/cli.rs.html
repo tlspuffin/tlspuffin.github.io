@@ -593,6 +593,18 @@
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
 <a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -616,7 +628,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::{PutRegistry, TCP_PUT};
-<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, Spawner, Trace, TraceContext};
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, ExecutionResult, Spawner, Trace, TraceContext};
 
 <span class="kw">fn </span>create_app&lt;S&gt;(title: S) -&gt; Command
 <span class="kw">where
@@ -660,9 +672,14 @@
                 .arg(<span class="macro">arg!</span>(-n --number &lt;n&gt; <span class="string">"Amount of files to execute starting at index."</span>).value_parser(<span class="macro">value_parser!</span>(usize)))
                 .arg(<span class="macro">arg!</span>(-i --index &lt;i&gt; <span class="string">"Index of file to execute."</span>).value_parser(<span class="macro">value_parser!</span>(usize)))
                 .arg(<span class="macro">arg!</span>(-s --sort <span class="string">"Sort files in ascending order by the creation date before executing"</span>)),
-            Command::new(<span class="string">"execute-traces"</span>)
-                .about(<span class="string">"Executes traces stored in files."</span>)
-                .arg(<span class="macro">arg!</span>(&lt;inputs&gt; <span class="string">"The file which stores a trace"</span>).num_args(<span class="number">1</span>..)),
+            Command::new(<span class="string">"display-execute"</span>)
+                .about(<span class="string">"Executes a trace stored in a file and display information"</span>)
+                .arg(<span class="macro">arg!</span>(&lt;input&gt; <span class="string">"The file which stores a trace"</span>))
+                .arg(<span class="macro">arg!</span>(-s --max_step &lt;n&gt; <span class="string">"The step at which to stop"</span>).value_parser(<span class="macro">value_parser!</span>(usize)))
+                .arg(<span class="macro">arg!</span>(-t --show_terms <span class="string">"Show the terms computed at each input step"</span>).value_parser(<span class="macro">value_parser!</span>(bool)))
+                .arg(<span class="macro">arg!</span>(-c --show_claims <span class="string">"Show the claims emitted at each input step"</span>).value_parser(<span class="macro">value_parser!</span>(bool)))
+                .arg(<span class="macro">arg!</span>(-k --show_knowledges <span class="string">"Show the knowledges gathered at each output step"</span>).value_parser(<span class="macro">value_parser!</span>(bool)))
+                .arg(<span class="macro">arg!</span>(-j --json <span class="string">"Export trace execution as JSON"</span>).value_parser(<span class="macro">value_parser!</span>(bool))),
             Command::new(<span class="string">"binary-attack"</span>)
                 .about(<span class="string">"Serializes a trace as much as possible and output its"</span>)
                 .arg(<span class="macro">arg!</span>(&lt;input&gt; <span class="string">"The file which stores a trace"</span>))
@@ -841,51 +858,58 @@
         }
 
         <span class="kw">if </span>end_reached {
-            <span class="kw">return </span>ExitCode::FAILURE;
-        } <span class="kw">else </span>{
             <span class="kw">return </span>ExitCode::SUCCESS;
+        } <span class="kw">else </span>{
+            <span class="kw">return </span>ExitCode::FAILURE;
         }
-    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"execute-traces"</span>) {
-        <span class="kw">let </span>inputs: ValuesRef&lt;String&gt; = matches.get_many(<span class="string">"inputs"</span>).unwrap();
+    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"display-execute"</span>) {
+        <span class="kw">let </span>input: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"input"</span>).unwrap();
+        <span class="kw">let </span>max_step: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>usize&gt; = matches.get_one(<span class="string">"max_step"</span>);
+        <span class="kw">let </span>show_terms: <span class="kw-2">&amp;</span>bool = matches.get_one(<span class="string">"show_terms"</span>).unwrap();
+        <span class="kw">let </span>show_knowledges: <span class="kw-2">&amp;</span>bool = matches.get_one(<span class="string">"show_knowledges"</span>).unwrap();
+        <span class="kw">let </span>show_claims: <span class="kw-2">&amp;</span>bool = matches.get_one(<span class="string">"show_claims"</span>).unwrap();
+        <span class="kw">let </span>export_json: <span class="kw-2">&amp;</span>bool = matches.get_one(<span class="string">"json"</span>).unwrap();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>paths = inputs
-            .flat_map(|input| {
-                <span class="kw">let </span>input = PathBuf::from(input);
+        <span class="kw">let </span>trace = <span class="kw">if let </span><span class="prelude-val">Ok</span>(t) = Trace::&lt;PB::ProtocolTypes&gt;::from_file(input) {
+            t
+        } <span class="kw">else </span>{
+            <span class="macro">log::error!</span>(<span class="string">"Invalid trace file {}"</span>, input);
 
-                <span class="kw">if </span>input.is_dir() {
-                    fs::read_dir(input)
-                        .expect(<span class="string">"failed to read directory"</span>)
-                        .map(|entry| entry.expect(<span class="string">"failed to read path in directory"</span>).path())
-                        .filter(|path| {
-                            !path.file_name().unwrap().to_str().unwrap().starts_with(<span class="string">'.'</span>)
-                        })
-                        .collect()
-                } <span class="kw">else </span>{
-                    <span class="macro">vec!</span>[input]
-                }
-            })
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            <span class="kw">return </span>ExitCode::FAILURE;
+        };
 
-        paths.sort_by_key(|path| {
-            fs::metadata(path)
-                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"missing trace file {}"</span>, path.display()))
-                .modified()
-                .unwrap()
-        });
+        <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 
-        <span class="macro">log::info!</span>(<span class="string">"execute: found {} inputs"</span>, paths.len());
+        <span class="kw">let </span>put_name = put_registry.default_put_name().into();
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(Spawner::new(put_registry).with_default(default_put));
+        <span class="kw">let </span>(res, err) = <span class="kw">match </span>trace.execute_until_step(
+            <span class="kw-2">&amp;mut </span>ctx,
+            <span class="kw-2">*</span>max_step.unwrap_or(<span class="kw-2">&amp;</span>trace.steps.len()),
+            <span class="kw-2">&amp;mut </span><span class="number">0</span>,
+        ) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (ExitCode::SUCCESS, <span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(e) =&gt; (ExitCode::FAILURE, <span class="prelude-val">Some</span>(e.to_string())),
+        };
 
-        <span class="kw">let </span>runner = Runner::new(
-            put_registry.clone(),
-            Spawner::new(put_registry).with_default(default_put),
+        <span class="kw">let </span>exec = ExecutionResult::from(
+            put_name,
+            err,
+            <span class="kw-2">&amp;</span>trace,
+            ctx,
+            <span class="kw-2">*</span>show_terms,
+            <span class="kw-2">*</span>show_knowledges,
+            <span class="kw-2">*</span>show_claims,
         );
 
-        <span class="kw">for </span>path <span class="kw">in </span>paths {
-            <span class="macro">log::info!</span>(<span class="string">"Executing: {}"</span>, path.display());
-            execute(<span class="kw-2">&amp;</span>runner, path);
+        <span class="kw">if </span><span class="kw-2">*</span>export_json {
+            <span class="macro">println!</span>(
+                <span class="string">"{}"</span>,
+                serde_json::to_string_pretty(<span class="kw-2">&amp;</span>exec).unwrap_or(<span class="string">""</span>.into())
+            );
+        } <span class="kw">else </span>{
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, exec);
         }
-
-        <span class="kw">return </span>ExitCode::SUCCESS;
+        <span class="kw">return </span>res;
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"binary-attack"</span>) {
         <span class="kw">let </span>input: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"input"</span>).unwrap();
         <span class="kw">let </span>output: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"output"</span>).unwrap();

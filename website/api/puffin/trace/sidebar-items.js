@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Action","Source"],"struct":["InputAction","Knowledge","KnowledgeStore","OutputAction","Precomputation","Query","RawKnowledge","Spawner","Step","Trace","TraceContext"]};
+window.SIDEBAR_ITEMS = {"enum":["Action","ActionType","Source"],"struct":["ExecutionResult","InputAction","Knowledge","KnowledgeStore","OutputAction","Precomputation","Query","RawKnowledge","Spawner","Step","StepExecution","StepNumber","Trace","TraceContext","TraceExecution"]};

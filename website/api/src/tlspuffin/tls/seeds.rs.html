@@ -4661,16 +4661,16 @@
         </span>seed_successful: put.supports(<span class="string">"tls13"</span>),
         seed_successful_with_ccs: put.supports(<span class="string">"tls13"</span>),
         seed_successful_with_tickets: put.supports(<span class="string">"tls13"</span>),
-        seed_successful12: put.supports(<span class="string">"tls12"</span>) &amp;&amp; !put.supports(<span class="string">"tls12-session-resumption"</span>),
-        seed_successful12_with_tickets: put.supports(<span class="string">"tls12"</span>) &amp;&amp; put.supports(<span class="string">"tls12-session-resumption"</span>),
+        seed_successful12: put.supports(<span class="string">"tls12"</span>) &amp;&amp; !put.supports(<span class="string">"tls12_session_resumption"</span>),
+        seed_successful12_with_tickets: put.supports(<span class="string">"tls12"</span>) &amp;&amp; put.supports(<span class="string">"tls12_session_resumption"</span>),
         <span class="comment">// Client Attackers
         </span>seed_client_attacker: put.supports(<span class="string">"tls13"</span>),
         seed_client_attacker_full: put.supports(<span class="string">"tls13"</span>),
-        seed_client_attacker_auth: put.supports(<span class="string">"tls13"</span>) &amp;&amp; put.supports(<span class="string">"client-authentication-transcript-extraction"</span>),
+        seed_client_attacker_auth: put.supports(<span class="string">"tls13"</span>) &amp;&amp; put.supports(<span class="string">"client_authentication_transcript_extraction"</span>),
         seed_client_attacker12: put.supports(<span class="string">"tls12"</span>),
         <span class="comment">// Session resumption
-        </span>seed_session_resumption_dhe: put.supports(<span class="string">"tls13"</span>) &amp;&amp; put.supports(<span class="string">"tls13-session-resumption"</span>),
-        seed_session_resumption_ke: put.supports(<span class="string">"tls13"</span>) &amp;&amp; put.supports(<span class="string">"tls13-session-resumption"</span>),
+        </span>seed_session_resumption_dhe: put.supports(<span class="string">"tls13"</span>) &amp;&amp; put.supports(<span class="string">"tls13_session_resumption"</span>),
+        seed_session_resumption_ke: put.supports(<span class="string">"tls13"</span>) &amp;&amp; put.supports(<span class="string">"tls13_session_resumption"</span>),
         <span class="comment">// Server Attackers
         </span>seed_server_attacker_full: put.supports(<span class="string">"tls13"</span>),
     )

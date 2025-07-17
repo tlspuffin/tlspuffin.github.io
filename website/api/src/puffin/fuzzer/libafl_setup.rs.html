@@ -632,6 +632,11 @@
 <a href="#632" id="632">632</a>
 <a href="#633" id="633">633</a>
 <a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::marker::PhantomData;
@@ -1202,12 +1207,17 @@
                 MinimizingFeedback::new(mutation_stage_config.with_truncation),
                 feedback
             );
+            <span class="attr">#[cfg(feature = <span class="string">"with-min-scheduler"</span>)]
+            </span><span class="kw">let </span>scheduler = IndexesLenTimeMinimizerScheduler::new(QueueScheduler::new());
+            <span class="attr">#[cfg(not(feature = <span class="string">"with-min-scheduler"</span>))]
+            </span><span class="kw">let </span>scheduler = RandScheduler::new();
+
             builder = builder
                 .with_feedback(feedback_with_minimizer)
                 .with_observers(observer)
-                .with_scheduler(RandScheduler::new());
+                .with_scheduler(scheduler);
         } <span class="comment">// TODO:EVAL investigate using QueueScheduler instead (see https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/inmemory.rs#L190)
-
+          // TODO:EVAL: investigate this versus Rand, versus Queue, versus Minimizer
         </span>builder.run_client(put_registry)
     };
 

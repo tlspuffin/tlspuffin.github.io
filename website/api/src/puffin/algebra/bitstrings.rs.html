@@ -251,19 +251,7 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::any::TypeId;
-
-<span class="kw">use </span>anyhow::Context;
-<span class="kw">use </span>libafl::inputs::{BytesInput, HasBytesVec};
+</pre></div><pre class="rust"><code><span class="kw">use </span>libafl::inputs::{BytesInput, HasBytesVec};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
@@ -332,7 +320,7 @@
         <span class="kw">let </span>nb = path[<span class="number">0</span>];
         <span class="kw">let </span>path = <span class="kw-2">&amp;</span>path[<span class="number">1</span>..];
         <span class="kw">if </span><span class="self">self</span>.args.len() &lt;= nb {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Term(<span class="macro">format!</span>(
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::TermBug(<span class="macro">format!</span>(
                 <span class="string">"[replace_payloads] [get] Should never happen! EvalTree: {self:?}\n, path: {path:?}"
             </span>)));
         }
@@ -454,13 +442,7 @@
                         <span class="kw">let </span>bi = ti.evaluate(ctx)<span class="question-mark">?</span>; <span class="comment">// payloads in ti are consumed here!
                         </span><span class="kw">let </span>typei = func.shape().argument_types[i].clone();
                         <span class="kw">let </span>di = PB::try_read_bytes(<span class="kw-2">&amp;</span>bi, typei.clone().into()) <span class="comment">// TODO: to make this more robust, we might want to relax this when payloads are in deeper terms, then read there!
-                            </span>.with_context(|| {
-                                <span class="macro">log::warn!</span>(<span class="string">"[Eval_until_opaque] Try Read bytes failed for typeid: {}, typeid: {:?} on term (arg: {i}):\n {}"</span>,
-                                        typei, TypeId::from(typei.clone()), <span class="kw-2">&amp;</span><span class="self">self</span>);
-                                <span class="macro">format!</span>(<span class="string">"[Eval_until_opaque] Try Read bytes failed for typeid: {}, typeid: {:?} on term (arg: {i}):\n {}"</span>,
-                                        typei, TypeId::from(typei.clone()), <span class="kw-2">&amp;</span><span class="self">self</span>)
-                            })
-                            .map_err(|e| {
+                            </span>.map_err(|e| {
                                 <span class="kw">if </span>!ti.is_symbolic() {
                                     <span class="macro">log::warn!</span>(<span class="string">"[eval_until_opaque] [Argument has payload, might explain why] Warn: {}"</span>, e);
                                 } <span class="kw">else </span>{

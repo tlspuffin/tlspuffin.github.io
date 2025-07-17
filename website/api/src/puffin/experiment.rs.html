@@ -85,6 +85,23 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 <span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::Write;
@@ -116,11 +133,18 @@
     <span class="kw">let </span>without_dy_mutations = <span class="kw">if </span>without_dy_mutations { <span class="string">"_wo-dy" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
     <span class="kw">let </span>put_use_clear = <span class="kw">if </span>put_use_clear { <span class="string">"_put-use-clear" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
     <span class="kw">let </span>minimizer = <span class="kw">if </span>minimizer { <span class="string">"_minimizer" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
-    <span class="kw">let </span>default_put: <span class="kw-2">&amp;</span>str = <span class="kw-2">&amp;</span>put_registry.default().versions().last().unwrap().<span class="number">1</span>.clone();
-    <span class="kw">let </span>default_put_short = default_put.split(<span class="string">'('</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;()[<span class="number">0</span>].trim();
+    <span class="kw">let </span>default_put: <span class="kw-2">&amp;</span>str = <span class="kw-2">&amp;</span>put_registry
+        .default()
+        .versions()
+        .last()
+        .unwrap()
+        .<span class="number">1
+        </span>.trim()
+        .split_whitespace()
+        .join(<span class="string">"-"</span>);
     <span class="macro">format!</span>(
         <span class="string">"{date}\
-        --{default_put_short}-{num_cores}c{without_bit_level}{without_dy_mutations}{put_use_clear}{minimizer}__\
+        --{default_put}-{num_cores}c{without_bit_level}{without_dy_mutations}{put_use_clear}{minimizer}__\
         {title}--{hour}--{index}"</span>,
         date = date,
         title = title.unwrap_or(<span class="kw-2">&amp;</span>puffin::git_ref().unwrap_or_default()),
@@ -139,6 +163,7 @@
     <span class="kw">let </span>full_description = <span class="macro">format!</span>(
         <span class="string">"# Experiment: {title}\n\
                 * PUT Versions: {put_versions}\n\
+                * Default PUT: {default_put}\n\
                 * Date: {date}\n\
                 * Git Ref: {git_ref}\n\
                 * Git Commit: {git_msg}\n\
@@ -147,6 +172,15 @@
                 * Log: [tlspuffin.log](./tlspuffin.log)\n\n\
                 {description}\n"</span>,
         title = <span class="kw-2">&amp;</span>title,
+        default_put = <span class="kw-2">&amp;</span>put_registry
+            .default()
+            .versions()
+            .last()
+            .unwrap()
+            .<span class="number">1
+            </span>.trim()
+            .split_whitespace()
+            .join(<span class="string">"-"</span>),
         put_versions = put_registry
             .puts()
             .map(|(n, p)| <span class="macro">format!</span>(

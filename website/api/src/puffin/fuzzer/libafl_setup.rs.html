@@ -535,8 +535,58 @@
 <a href="#535" id="535">535</a>
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use </span>libafl::corpus::ondisk::OnDiskMetadataFormat;
@@ -546,12 +596,14 @@
 
 <span class="kw">use </span><span class="kw">super</span>::harness;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::mutations::{trace_mutations, MutationConfig};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::stages::PuffinMutationalStage;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_monitor::StatsMonitor;
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_stage::{StatsStage, CORPUS_EXEC, CORPUS_EXEC_MINIMAL};
 <span class="kw">use </span><span class="kw">crate</span>::log::load_fuzzing_client;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Spawner, Trace, TraceContext};
 
 <span class="kw">pub const </span>MAP_FEEDBACK_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges"</span>;
 <span class="kw">const </span>EDGES_OBSERVER_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges_observer"</span>;
@@ -596,14 +648,14 @@
     }
 }
 
-<span class="kw">struct </span>RunClientBuilder&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
+<span class="kw">struct </span>RunClientBuilder&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, PT&gt;
 <span class="kw">where
-    </span>I: Input,
+    </span>PT: ProtocolTypes + <span class="lifetime">'static</span>,
 {
     config: FuzzerConfig,
 
     harness_fn: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span><span class="kw-2">mut </span>H,
-    existing_state: <span class="prelude-ty">Option</span>&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
+    existing_state: <span class="prelude-ty">Option</span>&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
     rand: <span class="prelude-ty">Option</span>&lt;R&gt;,
     objective_corpus: <span class="prelude-ty">Option</span>&lt;SC&gt;,
     corpus: <span class="prelude-ty">Option</span>&lt;C&gt;,
@@ -612,37 +664,38 @@
     observers: <span class="prelude-ty">Option</span>&lt;OT&gt;,
     feedback: <span class="prelude-ty">Option</span>&lt;F&gt;,
     objective: <span class="prelude-ty">Option</span>&lt;OF&gt;,
-    initial_inputs: <span class="prelude-ty">Option</span>&lt;Vec&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;&gt;,
-    mutations: <span class="prelude-ty">Option</span>&lt;MT&gt;,
+    initial_inputs: <span class="prelude-ty">Option</span>&lt;Vec&lt;(Trace&lt;PT&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;&gt;,
+    phantom_data: PhantomData&lt;PT&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
-    RunClientBuilder&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, MT, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, PT&gt;
+    RunClientBuilder&lt;<span class="lifetime">'harness</span>, H, C, R, SC, EM, F, OF, OT, CS, PT&gt;
 <span class="kw">where
-    </span>ConcreteState&lt;C, R, SC, I&gt;: UsesInput&lt;Input = I&gt;,
-    I: Input + HasLen,
-    C: Corpus + UsesInput&lt;Input = I&gt;,
+    </span>ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;: UsesInput&lt;Input = Trace&lt;PT&gt;&gt;,
+    C: Corpus + UsesInput&lt;Input = Trace&lt;PT&gt;&gt;,
     R: Rand,
-    SC: Corpus + UsesInput&lt;Input = I&gt;,
-    H: FnMut(<span class="kw-2">&amp;</span>I) -&gt; ExitKind,
-    CS: Scheduler + UsesState&lt;State = ConcreteState&lt;C, R, SC, I&gt;&gt;,
-    F: Feedback&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
-    OF: Feedback&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
-    OT: ObserversTuple&lt;ConcreteState&lt;C, R, SC, I&gt;&gt; + serde::Serialize + serde::de::DeserializeOwned,
+    SC: Corpus + UsesInput&lt;Input = Trace&lt;PT&gt;&gt;,
+    H: FnMut(<span class="kw-2">&amp;</span>Trace&lt;PT&gt;) -&gt; ExitKind,
+    CS: Scheduler + UsesState&lt;State = ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
+    F: Feedback&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
+    OF: Feedback&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
+    OT: ObserversTuple&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;
+        + serde::Serialize
+        + serde::de::DeserializeOwned,
     EM: EventFirer
         + EventRestarter
         + EventManager&lt;
-            ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, OT, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+            ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, OT, ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
             StdFuzzer&lt;CS, F, OF, OT&gt;,
         &gt; + ProgressReporter
-        + UsesState&lt;State = ConcreteState&lt;C, R, SC, I&gt;&gt;,
-    MT: MutatorsTuple&lt;I, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        + UsesState&lt;State = ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
     &lt;EM <span class="kw">as </span>UsesState&gt;::State: HasClientPerfMonitor + HasMetadata + HasExecutions,
+    PT: ProtocolTypes + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>new(
         config: FuzzerConfig,
         harness_fn: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span><span class="kw-2">mut </span>H,
-        existing_state: <span class="prelude-ty">Option</span>&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        existing_state: <span class="prelude-ty">Option</span>&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
         event_manager: EM,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -658,7 +711,7 @@
             feedback: <span class="prelude-val">None</span>,
             objective: <span class="prelude-val">None</span>,
             initial_inputs: <span class="prelude-val">None</span>,
-            mutations: <span class="prelude-val">None</span>,
+            phantom_data: Default::default(),
         }
     }
 
@@ -697,17 +750,15 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>with_initial_inputs(<span class="kw-2">mut </span><span class="self">self</span>, initial_inputs: Vec&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>with_initial_inputs(<span class="kw-2">mut </span><span class="self">self</span>, initial_inputs: Vec&lt;(Trace&lt;PT&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.initial_inputs = <span class="prelude-val">Some</span>(initial_inputs);
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>with_mutations(<span class="kw-2">mut </span><span class="self">self</span>, mutations: MT) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.mutations = <span class="prelude-val">Some</span>(mutations);
-        <span class="self">self
-    </span>}
-
-    <span class="kw">fn </span>run_client(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">fn </span>run_client&lt;PB&gt;(<span class="kw-2">mut </span><span class="self">self</span>, put_registry: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span>PutRegistry&lt;PB&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">where
+        </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt; + <span class="lifetime">'static</span>,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>feedback = <span class="self">self</span>.feedback.unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>objective = <span class="self">self</span>.objective.unwrap();
 
@@ -726,22 +777,85 @@
         <span class="kw">let </span>FuzzerConfig {
             initial_corpus_dir,
             max_iters,
-            mutation_stage_config:
-                MutationStageConfig {
-                    max_iterations_per_stage: <span class="kw">_</span>,
-                    max_mutations_per_iteration: <span class="kw">_</span>,
-                },
+            mutation_config,
             ..
         } = <span class="self">self</span>.config;
 
-        <span class="comment">// FIXME let mutator = PuffinScheduledMutator::new(self.mutations.unwrap(),
-        // max_mutations_per_iteration);
-        </span><span class="kw">let </span>mutator = StdScheduledMutator::new(<span class="self">self</span>.mutations.unwrap());
-        <span class="kw">let </span><span class="kw-2">mut </span>stages = <span class="macro">tuple_list!</span>(
-            <span class="comment">// FIXMEPuffinMutationalStage::new(mutator, max_iterations_per_stage),
-            </span>StdMutationalStage::new(mutator),
-            <span class="comment">// FIXME StatsStage::new()
-        </span>);
+        <span class="comment">// ==== DY mutational stage
+        </span><span class="kw">let </span>mutator_dy = StdScheduledMutator::new(trace_mutations(
+            mutation_config,
+            &lt;PT&gt;::signature(),
+            put_registry,
+        ));
+        <span class="comment">// Always run DY mutations (if enabled)
+        </span><span class="kw">let </span>cb_dy =
+            |<span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>, _idx: CorpusId| -&gt; <span class="prelude-ty">Result</span>&lt;bool, Error&gt; {
+                <span class="macro">log::debug!</span>(<span class="string">"[*] DY StdMutationalStage"</span>);
+                <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
+            };
+        <span class="kw">let </span>stage_dy = IfStage::new(
+            cb_dy,
+            <span class="macro">tuple_list!</span>(PuffinMutationalStage::new(
+                mutator_dy,
+                <span class="self">self</span>.config.mutation_stage_config.max_iterations_per_stage
+            )),
+        );
+
+        <span class="comment">// A stage that only enables in introspection mode and executes each testcase in corpus
+        // prior to executing other stages on it
+        </span><span class="kw">let </span>stage_test_input = ClosureStage::new(
+            |<span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>,
+             <span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>,
+             cs: <span class="kw-2">&amp;mut </span>ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;,
+             <span class="kw">_</span>: <span class="kw-2">&amp;mut </span><span class="kw">_</span>,
+             idx: CorpusId|
+             -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+                <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"introspection"</span>) {
+                    CORPUS_EXEC.increment();
+                    <span class="macro">log::debug!</span>(<span class="string">"[*] Introspection stage"</span>);
+                    <span class="kw">let </span>current_testcase = cs.corpus().get(idx)<span class="question-mark">?</span>.borrow_mut();
+                    <span class="comment">// Input will already be loaded.
+                    </span><span class="kw">let </span>current_input = current_testcase.input().as_ref().unwrap();
+                    <span class="kw">let </span>spawner = Spawner::new(put_registry.clone());
+                    <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(spawner);
+                    <span class="kw">let </span>error_ok;
+                    <span class="kw">match </span>current_input.execute_until_step_wrap(
+                        <span class="kw-2">&amp;mut </span>ctx,
+                        current_input.len(),
+                        <span class="kw-2">&amp;mut </span><span class="number">0</span>,
+                    ) {
+                        <span class="prelude-val">Ok</span>(()) =&gt; {
+                            CORPUS_EXEC_MINIMAL.increment();
+                            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+                        }
+                        <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">match </span>e {
+                            <span class="kw">crate</span>::error::Error::Put(<span class="kw">_</span>) =&gt; {
+                                error_ok = <span class="bool-val">true</span>;
+                            }
+                            <span class="kw">crate</span>::error::Error::SecurityClaim(<span class="kw">_</span>) =&gt; {
+                                error_ok = <span class="bool-val">true</span>;
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                <span class="comment">// Other error: not OK (no increment of CORPUS_EXEC_SUCCESS)
+                                </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
+                            }
+                        },
+                    }
+                    <span class="kw">if </span>error_ok {
+                        <span class="comment">// If it failed because of the PUT or the security claim, we only consider
+                        // the testcase to be "minimal" if it failed at the very last step
+                        </span><span class="kw">if </span>ctx.executed_until == current_input.len() - <span class="number">1 </span>{
+                            CORPUS_EXEC_MINIMAL.increment();
+                            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+                        }
+                    }
+                }
+                <span class="prelude-val">Ok</span>(())
+            },
+        );
+
+        <span class="comment">// ==== All stages put together
+        </span><span class="kw">let </span><span class="kw-2">mut </span>stages = <span class="macro">tuple_list!</span>(stage_test_input, stage_dy, StatsStage::new());
 
         <span class="kw">let </span><span class="kw-2">mut </span>fuzzer: StdFuzzer&lt;CS, F, OF, OT&gt; =
             StdFuzzer::new(<span class="self">self</span>.scheduler.unwrap(), feedback, objective);
@@ -828,7 +942,7 @@
     S,
 &gt;;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'harness</span>, <span class="lifetime">'a</span>, H, SC, C, R, EM, OF, CS, MT, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'harness</span>, <span class="lifetime">'a</span>, H, SC, C, R, EM, OF, CS, PT&gt;
     RunClientBuilder&lt;
         <span class="lifetime">'harness</span>,
         H,
@@ -836,41 +950,44 @@
         R,
         SC,
         EM,
-        ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
         OF,
         ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
         CS,
-        MT,
-        I,
+        PT,
     &gt;
 <span class="kw">where
-    </span>ConcreteState&lt;C, R, SC, I&gt;: UsesInput&lt;Input = I&gt;,
-    I: Input + HasLen,
-    C: Corpus + UsesInput&lt;Input = I&gt; + fmt::Debug,
+    </span>ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;: UsesInput&lt;Input = Trace&lt;PT&gt;&gt;,
+    C: Corpus + UsesInput&lt;Input = Trace&lt;PT&gt;&gt; + fmt::Debug,
     R: Rand,
-    SC: Corpus + UsesInput&lt;Input = I&gt; + fmt::Debug,
-    H: FnMut(<span class="kw-2">&amp;</span>I) -&gt; ExitKind,
-    OF: Feedback&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
-    CS: Scheduler + UsesState&lt;State = ConcreteState&lt;C, R, SC, I&gt;&gt;,
+    SC: Corpus + UsesInput&lt;Input = Trace&lt;PT&gt;&gt; + fmt::Debug,
+    H: FnMut(<span class="kw-2">&amp;</span>Trace&lt;PT&gt;) -&gt; ExitKind,
+    OF: Feedback&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
+    CS: Scheduler + UsesState&lt;State = ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
     EM: EventFirer
         + EventRestarter
         + EventManager&lt;
-            ConcreteExecutor&lt;<span class="lifetime">'harness</span>, H, ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+            ConcreteExecutor&lt;
+                <span class="lifetime">'harness</span>,
+                H,
+                ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
+                ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;,
+            &gt;,
             StdFuzzer&lt;
-                ConcreteMinimizer&lt;ConcreteState&lt;C, R, SC, I&gt;&gt;,
-                ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+                ConcreteMinimizer&lt;ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
+                ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
                 OF,
                 ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
             &gt;,
         &gt; + ProgressReporter
-        + UsesState&lt;State = ConcreteState&lt;C, R, SC, I&gt;&gt;,
-    MT: MutatorsTuple&lt;I, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        + UsesState&lt;State = ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
     &lt;EM <span class="kw">as </span>UsesState&gt;::State: HasClientPerfMonitor + HasMetadata + HasExecutions,
+    PT: ProtocolTypes + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>create_feedback_observers(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; (
-        ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, I&gt;&gt;,
+        ConcreteFeedback&lt;<span class="lifetime">'a</span>, ConcreteState&lt;C, R, SC, Trace&lt;PT&gt;&gt;&gt;,
         ConcreteObservers&lt;<span class="lifetime">'a</span>&gt;,
     ) {
         <span class="attr">#[cfg(not(test))]
@@ -934,15 +1051,6 @@
         broker_port,
         tui,
         no_launcher,
-        mutation_config:
-            MutationConfig {
-                fresh_zoo_after,
-                max_trace_length,
-                min_trace_length,
-                term_constraints,
-                with_bit_level,
-                with_dy,
-            },
         ..
     } = <span class="kw-2">&amp;</span>config;
 
@@ -959,16 +1067,6 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>builder = RunClientBuilder::new(config.clone(), harness_fn, state, event_manager);
         builder = builder
-            .with_mutations(trace_mutations::&lt;<span class="kw">_</span>, <span class="kw">_</span>, PB&gt;(
-                <span class="kw-2">*</span>min_trace_length,
-                <span class="kw-2">*</span>max_trace_length,
-                <span class="kw-2">*</span>term_constraints,
-                <span class="kw-2">*</span>fresh_zoo_after,
-                <span class="kw-2">*</span>with_bit_level,
-                <span class="kw-2">*</span>with_dy,
-                &lt;PB::ProtocolTypes <span class="kw">as </span>ProtocolTypes&gt;::signature(),
-                put_registry,
-            ))
             .with_initial_inputs(PB::create_corpus(put.clone()))
             .with_rand(StdRand::new())
             .with_corpus(
@@ -1014,7 +1112,7 @@
                 .with_scheduler(RandScheduler::new());
         } <span class="comment">// TODO:EVAL investigate using QueueScheduler instead (see https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/inmemory.rs#L190)
 
-        </span>builder.run_client()
+        </span>builder.run_client(put_registry)
     };
 
     <span class="kw">if </span><span class="kw-2">*</span>no_launcher {

@@ -976,7 +976,7 @@
         <span class="kw">let </span>server = trace.descriptors[<span class="number">0</span>].name;
         <span class="kw">let </span>runner = default_runner_for(PutDescriptor::new(TCP_PUT, guard.build_options()));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().shutdown();
         <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
@@ -991,7 +991,7 @@
         <span class="kw">let </span>trace = seed_client_attacker_full.build_trace();
         <span class="kw">let </span>server = trace.descriptors[<span class="number">0</span>].name;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().shutdown();
         <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
@@ -1020,7 +1020,7 @@
                 .with_mapping(<span class="kw-2">&amp;</span>[(client_agent, client), (server_agent, server)]),
         );
 
-        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="kw">let </span>shutdown = context.find_agent_mut(client_agent).unwrap().shutdown();
         <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);
@@ -1053,7 +1053,7 @@
                 .with_mapping(<span class="kw-2">&amp;</span>[(client_agent, client), (server_agent, server)]),
         );
 
-        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="kw">let </span>shutdown = context.find_agent_mut(client_agent).unwrap().shutdown();
         <span class="macro">log::info!</span>(<span class="string">"{}"</span>, shutdown);

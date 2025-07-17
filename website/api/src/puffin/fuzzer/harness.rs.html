@@ -61,11 +61,22 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::executors::ExitKind;
 <span class="kw">use </span>rand::Rng;
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::TermType;
 <span class="kw">use </span><span class="kw">crate</span>::execution::{Runner, TraceRunner};
+<span class="kw">use </span><span class="kw">crate</span>::fuzzer::feedback::FAIL_AT_STEP;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_stage::{
     HARNESS_EXEC, HARNESS_EXEC_AGENT_SUCCESS, HARNESS_EXEC_SUCCESS, NB_PAYLOAD, PAYLOAD_LENGTH,
     TERM_SIZE, TRACE_LENGTH,
@@ -98,7 +109,8 @@
     }
     <span class="comment">// Execute the trace
     </span><span class="kw">let </span>runner = Runner::new(put_registry.clone(), Spawner::new(put_registry.clone()));
-    <span class="kw">if let </span><span class="prelude-val">Ok</span>(ctx) = runner.execute(input) {
+    <span class="kw">let </span><span class="kw-2">mut </span>fail_at_step = <span class="number">0</span>;
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(ctx) = runner.execute(input, <span class="kw-2">&amp;mut </span>fail_at_step) {
         HARNESS_EXEC_SUCCESS.increment();
         <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"introspection"</span>) {
             <span class="kw">if </span>ctx.agents_successful() {
@@ -106,6 +118,14 @@
             }
         }
     }
+
+    <span class="comment">// Update FAIL_AT_STEP
+    </span><span class="macro">log::trace!</span>(
+        <span class="string">"[a:trace len={}/size={}/{fail_at_step}] [[harness] Executed until {fail_at_step}."</span>,
+        input.steps.len(),
+        input.size(),
+    );
+    FAIL_AT_STEP.set(<span class="prelude-val">Some</span>(fail_at_step));
 
     ExitKind::Ok
 }

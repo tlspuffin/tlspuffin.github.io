@@ -365,7 +365,7 @@
         <span class="kw">let </span>client = puffin::agent::AgentName::first();
         <span class="kw">let </span>trace = seed_successful(client, client.next());
 
-        <span class="kw">let </span>context = runner.execute(trace).unwrap();
+        <span class="kw">let </span>context = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(context.find_agent(client).unwrap().is_state_successful())
     }

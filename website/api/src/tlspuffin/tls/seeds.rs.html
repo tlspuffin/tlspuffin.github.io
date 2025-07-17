@@ -4699,7 +4699,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_client_attacker12.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4709,7 +4709,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_client_attacker.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4719,7 +4719,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_client_attacker_auth.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4729,7 +4729,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_client_attacker_full.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4740,7 +4740,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_client_attacker_full_precomputation.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4750,7 +4750,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_server_attacker_full.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4760,7 +4760,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_session_resumption_dhe.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4770,7 +4770,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_session_resumption_dhe_full.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4780,7 +4780,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_session_resumption_ke.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4790,7 +4790,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_successful.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4800,7 +4800,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_successful_client_auth.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4814,7 +4814,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_successful_mitm.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4824,7 +4824,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_successful_with_ccs.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4836,7 +4836,7 @@
         <span class="kw">let </span>runner = default_runner_for(put);
         <span class="kw">let </span>trace = seed_successful_with_tickets.build_trace();
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }
@@ -4851,7 +4851,7 @@
             seed_successful12.build_trace()
         };
 
-        <span class="kw">let </span>ctx = runner.execute(trace).unwrap();
+        <span class="kw">let </span>ctx = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="macro">assert!</span>(ctx.agents_successful());
     }

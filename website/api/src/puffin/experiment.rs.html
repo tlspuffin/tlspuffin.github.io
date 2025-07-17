@@ -102,6 +102,8 @@
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 <span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::Write;
@@ -123,6 +125,7 @@
     put_registry: <span class="kw-2">&amp;</span>PutRegistry&lt;PB&gt;,
     without_bit_level: bool,
     without_dy_mutations: bool,
+    without_truncation: bool,
     put_use_clear: bool,
     minimizer: bool,
     num_cores: usize,
@@ -131,6 +134,7 @@
     <span class="kw">let </span>hour = Local::now().format(<span class="string">"%H-%M-%S"</span>);
     <span class="kw">let </span>without_bit_level = <span class="kw">if </span>without_bit_level { <span class="string">"_wo-bit" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
     <span class="kw">let </span>without_dy_mutations = <span class="kw">if </span>without_dy_mutations { <span class="string">"_wo-dy" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
+    <span class="kw">let </span>without_truncation = <span class="kw">if </span>without_truncation { <span class="string">"_wo-trunc" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
     <span class="kw">let </span>put_use_clear = <span class="kw">if </span>put_use_clear { <span class="string">"_put-use-clear" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
     <span class="kw">let </span>minimizer = <span class="kw">if </span>minimizer { <span class="string">"_minimizer" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
     <span class="kw">let </span>default_put: <span class="kw-2">&amp;</span>str = <span class="kw-2">&amp;</span>put_registry
@@ -144,7 +148,7 @@
         .join(<span class="string">"-"</span>);
     <span class="macro">format!</span>(
         <span class="string">"{date}\
-        --{default_put}-{num_cores}c{without_bit_level}{without_dy_mutations}{put_use_clear}{minimizer}__\
+        --{default_put}-{num_cores}c{without_bit_level}{without_dy_mutations}{without_truncation}{put_use_clear}{minimizer}__\
         {title}--{hour}--{index}"</span>,
         date = date,
         title = title.unwrap_or(<span class="kw-2">&amp;</span>puffin::git_ref().unwrap_or_default()),

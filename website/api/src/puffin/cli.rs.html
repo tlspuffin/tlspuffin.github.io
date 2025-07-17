@@ -605,6 +605,13 @@
 <a href="#605" id="605">605</a>
 <a href="#606" id="606">606</a>
 <a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -652,6 +659,7 @@
         .arg(<span class="macro">arg!</span>(--<span class="string">"no-launcher" "Do not use the convenient launcher"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"wo-bit" "Disable bit-level mutations"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"wo-dy" "Disable DY mutations"</span>))
+        .arg(<span class="macro">arg!</span>(--<span class="string">"wo-trunc" "Disable failed trace steps truncation"</span>))
         .subcommands(<span class="macro">vec!</span>[
             Command::new(<span class="string">"quick-experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>),
             Command::new(<span class="string">"experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>)
@@ -726,6 +734,7 @@
     <span class="kw">let </span>put_use_clear = matches.get_flag(<span class="string">"put-use-clear"</span>);
     <span class="kw">let </span>without_bit_level = matches.get_flag(<span class="string">"wo-bit"</span>);
     <span class="kw">let </span>without_dy_mutations = matches.get_flag(<span class="string">"wo-dy"</span>);
+    <span class="kw">let </span>without_truncation = matches.get_flag(<span class="string">"wo-trunc"</span>);
     <span class="kw">let </span>target_put: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt; = matches.get_one(<span class="string">"put"</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>put_registry = put_registry.clone();
@@ -952,7 +961,7 @@
             put_registry.clone(),
             Spawner::new(put_registry).with_mapping(<span class="kw-2">&amp;</span>[(server, put)]),
         );
-        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>context = runner.execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>).unwrap();
 
         <span class="kw">let </span>server = AgentName::first();
         <span class="kw">let </span>shutdown = context.find_agent_mut(server).unwrap().shutdown();
@@ -970,6 +979,7 @@
                 <span class="kw-2">&amp;</span>put_registry,
                 without_bit_level,
                 without_dy_mutations,
+                without_truncation,
                 put_use_clear,
                 minimizer,
                 num_cores,
@@ -1005,6 +1015,7 @@
                 <span class="kw-2">&amp;</span>put_registry,
                 without_bit_level,
                 without_dy_mutations,
+                without_truncation,
                 put_use_clear,
                 minimizer,
                 num_cores,
@@ -1020,6 +1031,7 @@
                     <span class="kw-2">&amp;</span>put_registry,
                     without_bit_level,
                     without_dy_mutations,
+                    without_truncation,
                     put_use_clear,
                     minimizer,
                     num_cores,
@@ -1072,7 +1084,9 @@
         <span class="kw">if </span>without_dy_mutations {
             config.mutation_config.with_dy = <span class="bool-val">false</span>;
         }
-
+        <span class="kw">if </span>without_truncation {
+            config.mutation_stage_config.with_truncation = <span class="bool-val">false</span>;
+        }
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = start::&lt;PB&gt;(<span class="kw-2">&amp;</span>put_registry, default_put, config, handle) {
             <span class="kw">match </span>err {
                 libafl::Error::ShuttingDown =&gt; {
@@ -1152,7 +1166,7 @@
     <span class="comment">// When generating coverage a crash means that no coverage is stored
     // By executing in a fork, even when that process crashes, the other executed code will still
     // yield coverage
-    </span><span class="kw">let </span>status = ForkedRunner::new(runner).execute(trace);
+    </span><span class="kw">let </span>status = ForkedRunner::new(runner).execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>);
 
     <span class="kw">match </span>status {
         <span class="prelude-val">Ok</span>(s) =&gt; <span class="macro">log::info!</span>(<span class="string">"execution finished with status {s:?}"</span>),

@@ -266,6 +266,25 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::mpsc;
 <span class="kw">use </span>std::time::Duration;
 
@@ -285,15 +304,20 @@
     <span class="kw">type </span>R;
     <span class="kw">type </span>E;
 
-    <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T, executed_until: <span class="kw-2">&amp;mut </span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
         T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
-        <span class="self">self</span>.execute_config(trace, <span class="bool-val">true</span>)
+        <span class="self">self</span>.execute_config(trace, <span class="bool-val">true</span>, executed_until)
     }
 
-    <span class="kw">fn </span>execute_config&lt;T&gt;(<span class="self">self</span>, trace: T, with_reseed: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">fn </span>execute_config&lt;T&gt;(
+        <span class="self">self</span>,
+        trace: T,
+        with_reseed: bool,
+        executed_until: <span class="kw-2">&amp;mut </span>usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;;
 }
@@ -318,7 +342,12 @@
     <span class="kw">type </span>PB = PB;
     <span class="kw">type </span>R = TraceContext&lt;<span class="self">Self</span>::PB&gt;;
 
-    <span class="kw">fn </span>execute_config&lt;T&gt;(<span class="self">self</span>, trace: T, with_reseed: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">fn </span>execute_config&lt;T&gt;(
+        <span class="self">self</span>,
+        trace: T,
+        with_reseed: bool,
+        executed_until: <span class="kw-2">&amp;mut </span>usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
@@ -328,7 +357,11 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(<span class="self">self</span>.spawner.clone());
-        trace.as_ref().execute(<span class="kw-2">&amp;mut </span>ctx, <span class="kw-2">&amp;mut </span><span class="number">0</span>)<span class="question-mark">?</span>;
+        trace.as_ref().execute(<span class="kw-2">&amp;mut </span>ctx, <span class="kw-2">&amp;mut </span><span class="number">0</span>).map_err(|e| {
+            <span class="kw-2">*</span>executed_until = ctx.executed_until;
+            e
+        })<span class="question-mark">?</span>;
+        <span class="kw-2">*</span>executed_until = ctx.executed_until;
         <span class="prelude-val">Ok</span>(ctx)
     }
 }
@@ -367,7 +400,12 @@
     <span class="kw">type </span>PB = T::PB;
     <span class="kw">type </span>R = ExecutionStatus;
 
-    <span class="kw">fn </span>execute_config&lt;Tr&gt;(<span class="self">self</span>, trace: Tr, with_reseed: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
+    <span class="kw">fn </span>execute_config&lt;Tr&gt;(
+        <span class="self">self</span>,
+        trace: Tr,
+        with_reseed: bool,
+        executed_until: <span class="kw-2">&amp;mut </span>usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>Tr: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
@@ -375,7 +413,7 @@
 
         run_in_subprocess(
             || {
-                <span class="kw">let </span>ret = <span class="kw">match </span>runner.execute_config(trace, with_reseed) {
+                <span class="kw">let </span>ret = <span class="kw">match </span>runner.execute_config(trace, with_reseed, executed_until) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
                 };

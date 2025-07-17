@@ -1339,6 +1339,20 @@
 <a href="#1339" id="1339">1339</a>
 <a href="#1340" id="1340">1340</a>
 <a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module define the execution [`Trace`]s.
 //!
 //! Each [`Trace`]s consist of several [`Step`]s, of which each has either an [`OutputAction`] or
@@ -2266,6 +2280,20 @@
         <span class="self">self</span>.steps.iter().all(|e| <span class="kw">match </span><span class="kw-2">&amp;</span>e.action {
             Input(r) =&gt; r.recipe.is_symbolic(),
             <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
+        })
+    }
+
+    <span class="doccomment">/// Remove the steps after (excluding) `after_step`
+    </span><span class="kw">pub fn </span>truncate_at_step(<span class="kw-2">&amp;mut </span><span class="self">self</span>, after_step: usize) {
+        <span class="macro">log::error!</span>(<span class="string">"Truncating trace at step {after_step}"</span>);
+        <span class="self">self</span>.steps.truncate(after_step);
+    }
+
+    <span class="doccomment">/// Size of trace (summing all input sizes, counting one for output)
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.steps.iter().fold(<span class="number">0</span>, |acc, s| <span class="kw">match </span><span class="kw-2">&amp;</span>s.action {
+            Action::Input(inp) =&gt; acc + inp.recipe.size(),
+            Action::Output(<span class="kw">_</span>) =&gt; acc + <span class="number">1</span>,
         })
     }
 }

@@ -495,7 +495,7 @@
                 </span><span class="kw">if </span>with_payloads &amp;&amp; (!all_payloads.is_empty() || sibling_has_payloads) {
                     eval_tree.args = eval_tree_args;
                     <span class="kw">let </span>eval = PB::any_get_encoding(result.as_ref());
-                    <span class="macro">log::debug!</span>(<span class="string">"        / We successfully evaluated the term into: {eval:?}"</span>);
+                    <span class="macro">log::trace!</span>(<span class="string">"        / We successfully evaluated the term into: {eval:?}"</span>);
                     eval_tree.encode = <span class="prelude-val">Some</span>(eval);
                 }
 

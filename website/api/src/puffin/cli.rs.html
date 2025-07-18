@@ -612,6 +612,60 @@
 <a href="#612" id="612">612</a>
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -622,6 +676,7 @@
 <span class="kw">use </span>clap::{arg, crate_authors, crate_name, value_parser, Command};
 <span class="kw">use </span>libafl::inputs::Input;
 <span class="kw">use </span>libafl_bolts::prelude::Cores;
+<span class="kw">use </span>log::LevelFilter;
 <span class="kw">use </span>puffin_build::puffin;
 
 <span class="kw">use </span><span class="kw">crate</span>::agent::AgentName;
@@ -657,11 +712,14 @@
         .arg(<span class="macro">arg!</span>(--tui <span class="string">"Display fuzzing logs using the interactive terminal UI"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"put-use-clear" "Use clearing functionality instead of recreating puts"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"no-launcher" "Do not use the convenient launcher"</span>))
-        .arg(<span class="macro">arg!</span>(--<span class="string">"wo-bit" "Disable bit-level mutations"</span>))
+        .arg(<span class="macro">arg!</span>(--<span class="string">"with-bit" "Enable bit-level mutations"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"wo-dy" "Disable DY mutations"</span>))
         .arg(<span class="macro">arg!</span>(--<span class="string">"wo-trunc" "Disable failed trace steps truncation"</span>))
+        .arg(<span class="macro">arg!</span>(-v --verbosity [l] <span class="string">"Verbosity level for (quick) experiments"</span>)
+            .value_parser(<span class="macro">value_parser!</span>(LevelFilter)))
         .subcommands(<span class="macro">vec!</span>[
-            Command::new(<span class="string">"quick-experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>),
+            Command::new(<span class="string">"quick-experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>)
+            ,
             Command::new(<span class="string">"experiment"</span>).about(<span class="string">"Starts a new experiment and writes the results out"</span>)
                 .arg(<span class="macro">arg!</span>(-t --title &lt;t&gt; <span class="string">"Title of the experiment"</span>))
                 .arg(<span class="macro">arg!</span>(-d --description [d] <span class="string">"Description of the experiment"</span>))
@@ -679,6 +737,7 @@
                 .arg(<span class="macro">arg!</span>(&lt;inputs&gt; <span class="string">"The file which stores a trace"</span>).num_args(<span class="number">1</span>..))
                 .arg(<span class="macro">arg!</span>(-n --number &lt;n&gt; <span class="string">"Amount of files to execute starting at index."</span>).value_parser(<span class="macro">value_parser!</span>(usize)))
                 .arg(<span class="macro">arg!</span>(-i --index &lt;i&gt; <span class="string">"Index of file to execute."</span>).value_parser(<span class="macro">value_parser!</span>(usize)))
+                .arg(<span class="macro">arg!</span>(--<span class="string">"wo-bit" "Disable evaluating payloads created through bit-level mutations"</span>))
                 .arg(<span class="macro">arg!</span>(-s --sort <span class="string">"Sort files in ascending order by the creation date before executing"</span>)),
             Command::new(<span class="string">"display-execute"</span>)
                 .about(<span class="string">"Executes a trace stored in a file and display information"</span>)
@@ -709,15 +768,8 @@
     </span>S: AsRef&lt;str&gt;,
     PB: ProtocolBehavior + Clone,
 {
-    <span class="kw">let </span>handle = <span class="kw">match </span>log4rs::init_config(config_default()) {
-        <span class="prelude-val">Ok</span>(handle) =&gt; handle,
-        <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">eprintln!</span>(<span class="string">"error: failed to initialize logging: {err:?}"</span>);
-            <span class="kw">return </span>ExitCode::FAILURE;
-        }
-    };
-
-    <span class="kw">let </span>matches = create_app(title).get_matches();
+    <span class="comment">// Parsing CLI arguments
+    </span><span class="kw">let </span>matches = create_app(title).get_matches();
 
     <span class="kw">let </span>first_core = <span class="string">"0"</span>.to_string();
     <span class="kw">let </span>core_definition = matches.get_one(<span class="string">"cores"</span>).unwrap_or(<span class="kw-2">&amp;</span>first_core);
@@ -732,10 +784,13 @@
     <span class="kw">let </span>tui = matches.get_flag(<span class="string">"tui"</span>);
     <span class="kw">let </span>no_launcher = matches.get_flag(<span class="string">"no-launcher"</span>);
     <span class="kw">let </span>put_use_clear = matches.get_flag(<span class="string">"put-use-clear"</span>);
-    <span class="kw">let </span>without_bit_level = matches.get_flag(<span class="string">"wo-bit"</span>);
+    <span class="kw">let </span>without_bit_level = !matches.get_flag(<span class="string">"with-bit"</span>);
     <span class="kw">let </span>without_dy_mutations = matches.get_flag(<span class="string">"wo-dy"</span>);
     <span class="kw">let </span>without_truncation = matches.get_flag(<span class="string">"wo-trunc"</span>);
     <span class="kw">let </span>target_put: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt; = matches.get_one(<span class="string">"put"</span>);
+    <span class="kw">let </span>verbosity: LevelFilter = <span class="kw-2">*</span>matches
+        .get_one::&lt;LevelFilter&gt;(<span class="string">"verbosity"</span>)
+        .unwrap_or(<span class="kw-2">&amp;</span>LevelFilter::Info);
 
     <span class="kw">let </span><span class="kw-2">mut </span>put_registry = put_registry.clone();
 
@@ -743,11 +798,81 @@
         <span class="kw">if let </span><span class="prelude-val">Err</span>((available_puts, non_available_puts)) =
             check_if_puts_exist(<span class="kw-2">&amp;</span>put_registry, <span class="kw-2">&amp;</span>[name])
         {
-            <span class="macro">log::error!</span>(<span class="string">"PUT not found : {}"</span>, non_available_puts.join(<span class="string">","</span>));
-            <span class="macro">log::error!</span>(<span class="string">"Available PUTs: {}"</span>, available_puts.join(<span class="string">","</span>));
+            <span class="macro">println!</span>(<span class="string">"Available PUTs: {}"</span>, available_puts.join(<span class="string">","</span>));
+            <span class="macro">println!</span>(<span class="string">"Error: PUT not found: {}"</span>, non_available_puts.join(<span class="string">","</span>));
             <span class="kw">return </span>ExitCode::FAILURE;
         };
         <span class="kw">let _ </span>= put_registry.set_default(name);
+    };
+
+    <span class="comment">// Setup Logging
+    // We need to create the log directory before initializing the logger
+    </span><span class="kw">let </span>(is_experiment, base_directory): (bool, PathBuf) =
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(_matches) = matches.subcommand_matches(<span class="string">"quick-experiment"</span>) {
+            <span class="kw">let </span>experiments_root = PathBuf::from(<span class="string">"experiments"</span>);
+            <span class="kw">let </span>title = format_title(
+                <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span>,
+                <span class="kw-2">&amp;</span>put_registry,
+                without_bit_level,
+                without_dy_mutations,
+                without_truncation,
+                put_use_clear,
+                minimizer,
+                num_cores,
+            );
+            <span class="kw">let </span><span class="kw-2">mut </span>experiment_path = experiments_root.join(<span class="kw-2">&amp;</span>title);
+
+            <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
+            <span class="kw">while </span>experiment_path.as_path().exists() {
+                <span class="kw">let </span>title = format_title(
+                    <span class="prelude-val">None</span>,
+                    <span class="prelude-val">Some</span>(i),
+                    <span class="kw-2">&amp;</span>put_registry,
+                    without_bit_level,
+                    without_dy_mutations,
+                    without_truncation,
+                    put_use_clear,
+                    minimizer,
+                    num_cores,
+                );
+                experiment_path = experiments_root.join(title);
+                i += <span class="number">1</span>;
+            }
+            (<span class="bool-val">true</span>, experiments_root.join(<span class="kw-2">&amp;</span>title))
+        } <span class="kw">else </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"experiment"</span>) {
+                <span class="kw">let </span>git_ref = <span class="string">"_"</span>.to_string();
+                <span class="kw">let </span>title: <span class="kw-2">&amp;</span>str = matches.get_one::&lt;String&gt;(<span class="string">"title"</span>).unwrap_or(<span class="kw-2">&amp;</span>git_ref);
+                <span class="kw">let </span>experiments_root = PathBuf::new().join(<span class="string">"experiments"</span>);
+                <span class="kw">let </span>title = format_title(
+                    <span class="prelude-val">Some</span>(title),
+                    <span class="prelude-val">None</span>,
+                    <span class="kw-2">&amp;</span>put_registry,
+                    without_bit_level,
+                    without_dy_mutations,
+                    without_truncation,
+                    put_use_clear,
+                    minimizer,
+                    num_cores,
+                );
+                <span class="kw">let </span>experiment_path = experiments_root.join(title);
+                <span class="macro">assert!</span>(
+                    !experiment_path.as_path().exists(),
+                    <span class="string">"Experiment already exists. Consider creating a new experiment."
+                </span>);
+                (<span class="bool-val">true</span>, experiment_path)
+            } <span class="kw">else </span>{
+                <span class="comment">// Case of non-experiment: plain fuzzing, trace executions, etc.
+                </span>(<span class="bool-val">false</span>, env::current_dir().unwrap())
+            }
+        };
+    <span class="kw">let </span>handle = <span class="kw">match </span>log4rs::init_config(config_default(<span class="kw-2">&amp;*</span>base_directory.join(<span class="string">"./log"</span>))) {
+        <span class="prelude-val">Ok</span>(handle) =&gt; handle,
+        <span class="prelude-val">Err</span>(err) =&gt; {
+            <span class="macro">eprintln!</span>(<span class="string">"error: failed to initialize logging: {err:?}"</span>);
+            <span class="kw">return </span>ExitCode::FAILURE;
+        }
     };
 
     <span class="macro">log::info!</span>(<span class="string">"Version: {}"</span>, puffin::full_version());
@@ -972,7 +1097,6 @@
         <span class="kw">let </span>experiment_path = <span class="kw">if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"experiment"</span>) {
             <span class="kw">let </span>git_ref = <span class="string">"_"</span>.to_string();
             <span class="kw">let </span>title: <span class="kw-2">&amp;</span>str = matches.get_one::&lt;String&gt;(<span class="string">"title"</span>).unwrap_or(<span class="kw-2">&amp;</span>git_ref);
-            <span class="kw">let </span>experiments_root = PathBuf::new().join(<span class="string">"experiments"</span>);
             <span class="kw">let </span>format_t = format_title(
                 <span class="prelude-val">Some</span>(title),
                 <span class="prelude-val">None</span>,
@@ -984,11 +1108,7 @@
                 minimizer,
                 num_cores,
             );
-            <span class="kw">let </span>experiment_path = experiments_root.join(format_t.clone());
-            <span class="macro">assert!</span>(
-                !experiment_path.as_path().exists(),
-                <span class="string">"Experiment already exists. Consider creating a new experiment."
-            </span>);
+            <span class="kw">let </span>experiment_path = base_directory;
 
             <span class="kw">let </span>base_dec = format_t;
             <span class="kw">let </span>description: <span class="kw-2">&amp;</span>String = matches.get_one(<span class="string">"description"</span>).unwrap_or(<span class="kw-2">&amp;</span>base_dec);
@@ -1007,7 +1127,7 @@
             experiment_path
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(_matches) = matches.subcommand_matches(<span class="string">"quick-experiment"</span>) {
             <span class="kw">let </span>description = <span class="string">"No Description, because this is a quick experiment."</span>;
-            <span class="kw">let </span>experiments_root = PathBuf::from(<span class="string">"experiments"</span>);
+            <span class="kw">let </span>experiment_path = base_directory;
 
             <span class="kw">let </span>title = format_title(
                 <span class="prelude-val">None</span>,
@@ -1020,25 +1140,6 @@
                 minimizer,
                 num_cores,
             );
-
-            <span class="kw">let </span><span class="kw-2">mut </span>experiment_path = experiments_root.join(<span class="kw-2">&amp;</span>title);
-
-            <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
-            <span class="kw">while </span>experiment_path.as_path().exists() {
-                <span class="kw">let </span>title = format_title(
-                    <span class="prelude-val">None</span>,
-                    <span class="prelude-val">Some</span>(i),
-                    <span class="kw-2">&amp;</span>put_registry,
-                    without_bit_level,
-                    without_dy_mutations,
-                    without_truncation,
-                    put_use_clear,
-                    minimizer,
-                    num_cores,
-                );
-                experiment_path = experiments_root.join(title);
-                i += <span class="number">1</span>;
-            }
 
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = write_experiment_markdown(
                 <span class="kw-2">&amp;</span>experiment_path,
@@ -1069,20 +1170,27 @@
             corpus_dir: experiment_path.join(<span class="string">"corpus"</span>),
             objective_dir: experiment_path.join(<span class="string">"objective"</span>),
             broker_port: port,
-            stats_file: experiment_path.join(<span class="string">"stats.json"</span>),
-            log_file: experiment_path.join(<span class="string">"tlspuffin.log"</span>),
+            stats_file: experiment_path.join(<span class="string">"log/stats.json"</span>),
+            log_folder: experiment_path.join(<span class="string">"log/"</span>),
             minimizer,
-            mutation_stage_config: Default::default(),
-            mutation_config: Default::default(),
             tui,
             no_launcher,
+            is_experiment,
+            verbosity,
+            ..Default::default()
         };
+
+        <span class="kw">if </span>without_bit_level &amp;&amp; without_dy_mutations {
+            <span class="macro">log::error!</span>(<span class="string">"Both bit-level and DY mutations are disabled. This is not supported."</span>);
+            <span class="kw">return </span>ExitCode::FAILURE;
+        }
 
         <span class="kw">if </span>without_bit_level {
             config.mutation_config.with_bit_level = <span class="bool-val">false</span>;
         }
         <span class="kw">if </span>without_dy_mutations {
             config.mutation_config.with_dy = <span class="bool-val">false</span>;
+            config.mutation_config.term_constraints.must_be_root = <span class="bool-val">true</span>;
         }
         <span class="kw">if </span>without_truncation {
             config.mutation_stage_config.with_truncation = <span class="bool-val">false</span>;
@@ -1161,7 +1269,7 @@
         <span class="kw">return</span>;
     };
 
-    <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
+    <span class="macro">log::debug!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 
     <span class="comment">// When generating coverage a crash means that no coverage is stored
     // By executing in a fork, even when that process crashes, the other executed code will still
@@ -1184,7 +1292,7 @@
     <span class="kw">let </span>ctx = TraceContext::new(spawner);
     <span class="kw">let </span>trace = Trace::&lt;PB::ProtocolTypes&gt;::from_file(input)<span class="question-mark">?</span>;
 
-    <span class="macro">log::info!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
+    <span class="macro">log::debug!</span>(<span class="string">"Agents: {:?}"</span>, <span class="kw-2">&amp;</span>trace.descriptors);
 
     <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(output).expect(<span class="string">"Unable to create file"</span>);
 

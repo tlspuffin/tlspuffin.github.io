@@ -646,6 +646,8 @@
 <a href="#646" id="646">646</a>
 <a href="#647" id="647">647</a>
 <a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`DYTerm`]sas well as iterators over them.
 
 </span><span class="kw">use </span>std::fmt;
@@ -1112,7 +1114,7 @@
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
     {
-        <span class="macro">log::debug!</span>(<span class="string">"[evaluate_config] About to evaluate {}\n==================================================================="</span>, <span class="kw-2">&amp;</span><span class="self">self</span>);
+        <span class="macro">log::trace!</span>(<span class="string">"[evaluate_config] About to evaluate term (with_payloads: {with_payloads}):\n{}\n==================================================================="</span>, <span class="kw-2">&amp;</span><span class="self">self</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>eval_tree = EvalTree::empty();
         <span class="kw">let </span>(m, all_payloads) = <span class="self">self</span>.eval_until_opaque(
             <span class="kw-2">&amp;mut </span>eval_tree,
@@ -1131,7 +1133,9 @@
             ))
         } <span class="kw">else </span>{
             <span class="kw">let </span>eval = PB::any_get_encoding(m.as_ref());
-            <span class="macro">log::trace!</span>(<span class="string">"        / We successfully evaluated the root term into: {eval:?}"</span>);
+            <span class="macro">log::trace!</span>(
+                <span class="string">"        / [no_payload] We successfully evaluated the root term into: {eval:?}"
+            </span>);
             <span class="prelude-val">Ok</span>((eval, m))
         }
     }

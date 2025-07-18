@@ -637,6 +637,47 @@
 <a href="#637" id="637">637</a>
 <a href="#638" id="638">638</a>
 <a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::marker::PhantomData;
@@ -645,6 +686,7 @@
 <span class="kw">use </span>libafl::corpus::ondisk::OnDiskMetadataFormat;
 <span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>log::LevelFilter;
 <span class="kw">use </span>log4rs::Handle;
 
 <span class="kw">use </span><span class="kw">super</span>::harness;
@@ -653,7 +695,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stages::PuffinMutationalStage;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_monitor::StatsMonitor;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_stage::{StatsStage, CORPUS_EXEC, CORPUS_EXEC_MINIMAL};
-<span class="kw">use </span><span class="kw">crate</span>::log::load_fuzzing_client;
+<span class="kw">use </span><span class="kw">crate</span>::log::{load_fuzzing_client, set_experiment_fuzzing_client};
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
@@ -681,9 +723,33 @@
     <span class="kw">pub </span>mutation_config: MutationConfig,
     <span class="kw">pub </span>tui: bool,
     <span class="kw">pub </span>no_launcher: bool,
-    <span class="kw">pub </span>log_file: PathBuf,
-}
+    <span class="kw">pub </span>log_folder: PathBuf,
+    <span class="kw">pub </span>is_experiment: bool,
+    <span class="kw">pub </span>verbosity: LevelFilter, <span class="comment">// level for the client logging
+</span>}
 
+<span class="kw">impl </span>Default <span class="kw">for </span>FuzzerConfig {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            initial_corpus_dir: PathBuf::from(<span class="string">"corpus"</span>),
+            static_seed: <span class="prelude-val">None</span>,
+            max_iters: <span class="prelude-val">None</span>,
+            core_definition: <span class="string">"1"</span>.to_string(),
+            stats_file: PathBuf::from(<span class="string">"stats.json"</span>),
+            corpus_dir: PathBuf::from(<span class="string">"corpus"</span>),
+            objective_dir: PathBuf::from(<span class="string">"objective_corpus"</span>),
+            broker_port: <span class="number">1337</span>,
+            minimizer: <span class="bool-val">false</span>,
+            tui: <span class="bool-val">false</span>,
+            no_launcher: <span class="bool-val">false</span>,
+            log_folder: PathBuf::from(<span class="string">"logs"</span>),
+            is_experiment: <span class="bool-val">false</span>,
+            verbosity: LevelFilter::Info, <span class="comment">// default verbosity
+            </span>mutation_stage_config: Default::default(),
+            mutation_config: Default::default(),
+        }
+    }
+}
 <span class="attr">#[derive(Clone, Copy, Debug)]
 </span><span class="kw">pub struct </span>MutationStageConfig {
     <span class="doccomment">/// How many iterations each stage gets, as an upper bound
@@ -1142,12 +1208,14 @@
         corpus_dir,
         objective_dir,
         static_seed: <span class="kw">_</span>,
-        log_file,
         stats_file,
         broker_port,
         tui,
         no_launcher,
         mutation_stage_config,
+        is_experiment,
+        log_folder,
+        verbosity,
         ..
     } = <span class="kw-2">&amp;</span>config;
 
@@ -1158,7 +1226,14 @@
                           event_manager: LlmpRestartingEventManager&lt;<span class="kw">_</span>, StdShMemProvider&gt;,
                           _core_id: CoreId|
      -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        log_handle.clone().set_config(load_fuzzing_client());
+        <span class="kw">if </span><span class="kw-2">*</span>is_experiment {
+            log_handle
+                .clone()
+                .set_config(set_experiment_fuzzing_client(log_folder, <span class="kw-2">*</span>verbosity));
+        } <span class="kw">else </span>{
+            log_handle.clone().set_config(load_fuzzing_client());
+        }
+        <span class="macro">log::info!</span>(<span class="string">"log_handle: {:?}"</span>, <span class="kw-2">&amp;</span>log_handle);
 
         <span class="kw">let </span>harness_fn = <span class="kw-2">&amp;mut </span>(|input: <span class="kw-2">&amp;</span><span class="kw">_</span>| harness::harness::&lt;PB&gt;(put_registry, input));
 
@@ -1201,7 +1276,7 @@
         //#[cfg(not(feature = "sancov"))]
         </span>{
             <span class="comment">// FIXME
-            </span><span class="macro">log::error!</span>(<span class="string">"Running without minimizer is unsupported"</span>);
+            </span><span class="macro">log::warn!</span>(<span class="string">"Running without minimizer is unsupported"</span>);
             <span class="kw">let </span>(feedback, observer) = builder.create_feedback_observers();
             <span class="kw">let </span>feedback_with_minimizer = <span class="macro">feedback_or!</span>(
                 MinimizingFeedback::new(mutation_stage_config.with_truncation),
@@ -1218,6 +1293,7 @@
                 .with_scheduler(scheduler);
         } <span class="comment">// TODO:EVAL investigate using QueueScheduler instead (see https://github.com/AFLplusplus/LibAFL/blob/8445ae54b34a6cea48ae243d40bb1b1b94493898/libafl_sugar/src/inmemory.rs#L190)
           // TODO:EVAL: investigate this versus Rand, versus Queue, versus Minimizer
+
         </span>builder.run_client(put_registry)
     };
 
@@ -1242,10 +1318,14 @@
         //
         // To verify this assumption, we save the clients' output to a file that
         // should always be empty.
-        </span><span class="kw">let </span>out_path = log_file.with_extension(<span class="string">"out"</span>);
+        </span><span class="kw">let </span>out_path = log_folder.join(<span class="string">"puffin_main_broker_stdout.log"</span>);
         <span class="kw">let </span>out_file = out_path
             .to_str()
             .expect(<span class="string">"failed to create path to redirect fuzzer clients' stdout"</span>);
+        <span class="kw">let </span>err_path = log_folder.join(<span class="string">"puffin_main_broker_stderr.log"</span>);
+        <span class="kw">let </span>err_file = err_path
+            .to_str()
+            .expect(<span class="string">"failed to create path to redirect fuzzer clients' stderr"</span>);
 
         <span class="kw">if </span><span class="kw-2">*</span>tui {
             <span class="kw">let </span>stats_monitor = StatsMonitor::with_tui_output(stats_file.clone());
@@ -1258,6 +1338,7 @@
                 .cores(<span class="kw-2">&amp;</span>cores)
                 .broker_port(<span class="kw-2">*</span>broker_port)
                 .stdout_file(<span class="prelude-val">Some</span>(out_file))
+                .stderr_file(<span class="prelude-val">Some</span>(err_file))
                 .build()
                 .launch()
         } <span class="kw">else </span>{
@@ -1271,6 +1352,7 @@
                 .cores(<span class="kw-2">&amp;</span>cores)
                 .broker_port(<span class="kw-2">*</span>broker_port)
                 .stdout_file(<span class="prelude-val">Some</span>(out_file))
+                .stderr_file(<span class="prelude-val">Some</span>(err_file))
                 .build()
                 .launch()
         }

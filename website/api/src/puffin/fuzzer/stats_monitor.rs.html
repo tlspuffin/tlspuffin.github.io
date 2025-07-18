@@ -685,6 +685,11 @@
 <a href="#685" id="685">685</a>
 <a href="#686" id="686">686</a>
 <a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Stats to display both cumulative and per-client stats
 
 </span><span class="kw">use </span>core::time::Duration;
@@ -996,7 +1001,7 @@
 /// - `bit_exec`: Number of bit-level trace executions (Make Message and Read Message).
 /// - `bit_exec_success`: Number of successful bit-level executions (Make Message and Read Message).
 /// - `mm_exec`: Same as bit_exec but only when focused.
-/// - `mmn_exec_success`: Same as bit_exec_success but only when focused.
+/// - `mm_exec_success`: Same as bit_exec_success but only when focused.
 /// - `fn_error`: Number of function errors encountered while the harness execute traces.
 /// - `term_error`: Number of term errors encountered while the harness execute traces.
 /// - `term_bug_error`: Number of term bug errors encountered while the harness execute traces.
@@ -1019,6 +1024,7 @@
     </span>eval_fn_crypto_error: u64,
     eval_fn_malformed_error: u64,
     eval_fn_unknown_error: u64,
+    eval_fn_codec_error: u64,
     eval_term_error: u64,
     eval_termbug_error: u64,
     eval_codec_error: u64,
@@ -1138,6 +1144,7 @@
             eval_fn_crypto_error: <span class="number">0</span>,
             eval_fn_malformed_error: <span class="number">0</span>,
             eval_fn_unknown_error: <span class="number">0</span>,
+            eval_fn_codec_error: <span class="number">0</span>,
             eval_term_error: <span class="number">0</span>,
             eval_termbug_error: <span class="number">0</span>,
             fn_error: <span class="number">0</span>,
@@ -1178,6 +1185,9 @@
                 }
                 RuntimeStats::EvalFnUnknownError(c) =&gt; {
                     <span class="self">self</span>.eval_fn_unknown_error += get_number(client_stats, c.name)
+                }
+                RuntimeStats::EvalFnCodecError(c) =&gt; {
+                    <span class="self">self</span>.eval_fn_codec_error += get_number(client_stats, c.name)
                 }
                 RuntimeStats::EvalTermError(c) =&gt; {
                     <span class="self">self</span>.eval_term_error += get_number(client_stats, c.name)

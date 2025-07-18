@@ -1479,7 +1479,7 @@
             _bitstring: <span class="kw-2">&amp;</span>[u8],
             _ty: TypeId,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>EvaluatedTerm&lt;<span class="self">Self</span>::ProtocolTypes&gt;&gt;, Error&gt; {
-            <span class="prelude-val">Err</span>(Error::Term(<span class="string">"try_read_bytes not implemented"</span>.to_owned()))
+            <span class="prelude-val">Err</span>(Error::Codec(<span class="string">"try_read_bytes not implemented"</span>.to_owned()))
         }
     }
 
@@ -1600,7 +1600,7 @@
             ],
         ));
 
-        <span class="macro">log::debug!</span>(<span class="string">"{}"</span>, generated_term);
+        <span class="macro">log::debug!</span>(<span class="string">"Generated term: {}"</span>, generated_term);
 
         <span class="kw">fn </span>dummy_factory() -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;TestProtocolBehavior&gt;&gt; {
             Box::new(TestFactory)
@@ -1618,7 +1618,7 @@
             <span class="prelude-val">None</span>,
         );
 
-        <span class="macro">log::debug!</span>(<span class="string">"{:?}"</span>, context.knowledge_store);
+        <span class="macro">log::trace!</span>(<span class="string">"New knowledge: {:?}"</span>, context.knowledge_store);
 
         <span class="kw">let </span>_string = generated_term
             .evaluate_dy(<span class="kw-2">&amp;</span>context)

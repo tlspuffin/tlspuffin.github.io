@@ -541,7 +541,7 @@
 
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">match </span>T::read(r) {
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(Error::Term(<span class="macro">format!</span>(
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(Error::Codec(<span class="macro">format!</span>(
                 <span class="string">"Failed to read for type {}"</span>,
                 std::any::type_name::&lt;T&gt;()
             ))),

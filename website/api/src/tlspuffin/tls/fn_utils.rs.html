@@ -817,7 +817,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no server certificate"</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Malformed(<span class="string">"no server certificate"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_ticket(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -828,7 +828,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no server tickets"</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Malformed(<span class="string">"no server tickets"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_certificate_request(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -839,7 +839,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no server tickets"</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Malformed(<span class="string">"no server tickets"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_encrypted_extensions(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -850,7 +850,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no encrypted extensions"</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Malformed(<span class="string">"no encrypted extensions"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_certificate_verify(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -861,7 +861,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no certificate verify"</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Malformed(<span class="string">"no certificate verify"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_find_server_finished(flight: <span class="kw-2">&amp;</span>MessageFlight) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
@@ -872,7 +872,7 @@
             }
         }
     }
-    <span class="prelude-val">Err</span>(FnError::Unknown(<span class="string">"no finished"</span>.to_owned()))
+    <span class="prelude-val">Err</span>(FnError::Malformed(<span class="string">"no finished"</span>.to_owned()))
 }
 
 <span class="kw">pub fn </span>fn_no_psk() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;, FnError&gt; {
@@ -1065,7 +1065,7 @@
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
     .ok_or_else(|| {
-        FnError::Unknown(<span class="string">"Only can fill binder in HandshakeMessagePayload"</span>.to_owned())
+        FnError::Malformed(<span class="string">"Only can fill binder in HandshakeMessagePayload"</span>.to_owned())
     })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>supported_suite = suite_as_supported_suite(suite)<span class="question-mark">?</span>;
@@ -1165,7 +1165,7 @@
 <span class="kw">pub fn </span>fn_decode_ecdh_pubkey(data: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(data.as_slice());
     <span class="kw">let </span>params = ServerECDHParams::read(<span class="kw-2">&amp;mut </span>rd)
-        .ok_or_else(|| FnError::Unknown(<span class="string">"Failed to parse ecdh public key"</span>.to_string()))<span class="question-mark">?</span>;
+        .ok_or_else(|| FnError::Codec(<span class="string">"Failed to parse ecdh public key"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(params.public.<span class="number">0</span>)
 }
 
@@ -1235,7 +1235,7 @@
     56bef671e44bc3aceb6e15590befb11b76efb6ee89c69820b91e1ba9d11d0324e961e9b0cb98e38ea2414ae94"</span>,
     );
     <span class="prelude-val">Ok</span>(Certificate(der_cert.map_err(|_err| {
-        FnError::Unknown(<span class="string">"Failed to load DER certificate"</span>.to_string())
+        FnError::Codec(<span class="string">"Failed to load DER certificate"</span>.to_string())
     })<span class="question-mark">?</span>))
 }
 

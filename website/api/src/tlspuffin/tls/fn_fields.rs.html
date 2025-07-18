@@ -287,7 +287,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>id: Vec&lt;u8&gt; = Vec::from([<span class="number">3u8</span>; <span class="number">32</span>]);
     id.insert(<span class="number">0</span>, <span class="number">32</span>);
     <span class="kw">let </span>id = SessionID::read(<span class="kw-2">&amp;mut </span>Reader::init(id.as_slice()))
-        .ok_or_else(|| FnError::Unknown(<span class="string">"Failed to create session id"</span>.to_string()))<span class="question-mark">?</span>;
+        .ok_or_else(|| FnError::Codec(<span class="string">"Failed to create session id"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(id)
 }
 

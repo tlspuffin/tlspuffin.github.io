@@ -28,6 +28,12 @@
 <a href="#28" id="28">28</a>
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -39,6 +45,8 @@
     </span>Crypto(String),
     <span class="doccomment">/// Error which happens because the term is malformed (e.g. a field is missing)
     </span>Malformed(String),
+    <span class="doccomment">/// Error which happens because of Codec needs to be used and failed (most likely read failed)
+    </span>Codec(String),
 }
 
 <span class="kw">impl </span>std::error::Error <span class="kw">for </span>FnError {}
@@ -55,6 +63,10 @@
             <span class="self">Self</span>::Unknown(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"[!!UNKNOWN!!] error in fn: {msg}"</span>),
             <span class="self">Self</span>::Crypto(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"[Crypto] error in fn from rustls: {msg}"</span>),
             <span class="self">Self</span>::Malformed(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"[Malformed] error in fn from rustls: {msg}"</span>),
+            <span class="self">Self</span>::Codec(msg) =&gt; <span class="macro">write!</span>(
+                f,
+                <span class="string">"[Codec] error in fn from rustls due to a Codec usage: {msg}"
+            </span>),
         }
     }
 }

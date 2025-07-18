@@ -631,6 +631,21 @@
 <a href="#631" id="631">631</a>
 <a href="#632" id="632">632</a>
 <a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`DYTerm`]sas well as iterators over them.
 
 </span><span class="kw">use </span>std::fmt;
@@ -646,7 +661,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::algebra::error::FnError;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::stats_stage::{
-    ALL_TERM_EVAL, ALL_TERM_EVAL_SUCCESS, EVAL_ERR_CODEC, EVAL_ERR_FN_CRYPTO,
+    ALL_TERM_EVAL, ALL_TERM_EVAL_SUCCESS, EVAL_ERR_CODEC, EVAL_ERR_FN_CODEC, EVAL_ERR_FN_CRYPTO,
     EVAL_ERR_FN_MALFORMED, EVAL_ERR_FN_UNKNOWN, EVAL_ERR_TERM, EVAL_ERR_TERMBUG,
 };
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolBehavior, ProtocolTypes};
@@ -700,7 +715,8 @@
     <span class="kw">where
         </span>PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;;
 
-    <span class="kw">fn </span>evaluate_config_wrap&lt;PB: ProtocolBehavior&gt;(
+    <span class="doccomment">/// Wrap `evaluate_config` with error stats and logging handling
+    </span><span class="kw">fn </span>evaluate_config_wrap&lt;PB: ProtocolBehavior&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         context: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
         with_payloads: bool,
@@ -715,27 +731,41 @@
                 <span class="prelude-val">Ok</span>(cm)
             }
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="kw">match </span>e {
+                <span class="kw">match </span><span class="kw-2">&amp;</span>e {
                     Error::Fn(FnError::Crypto(..)) =&gt; {
+                        <span class="macro">log::debug!</span>(<span class="string">"[evaluate_config_wrap]  FnError::Crypto Error on\n{}\n[==&gt;] Causes: {:?}"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;</span>e);
                         EVAL_ERR_FN_CRYPTO.increment();
                     }
                     Error::Fn(FnError::Malformed(..)) =&gt; {
+                        <span class="macro">log::debug!</span>(<span class="string">"[evaluate_config_wrap]  FnError::Malformed Error on\n{}\n[==&gt;] Causes: {:?}"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;</span>e);
                         EVAL_ERR_FN_MALFORMED.increment();
                     }
-                    Error::Fn(FnError::Unknown(..)) =&gt; {
+                    Error::Fn(FnError::Unknown(_fne)) =&gt; {
+                        <span class="macro">log::warn!</span>(<span class="string">"[evaluate_config_wrap]  FnError::Unknown Error on\n{}\n[==&gt;] Causes: {:?}"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;</span>e);
                         EVAL_ERR_FN_UNKNOWN.increment();
                     }
-                    Error::Term(<span class="kw">_</span>) =&gt; {
+                    Error::Fn(FnError::Codec(_fne)) =&gt; {
+                        <span class="macro">log::warn!</span>(<span class="string">"[evaluate_config_wrap]  FnError::Codec Error on\n{}\n[==&gt;] Causes: {:?}"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;</span>e);
+                        EVAL_ERR_FN_CODEC.increment();
+                    }
+                    Error::Term(te) =&gt; {
+                        <span class="macro">log::debug!</span>(<span class="string">"[evaluate_config_wrap] Term Error {}"</span>, te);
                         EVAL_ERR_TERM.increment();
                     }
-                    Error::TermBug(<span class="kw">_</span>) =&gt; {
-                        EVAL_ERR_TERMBUG.increment();
-                    }
-                    Error::Codec(<span class="kw">_</span>) =&gt; {
+                    Error::Codec(te) =&gt; {
+                        <span class="macro">log::debug!</span>(<span class="string">"[evaluate_config_wrap] Codec Error {}"</span>, te);
                         EVAL_ERR_CODEC.increment();
                     }
+                    Error::TermBug(<span class="kw">_</span>) =&gt; {
+                        <span class="macro">log::error!</span>(
+                            <span class="string">"[evaluate_config_wrap] TermBug Error on\n{}\n[==&gt;] Causes: {:?}"</span>,
+                            <span class="kw-2">&amp;</span><span class="self">self</span>,
+                            <span class="kw-2">&amp;</span>e
+                        );
+                        EVAL_ERR_TERMBUG.increment();
+                    }
                     <span class="kw">_ </span>=&gt; {
-                        <span class="macro">panic!</span>(<span class="string">"[evaluate] downcast error failed!"</span>);
+                        <span class="macro">panic!</span>(<span class="string">"[evaluate] downcast error failed! {e:?}"</span>);
                     }
                 };
                 <span class="prelude-val">Err</span>(e)

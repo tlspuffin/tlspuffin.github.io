@@ -805,7 +805,7 @@
             payload: ServerNamePayload::HostName((
                 PayloadU16(dns_name.to_string().into_bytes()),
                 DnsNameRef::try_from_ascii_str(dns_name)
-                    .map_err(|err| FnError::Unknown(err.to_string()))<span class="question-mark">?
+                    .map_err(|err| FnError::Codec(err.to_string()))<span class="question-mark">?
                     </span>.to_owned(),
             )),
         },

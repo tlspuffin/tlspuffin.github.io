@@ -577,7 +577,7 @@
                 matcher: <span class="prelude-ty">Option</span>&lt;&lt;<span class="macro-nonterminal">$protocol_type </span><span class="kw">as </span>ProtocolTypes&gt;::Matcher&gt;,
                 source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Source,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-                <span class="macro">log::debug!</span>(<span class="string">"Extract atom: {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$extract_type</span>));
+                <span class="macro">log::trace!</span>(<span class="string">"Extract atom: {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$extract_type</span>));
                 knowledges.push(Knowledge {
                     source,
                     matcher,

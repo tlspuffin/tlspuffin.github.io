@@ -633,14 +633,14 @@
                            <span class="kw">if let </span><span class="prelude-val">Some</span>(arg_) = args.get(index)
                                     .ok_or_else(|| {
                                         <span class="kw">let </span>shape = <span class="self">Self</span>::shape();
-                                        FnError::Unknown(<span class="macro">format!</span>(<span class="string">"Missing argument #{} while calling {}."</span>, index + <span class="number">1</span>, shape.name))
+                                        FnError::Malformed(<span class="macro">format!</span>(<span class="string">"Missing argument #{} while calling {}."</span>, index + <span class="number">1</span>, shape.name))
                                     })<span class="question-mark">?
                                     </span>.as_any().downcast_ref::&lt;<span class="macro-nonterminal">$arg</span>&gt;() {
                                index += <span class="number">1</span>;
                                arg_
                            } <span class="kw">else </span>{
                                <span class="kw">let </span>shape = <span class="self">Self</span>::shape();
-                               <span class="kw">return </span><span class="prelude-val">Err</span>(FnError::Unknown(<span class="macro">format!</span>(
+                               <span class="kw">return </span><span class="prelude-val">Err</span>(FnError::Malformed(<span class="macro">format!</span>(
                                     <span class="string">"Passed argument #{} of {} did not match the shape {}. Hashes of passed types are {}."</span>,
                                     index + <span class="number">1</span>,
                                     shape.name,

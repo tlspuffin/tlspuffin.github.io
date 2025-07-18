@@ -269,7 +269,7 @@
     <span class="kw">fn </span>clone_factory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Factory&lt;PB&gt;&gt;;
 
     <span class="kw">fn </span>rng_reseed(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">log::debug!</span>(<span class="string">"[RNG] reseed failed ({}): not supported"</span>, <span class="self">self</span>.name());
+        <span class="macro">log::warn!</span>(<span class="string">"[RNG] reseed failed ({}): not supported"</span>, <span class="self">self</span>.name());
     }
 }
 </code></pre></div></section></main></body></html>

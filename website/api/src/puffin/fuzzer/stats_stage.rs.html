@@ -378,6 +378,10 @@
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
@@ -385,6 +389,7 @@
 <span class="kw">pub enum </span>RuntimeStats {
     <span class="comment">// Term Eval error counters
     </span>EvalFnCryptoError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
+    EvalFnCodecError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     EvalFnMalformedError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     EvalFnUnknownError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
     EvalTermError(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Counter),
@@ -436,6 +441,7 @@
             <span class="self">Self</span>::EvalFnCryptoError(inner) =&gt; inner.fire(consume),
             <span class="self">Self</span>::EvalFnMalformedError(inner) =&gt; inner.fire(consume),
             <span class="self">Self</span>::EvalFnUnknownError(inner) =&gt; inner.fire(consume),
+            <span class="self">Self</span>::EvalFnCodecError(inner) =&gt; inner.fire(consume),
             <span class="self">Self</span>::EvalTermError(inner) =&gt; inner.fire(consume),
             <span class="self">Self</span>::EvalTermBugError(inner) =&gt; inner.fire(consume),
             <span class="self">Self</span>::EvalCodecError(inner) =&gt; inner.fire(consume),
@@ -472,6 +478,7 @@
 
 <span class="doccomment">/// Errors counters triggered by term evaluations
 </span><span class="kw">pub static </span>EVAL_ERR_FN_CRYPTO: Counter = Counter::new(<span class="string">"eval-error-fn-crypto"</span>);
+<span class="kw">pub static </span>EVAL_ERR_FN_CODEC: Counter = Counter::new(<span class="string">"eval-error-fn-codec"</span>);
 <span class="kw">pub static </span>EVAL_ERR_FN_MALFORMED: Counter = Counter::new(<span class="string">"eval-error-fn-malformed"</span>);
 <span class="kw">pub static </span>EVAL_ERR_FN_UNKNOWN: Counter = Counter::new(<span class="string">"eval-error-fn-unknown"</span>);
 <span class="kw">pub static </span>EVAL_ERR_TERM: Counter = Counter::new(<span class="string">"eval-error-term"</span>);
@@ -519,11 +526,12 @@
 <span class="kw">pub static </span>CORPUS_EXEC: Counter = Counter::new(<span class="string">"corpus-exec"</span>);
 <span class="kw">pub static </span>CORPUS_EXEC_MINIMAL: Counter = Counter::new(<span class="string">"corpus-exec-success"</span>);
 
-<span class="kw">pub static </span>STATS: [RuntimeStats; <span class="number">33</span>] = [
+<span class="kw">pub static </span>STATS: [RuntimeStats; <span class="number">34</span>] = [
     RuntimeStats::EvalFnCryptoError(<span class="kw-2">&amp;</span>EVAL_ERR_FN_CRYPTO),
     RuntimeStats::EvalFnMalformedError(<span class="kw-2">&amp;</span>EVAL_ERR_FN_MALFORMED),
     RuntimeStats::EvalFnUnknownError(<span class="kw-2">&amp;</span>EVAL_ERR_FN_UNKNOWN),
     RuntimeStats::EvalTermError(<span class="kw-2">&amp;</span>EVAL_ERR_TERM),
+    RuntimeStats::EvalFnCodecError(<span class="kw-2">&amp;</span>EVAL_ERR_FN_CODEC),
     RuntimeStats::EvalTermBugError(<span class="kw-2">&amp;</span>EVAL_ERR_TERMBUG),
     RuntimeStats::EvalCodecError(<span class="kw-2">&amp;</span>EVAL_ERR_CODEC),
     RuntimeStats::AllFnError(<span class="kw-2">&amp;</span>ERROR_FN),

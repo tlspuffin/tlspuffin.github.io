@@ -132,7 +132,7 @@
 <span class="kw">pub fn </span>tls13_key_exchange(server_key_share: <span class="kw-2">&amp;</span>[u8], group: <span class="kw-2">&amp;</span>NamedGroup) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {
     <span class="comment">// Shared Secret
     </span><span class="kw">let </span>skxg = KeyExchange::choose(<span class="kw-2">*</span>group, <span class="kw-2">&amp;</span>ALL_KX_GROUPS)
-        .ok_or_else(|| FnError::Unknown(<span class="string">"Failed to choose group in key exchange"</span>.to_string()))<span class="question-mark">?</span>;
+        .ok_or_else(|| FnError::Malformed(<span class="string">"Failed to choose group in key exchange"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="kw">let </span>kx: KeyExchange = deterministic_key_exchange(skxg)<span class="question-mark">?</span>;
     <span class="kw">let </span>shared_secret = kx
         .complete(server_key_share, |secret| <span class="prelude-val">Ok</span>(Vec::from(secret)))
@@ -142,7 +142,7 @@
 
 <span class="kw">pub fn </span>tls12_key_exchange(group: <span class="kw-2">&amp;</span>NamedGroup) -&gt; <span class="prelude-ty">Result</span>&lt;KeyExchange, FnError&gt; {
     <span class="kw">let </span>skxg = KeyExchange::choose(<span class="kw-2">*</span>group, <span class="kw-2">&amp;</span>ALL_KX_GROUPS)
-        .ok_or_else(|| <span class="string">"Failed to find key exchange group"</span>.to_string())<span class="question-mark">?</span>;
+        .ok_or_else(|| FnError::Malformed(<span class="string">"Failed to find key exchange group"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="kw">let </span>kx: KeyExchange = deterministic_key_exchange(skxg)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(kx)
 }
@@ -161,7 +161,7 @@
     <span class="kw">let </span>kx = tls12_key_exchange(group)<span class="question-mark">?</span>;
     <span class="kw">let </span>suite = suite
         .tls12()
-        .ok_or_else(|| FnError::Unknown(<span class="string">"VersionNotCompatibleError"</span>.to_string()))<span class="question-mark">?</span>;
+        .ok_or_else(|| FnError::Malformed(<span class="string">"VersionNotCompatibleError"</span>.to_string()))<span class="question-mark">?</span>;
     <span class="kw">let </span>secrets =
         ConnectionSecrets::from_key_exchange(kx, server_ecdh_pubkey, <span class="prelude-val">None</span>, randoms, suite)
             .map_err(|_err| FnError::Crypto(<span class="string">"Failed to shared secrets for TLS 1.2"</span>.to_string()))<span class="question-mark">?</span>;

@@ -444,13 +444,6 @@
 <a href="#444" id="444">444</a>
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use </span>puffin::agent::AgentName;
@@ -878,19 +871,12 @@
             security_claims::ClaimType::CLAIM_END_OF_EARLY_DATA =&gt; <span class="prelude-val">None</span>,
             security_claims::ClaimType::CLAIM_CERTIFICATE =&gt; <span class="prelude-val">None</span>,
             security_claims::ClaimType::CLAIM_KEY_EXCHANGE =&gt; <span class="prelude-val">None</span>,
-            <span class="comment">// FIXME it is weird that this returns the correct transcript
-            </span>security_claims::ClaimType::CLAIM_CERTIFICATE_VERIFY =&gt; {
-                <span class="kw">if </span>claim.write == <span class="number">0 </span>{
-                    <span class="prelude-val">Some</span>(ClaimData::Transcript(ClaimDataTranscript::ServerFinished(
-                        TranscriptServerFinished(TlsTranscript(
-                            claim.transcript.data,
-                            claim.transcript.length,
-                        )),
-                    )))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>}
-            }
+            security_claims::ClaimType::CLAIM_CERTIFICATE_VERIFY =&gt; <span class="prelude-val">Some</span>(ClaimData::Transcript(
+                ClaimDataTranscript::ServerFinished(TranscriptServerFinished(TlsTranscript(
+                    claim.transcript.data,
+                    claim.transcript.length,
+                ))),
+            )),
             security_claims::ClaimType::CLAIM_KEY_UPDATE =&gt; <span class="prelude-val">None</span>,
             security_claims::ClaimType::CLAIM_HELLO_REQUEST =&gt; <span class="prelude-val">None</span>,
             security_claims::ClaimType::CLAIM_SERVER_HELLO =&gt; <span class="prelude-val">None</span>,

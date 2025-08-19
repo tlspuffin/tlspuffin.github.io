@@ -2450,6 +2450,10 @@
 <a href="#2450" id="2450">2450</a>
 <a href="#2451" id="2451">2451</a>
 <a href="#2452" id="2452">2452</a>
+<a href="#2453" id="2453">2453</a>
+<a href="#2454" id="2454">2454</a>
+<a href="#2455" id="2455">2455</a>
+<a href="#2456" id="2456">2456</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections, fmt};
 
 <span class="kw">use </span>extractable_macro::Extractable;
@@ -3645,7 +3649,7 @@
     }
 }
 
-<span class="macro">declare_u16_vec!</span>(HelloRetryExtensions, HelloRetryExtension);
+<span class="macro">declare_u16_vec_empty!</span>(HelloRetryExtensions, HelloRetryExtension);
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>HelloRetryRequest {
@@ -3663,20 +3667,24 @@
         <span class="self">self</span>.random.encode(bytes);
         <span class="self">self</span>.session_id.encode(bytes);
         <span class="self">self</span>.cipher_suite.encode(bytes);
-        <span class="self">self</span>.compression_methods.encode(bytes);
-        <span class="comment">// Compression::Null.encode(bytes);
-        // if !self.extensions.0.is_empty() {  // TODO: @MAX shouldn't we also accept empty ones?
-        //         // lists of extensions, as for CLientHello ClientExtensions?
-        </span><span class="self">self</span>.extensions.encode(bytes);
-        <span class="comment">// }
-    </span>}
+        <span class="comment">// HelloRetryRequest is encoded as a ServerHello
+        // ServerHello only contains one compression method while HRR can hold a vec of compression
+        // methods if the vec is not empty we encode the first element, else we encode the
+        // Null compression
+        </span><span class="kw">if </span>!<span class="self">self</span>.compression_methods.<span class="number">0</span>.is_empty() {
+            <span class="self">self</span>.compression_methods.<span class="number">0</span>[<span class="number">0</span>].encode(bytes);
+        } <span class="kw">else </span>{
+            Compression::Null.encode(bytes);
+        }
+        <span class="self">self</span>.extensions.encode(bytes);
+    }
 
     <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>session_id = SessionID::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>cipher_suite = CipherSuite::read(r)<span class="question-mark">?</span>;
-        <span class="kw">let </span>compression_methods = Compressions::read(r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>compression_method = Compression::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>extensions = HelloRetryExtensions::read(r)<span class="question-mark">?</span>;
-        <span class="kw">if </span>compression_methods.<span class="number">0 </span>!= <span class="macro">vec!</span>[Compression::Null] {
+        <span class="kw">if </span>compression_method != Compression::Null {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
@@ -3686,7 +3694,7 @@
             </span>random: fn_hello_retry_request_random().unwrap(), <span class="comment">// same
             </span>session_id,
             cipher_suite,
-            compression_methods,
+            compression_methods: Compressions(<span class="macro">vec!</span>[compression_method]),
             extensions,
         })
     }

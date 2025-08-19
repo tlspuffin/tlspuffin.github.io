@@ -643,6 +643,10 @@
 <a href="#643" id="643">643</a>
 <a href="#644" id="644">644</a>
 <a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -1275,6 +1279,10 @@
     });
 
     <span class="prelude-val">Ok</span>(new_certs)
+}
+
+<span class="kw">pub fn </span>fn_named_group_secp256r1() -&gt; <span class="prelude-ty">Result</span>&lt;NamedGroup, FnError&gt; {
+    <span class="prelude-val">Ok</span>(NamedGroup::secp256r1)
 }
 
 <span class="kw">pub fn </span>fn_named_group_secp384r1() -&gt; <span class="prelude-ty">Result</span>&lt;NamedGroup, FnError&gt; {

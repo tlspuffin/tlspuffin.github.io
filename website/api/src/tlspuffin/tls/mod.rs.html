@@ -292,6 +292,9 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The *tls* module provides concrete implementations for the functions used in the term.
 //!
 //! The module offers a variety of
@@ -428,7 +431,6 @@
     fn_status_request_extension
     fn_status_request_server_extension
     fn_status_request_certificate_extension
-    fn_support_group_extension
     fn_ec_point_formats_extension
     fn_ec_point_formats_server_extension
     fn_signature_algorithm_extension
@@ -508,6 +510,9 @@
     fn_cipher_suite13_aes_128_ccm_sha256
     fn_weak_export_cipher_suite
     fn_secure_rsa_cipher_suite12
+    fn_support_group_extension_new
+    fn_support_group_extension_make
+    fn_support_group_extension_append [list]
     <span class="comment">// utils
     </span>fn_new_flight
     fn_append_flight [list]
@@ -545,6 +550,7 @@
     fn_append_certificate [list]
     fn_new_certificate_entries
     fn_append_certificate_entry [list]
+    fn_named_group_secp256r1
     fn_named_group_secp384r1
     fn_named_group_x25519
     fn_u64_to_u32

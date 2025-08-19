@@ -546,6 +546,8 @@
 <a href="#546" id="546">546</a>
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::any::TypeId;
 
 <span class="kw">use </span>extractable_macro::Extractable;
@@ -966,6 +968,7 @@
 </span><span class="kw">impl </span>VecCodecWoSize <span class="kw">for </span>CertificateEntry {} <span class="comment">// u24
 </span><span class="kw">impl </span>VecCodecWoSize <span class="kw">for </span>CipherSuite {} <span class="comment">// u16
 </span><span class="kw">impl </span>VecCodecWoSize <span class="kw">for </span>PresharedKeyIdentity {} <span class="comment">//u16
+</span><span class="kw">impl </span>VecCodecWoSize <span class="kw">for </span>NamedGroup {} <span class="comment">//u16
 
 </span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules!</span> try_read {
@@ -1078,6 +1081,7 @@
         VecU16OfPayloadU8,
         Vec&lt;u8&gt;,
         <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
+        Vec&lt;NamedGroup&gt;,
         Vec&lt;Vec&lt;u8&gt;&gt;,
         bool,
         <span class="comment">// Option&lt;Vec&lt;Vec&lt;u8&gt;&gt;&gt;,

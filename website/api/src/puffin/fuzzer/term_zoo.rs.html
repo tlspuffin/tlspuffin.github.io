@@ -121,6 +121,31 @@
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Generates a zoo of terms form a [`Signature`]. For each function symbol in the signature
 //! a closed term is generated and added to the zoo.
 
@@ -128,31 +153,40 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::atoms::Function;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::signature::{FunctionDefinition, Signature};
-<span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term};
+<span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term, TermType};
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::utils::Choosable;
-<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolTypes;
+<span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
+<span class="kw">use </span><span class="kw">crate</span>::trace::TraceContext;
 
 <span class="kw">const </span>MAX_DEPTH: u16 = <span class="number">8</span>; <span class="comment">// how deep terms we allow max
-</span><span class="kw">const </span>MAX_TRIES: u16 = <span class="number">100</span>; <span class="comment">// How often we want to try to generate before stopping
+</span><span class="kw">const </span>MAX_TRIES: usize = <span class="number">120_000</span>; <span class="comment">// How often we want to try to generate before stopping
 
-</span><span class="kw">pub struct </span>TermZoo&lt;PT: ProtocolTypes&gt; {
-    terms: Vec&lt;Term&lt;PT&gt;&gt;,
+</span><span class="kw">pub struct </span>TermZoo&lt;PB: ProtocolBehavior&gt; {
+    terms: Vec&lt;Term&lt;PB::ProtocolTypes&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;PT: ProtocolTypes&gt; TermZoo&lt;PT&gt; {
-    <span class="kw">pub fn </span>generate&lt;R: Rand&gt;(signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::generate_many(signature, rand, <span class="number">1</span>, <span class="prelude-val">None</span>)
+<span class="kw">impl</span>&lt;PB: ProtocolBehavior&gt; TermZoo&lt;PB&gt; {
+    <span class="kw">pub fn </span>generate&lt;R: Rand&gt;(
+        ctx: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
+        signature: <span class="kw-2">&amp;</span>Signature&lt;PB::ProtocolTypes&gt;,
+        rand: <span class="kw-2">&amp;mut </span>R,
+        how_many: usize,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::generate_many(ctx, signature, rand, how_many, <span class="prelude-val">None</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
     }
 
     <span class="kw">pub fn </span>generate_many&lt;R: Rand&gt;(
-        signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;,
+        ctx: <span class="kw-2">&amp;</span>TraceContext&lt;PB&gt;,
+        signature: <span class="kw-2">&amp;</span>Signature&lt;PB::ProtocolTypes&gt;,
         rand: <span class="kw-2">&amp;mut </span>R,
-        how_many: usize,
-        filter: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FunctionDefinition&lt;PT&gt;&gt;,
+        how_many: usize, <span class="comment">// how many terms to generate
+        </span>filter: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FunctionDefinition&lt;PB::ProtocolTypes&gt;&gt;,
+        filter_evaluated: bool,
+        filter_no_gen: bool,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>acc = <span class="macro">vec!</span>[];
         <span class="kw">if let </span><span class="prelude-val">Some</span>(def) = filter {
-            <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES <span class="kw">as </span>usize * how_many;
+            <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES;
             <span class="kw">let </span><span class="kw-2">mut </span>many = <span class="number">0</span>;
 
             <span class="kw">loop </span>{
@@ -163,13 +197,22 @@
                 counter -= <span class="number">1</span>;
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(term) = <span class="self">Self</span>::generate_term(signature, def, MAX_DEPTH, rand) {
-                    many += <span class="number">1</span>;
-                    acc.push(term);
+                    <span class="comment">// If filter_evaluated, we must check the term can be evaluated before including
+                    // it
+                    </span><span class="kw">if </span>!filter_evaluated || term.evaluate(ctx).is_ok() {
+                        many += <span class="number">1</span>;
+                        counter = MAX_TRIES;
+                        acc.push(term);
+                    }
                 }
             }
         } <span class="kw">else </span>{
             <span class="kw">for </span>def <span class="kw">in </span><span class="kw-2">&amp;</span>signature.functions {
-                <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES <span class="kw">as </span>usize * how_many;
+                <span class="kw">if </span>filter_no_gen &amp;&amp; signature.attrs_by_name.get(def.<span class="number">0</span>.name).unwrap().no_gen {
+                    <span class="macro">log::debug!</span>(<span class="string">"Skipping generation for [{:?}]"</span>, def.<span class="number">0</span>.name);
+                    <span class="kw">continue</span>; <span class="comment">// Skip this function symbol
+                </span>}
+                <span class="kw">let </span><span class="kw-2">mut </span>counter = MAX_TRIES;
                 <span class="kw">let </span><span class="kw-2">mut </span>many = <span class="number">0</span>;
 
                 <span class="kw">loop </span>{
@@ -180,8 +223,11 @@
                     counter -= <span class="number">1</span>;
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(term) = <span class="self">Self</span>::generate_term(signature, def, MAX_DEPTH, rand) {
-                        many += <span class="number">1</span>;
-                        acc.push(term);
+                        <span class="kw">if </span>!filter_evaluated || term.evaluate(ctx).is_ok() {
+                            many += <span class="number">1</span>;
+                            counter = MAX_TRIES;
+                            acc.push(term);
+                        }
                     }
                 }
             }
@@ -191,11 +237,11 @@
     }
 
     <span class="kw">fn </span>generate_term&lt;R: Rand&gt;(
-        signature: <span class="kw-2">&amp;</span>Signature&lt;PT&gt;,
-        (shape, dynamic_fn): <span class="kw-2">&amp;</span>FunctionDefinition&lt;PT&gt;,
+        signature: <span class="kw-2">&amp;</span>Signature&lt;PB::ProtocolTypes&gt;,
+        (shape, dynamic_fn): <span class="kw-2">&amp;</span>FunctionDefinition&lt;PB::ProtocolTypes&gt;,
         depth: u16,
         rand: <span class="kw-2">&amp;mut </span>R,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;Term&lt;PT&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Term&lt;PB::ProtocolTypes&gt;&gt; {
         <span class="kw">if </span>depth == <span class="number">0 </span>{
             <span class="comment">// Reached max depth
             </span><span class="kw">return </span><span class="prelude-val">None</span>;
@@ -232,15 +278,19 @@
         )))
     }
 
-    <span class="kw">pub fn </span>choose_filtered&lt;P, R: Rand&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: P, rand: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PT&gt;&gt;
+    <span class="kw">pub fn </span>choose_filtered&lt;P, R: Rand&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        filter: P,
+        rand: <span class="kw-2">&amp;mut </span>R,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Term&lt;PB::ProtocolTypes&gt;&gt;
     <span class="kw">where
-        </span>P: FnMut(&amp;&amp;Term&lt;PT&gt;) -&gt; bool,
+        </span>P: FnMut(&amp;&amp;Term&lt;PB::ProtocolTypes&gt;) -&gt; bool,
     {
         <span class="self">self</span>.terms.choose_filtered(filter, rand)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>terms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Term&lt;PT&gt;] {
+    </span><span class="kw">pub fn </span>terms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Term&lt;PB::ProtocolTypes&gt;] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.terms
     }
 }

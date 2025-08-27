@@ -397,6 +397,22 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl_bolts::rands::Rand;
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term, TermType};
@@ -420,6 +436,8 @@
     </span><span class="kw">pub </span>weighted_depth: bool,
     <span class="comment">// only select root terms
     </span><span class="kw">pub </span>must_be_root: bool,
+    <span class="comment">// Number of terms to generate for each type
+    </span><span class="kw">pub </span>zoo_gen_how_many: usize,
 }
 
 <span class="doccomment">/// Default values which represent no constraint
@@ -435,7 +453,11 @@
             not_inside_list: <span class="bool-val">false</span>,
             weighted_depth: <span class="bool-val">false</span>,
             must_be_root: <span class="bool-val">false</span>,
-        }
+            zoo_gen_how_many: <span class="number">10</span>, <span class="comment">/* Over-approximates 1/10 of the threshold obtained from
+                                   * `test_term_payloads_eval`, making sure we successfully
+                                   * generate, MakeMessage,
+                                   * and evaluate after 10 expansions of TermZoo. Was 1 initially */
+        </span>}
     }
 }
 
@@ -502,7 +524,7 @@
 </span><span class="kw">fn </span>reservoir_sample&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes, P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
     trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
     filter: P,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, TracePath)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>reservoir: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, TracePath)&gt; = <span class="prelude-val">None</span>;
@@ -645,15 +667,24 @@
 
 <span class="kw">pub fn </span>choose&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
     trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, (usize, TermPath))&gt; {
     reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand)
 }
 
+<span class="kw">pub fn </span>choose_filtered&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes, P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
+    trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
+    filter: P,
+    rand: <span class="kw-2">&amp;mut </span>R,
+) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;, (usize, TermPath))&gt; {
+    reservoir_sample(trace, filter, constraints, rand)
+}
+
 <span class="kw">pub fn </span>choose_mut&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
     trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;PT&gt;,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;, (usize, TermPath))&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, (u, path))) = reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand) {
@@ -666,7 +697,7 @@
 
 <span class="kw">pub fn </span>choose_term&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
     trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Trace&lt;PT&gt;,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Term&lt;PT&gt;&gt; {
     reservoir_sample(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand).map(|ret| ret.<span class="number">0</span>)
@@ -674,7 +705,7 @@
 
 <span class="kw">pub fn </span>choose_term_mut&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes&gt;(
     trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;PT&gt;,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path) = choose_term_path_filtered(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand) {
@@ -687,7 +718,7 @@
 <span class="kw">pub fn </span>choose_term_filtered_mut&lt;<span class="lifetime">'a</span>, R: Rand, PT: ProtocolTypes, P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
     trace: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Trace&lt;PT&gt;,
     filter: P,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Term&lt;PT&gt;&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path) = choose_term_path_filtered(trace, filter, constraints, rand) {
@@ -699,7 +730,7 @@
 
 <span class="kw">pub fn </span>choose_term_path&lt;R: Rand, PT: ProtocolTypes&gt;(
     trace: <span class="kw-2">&amp;</span>Trace&lt;PT&gt;,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;TracePath&gt; {
     choose_term_path_filtered(trace, |<span class="kw">_</span>| <span class="bool-val">true</span>, constraints, rand)
@@ -708,7 +739,7 @@
 <span class="kw">pub fn </span>choose_term_path_filtered&lt;R: Rand, PT: ProtocolTypes, P: Fn(<span class="kw-2">&amp;</span>Term&lt;PT&gt;) -&gt; bool + Copy&gt;(
     trace: <span class="kw-2">&amp;</span>Trace&lt;PT&gt;,
     filter: P,
-    constraints: TermConstraints,
+    constraints: <span class="kw-2">&amp;</span>TermConstraints,
     rand: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;TracePath&gt; {
     reservoir_sample(trace, filter, constraints, rand).map(|ret| ret.<span class="number">1</span>)
@@ -732,7 +763,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stats: HashSet&lt;TracePath&gt; = HashSet::new();
 
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10000 </span>{
-            <span class="kw">let </span>path = choose_term_path(<span class="kw-2">&amp;</span>trace, TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
+            <span class="kw">let </span>path = choose_term_path(<span class="kw-2">&amp;</span>trace, <span class="kw-2">&amp;</span>TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
             find_term_mut(<span class="kw-2">&amp;mut </span>trace, <span class="kw-2">&amp;</span>path).unwrap();
             stats.insert(path);
         }
@@ -779,7 +810,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stats: HashMap&lt;u32, u32&gt; = HashMap::new();
 
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10000 </span>{
-            <span class="kw">let </span>term = choose(<span class="kw-2">&amp;</span>trace, TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
+            <span class="kw">let </span>term = choose(<span class="kw-2">&amp;</span>trace, <span class="kw-2">&amp;</span>TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
 
             <span class="kw">let </span>id = term.<span class="number">0</span>.resistant_id();
 
@@ -793,6 +824,7 @@
         println!("{:?}", stats);*/
 
         </span><span class="macro">assert!</span>(std_dev &lt; <span class="number">30.0</span>);
+        <span class="macro">assert_eq!</span>(term_size, stats.len());
         <span class="macro">assert_eq!</span>(term_size, stats.len());
     }
 }

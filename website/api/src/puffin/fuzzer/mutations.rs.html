@@ -897,6 +897,63 @@
 <a href="#897" id="897">897</a>
 <a href="#898" id="898">898</a>
 <a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 
@@ -910,7 +967,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::term_zoo::TermZoo;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use </span><span class="kw">crate</span>::trace::Trace;
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Spawner, Trace, TraceContext};
 
 <span class="attr">#[derive(Clone, Copy, Debug)]
 </span><span class="kw">pub struct </span>MutationConfig {
@@ -939,22 +996,34 @@
     }
 }
 
-<span class="kw">pub fn </span>trace_mutations&lt;<span class="lifetime">'harness</span>, S, PT: ProtocolTypes, PB&gt;(
-    mutation_config: MutationConfig,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
-    _put_registry: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span>PutRegistry&lt;PB&gt;,
-) -&gt; <span class="macro">tuple_list_type!</span>(
-      RepeatMutator&lt;S&gt;,
+<span class="kw">pub type </span>DyMutations&lt;<span class="lifetime">'harness</span>, PT, PB, S&gt; = <span class="macro">tuple_list_type!</span>(
+<span class="comment">// DY mutations
+      </span>RepeatMutator&lt;S&gt;,
       SkipMutator&lt;S&gt;,
       ReplaceReuseMutator&lt;S&gt;,
       ReplaceMatchMutator&lt;S, PT&gt;,
       RemoveAndLiftMutator&lt;S&gt;,
-      GenerateMutator&lt;S, PT&gt;,
-      SwapMutator&lt;S&gt;
-   )
+    GenerateMutator&lt;<span class="lifetime">'harness</span>, S, PB&gt;,
+    SwapMutator&lt;S&gt;,
+);
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>remove_prefix_and_type(str: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
+    str.splitn(<span class="number">2</span>, <span class="string">'&lt;'</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;()[<span class="number">0</span>]
+        .split(<span class="string">':'</span>)
+        .collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;()
+        .last()
+        .unwrap()
+}
+
+<span class="attr">#[must_use]
+</span><span class="kw">pub fn </span>dy_mutations&lt;<span class="lifetime">'harness</span>, S, PT: ProtocolTypes, PB&gt;(
+    mutation_config: MutationConfig,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
+    put_registry: <span class="kw-2">&amp;</span><span class="lifetime">'harness </span>PutRegistry&lt;PB&gt;,
+) -&gt; DyMutations&lt;<span class="lifetime">'harness</span>, PT, PB, S&gt;
 <span class="kw">where
     </span>S: HasCorpus + HasMetadata + HasMaxSize + HasRand,
-    PB: ProtocolBehavior,
+    PB: ProtocolBehavior&lt;ProtocolTypes = PT&gt;,
 {
     <span class="kw">let </span>MutationConfig {
         fresh_zoo_after,
@@ -962,13 +1031,14 @@
         min_trace_length,
         term_constraints,
         with_dy,
+        with_bit_level,
         ..
     } = mutation_config;
 
     <span class="macro">tuple_list!</span>(
         RepeatMutator::new(max_trace_length, with_dy),
         SkipMutator::new(min_trace_length, with_dy),
-        ReplaceReuseMutator::new(term_constraints, with_dy),
+        ReplaceReuseMutator::new(term_constraints, with_dy, with_bit_level),
         ReplaceMatchMutator::new(term_constraints, signature, with_dy),
         RemoveAndLiftMutator::new(term_constraints, with_dy),
         GenerateMutator::new(
@@ -977,6 +1047,7 @@
             term_constraints,
             <span class="prelude-val">None</span>,
             signature,
+            put_registry,
             with_dy
         ), <span class="comment">/* Refresh zoo after 100000M mutations */
         </span>SwapMutator::new(term_constraints, with_dy),
@@ -1019,17 +1090,18 @@
         trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>_a = BytesInsertMutator;
         <span class="kw">let </span>rand = state.rand_mut();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((term_a, trace_path_a)) = choose(trace, <span class="self">self</span>.constraints, rand) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((term_a, trace_path_a)) = choose(trace, <span class="kw-2">&amp;</span><span class="self">self</span>.constraints, rand) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(trace_path_b) = choose_term_path_filtered(
                 trace,
                 |term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;| term.get_type_shape() == term_a.get_type_shape(),
                 <span class="comment">// TODO-bitlevel: maybe also check that both terms are .is_symbolic()
-                </span><span class="self">self</span>.constraints,
+                </span><span class="kw-2">&amp;</span><span class="self">self</span>.constraints,
                 rand,
             ) {
                 <span class="kw">let </span>term_a_cloned = term_a.clone();
@@ -1048,6 +1120,7 @@
                 }
             }
         }
+        <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
         <span class="prelude-val">Ok</span>(MutationResult::Skipped)
     }
 }
@@ -1056,7 +1129,7 @@
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
@@ -1096,6 +1169,7 @@
         trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
@@ -1115,14 +1189,17 @@
                     .is_some()
             }
         };
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mutate) = choose_term_filtered_mut(trace, filter, <span class="self">self</span>.constraints, rand) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mutate) = choose_term_filtered_mut(trace, filter, <span class="kw-2">&amp;</span><span class="self">self</span>.constraints, rand) {
             <span class="macro">log::debug!</span>(
                 <span class="string">"[Mutation] Mutate RemoveAndLiftMutator on term\n{}"</span>,
                 to_mutate
             );
             <span class="kw">match </span><span class="kw-2">&amp;mut </span>to_mutate.term {
                 <span class="comment">// TODO-bitlevel: maybe also SKIP if not(to_mutate.is_symbolic())
-                </span>DYTerm::Variable(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(MutationResult::Skipped),
+                </span>DYTerm::Variable(<span class="kw">_</span>) =&gt; {
+                    <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
+                    <span class="prelude-val">Ok</span>(MutationResult::Skipped)
+                }
                 DYTerm::Application(<span class="kw">_</span>, <span class="kw-2">ref mut </span>subterms) =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(((subterm_index, <span class="kw">_</span>), grand_subterm)) = choose_iter(
                         subterms.filter_grand_subterms(|subterm, grand_subterm| {
@@ -1135,10 +1212,12 @@
                         subterms.swap_remove(subterm_index);
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Mutated);
                     }
+                    <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
                     <span class="prelude-val">Ok</span>(MutationResult::Skipped)
                 }
             }
         } <span class="kw">else </span>{
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="prelude-val">Ok</span>(MutationResult::Skipped)
         }
     }
@@ -1149,7 +1228,7 @@
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
@@ -1197,11 +1276,12 @@
         trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>rand = state.rand_mut();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mutate) = choose_term_mut(trace, <span class="self">self</span>.constraints, rand) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mutate) = choose_term_mut(trace, <span class="kw-2">&amp;</span><span class="self">self</span>.constraints, rand) {
             <span class="macro">log::debug!</span>(<span class="string">"[Mutation] ReplaceMatchMutator on term\n{}"</span>, to_mutate);
             <span class="kw">match </span><span class="kw-2">&amp;mut </span>to_mutate.term {
                 <span class="comment">// TODO-bitlevel: maybe also SKIP if not(to_mutate.is_symbolic())
@@ -1216,6 +1296,7 @@
                         )));
                         <span class="prelude-val">Ok</span>(MutationResult::Mutated)
                     } <span class="kw">else </span>{
+                        <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
                         <span class="prelude-val">Ok</span>(MutationResult::Skipped)
                     }
                 }
@@ -1231,11 +1312,13 @@
                         func_mut.change_function(shape.clone(), dynamic_fn.clone());
                         <span class="prelude-val">Ok</span>(MutationResult::Mutated)
                     } <span class="kw">else </span>{
+                        <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
                         <span class="prelude-val">Ok</span>(MutationResult::Skipped)
                     }
                 }
             }
         } <span class="kw">else </span>{
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="prelude-val">Ok</span>(MutationResult::Skipped)
         }
     }
@@ -1246,12 +1329,11 @@
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
 <span class="doccomment">/// REPLACE-REUSE: Replaces a sub-term with a different sub-term which is part of the trace
-
 /// (such that types match). The new sub-term could come from another step which has a different
 /// recipe term.
 </span><span class="kw">pub struct </span>ReplaceReuseMutator&lt;S&gt;
@@ -1261,6 +1343,7 @@
     constraints: TermConstraints,
     phantom_s: std::marker::PhantomData&lt;S&gt;,
     with_dy: bool,
+    with_bit: bool,
 }
 
 <span class="kw">impl</span>&lt;S&gt; ReplaceReuseMutator&lt;S&gt;
@@ -1268,11 +1351,12 @@
     </span>S: HasRand,
 {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(constraints: TermConstraints, with_dy: bool) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(constraints: TermConstraints, with_dy: bool, with_bit: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             constraints,
             phantom_s: std::marker::PhantomData,
             with_dy,
+            with_bit,
         }
     }
 }
@@ -1287,16 +1371,16 @@
         trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>rand = state.rand_mut();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(replacement) = choose_term(trace, <span class="self">self</span>.constraints, rand).cloned() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(replacement) = choose_term(trace, <span class="kw-2">&amp;</span><span class="self">self</span>.constraints, rand).cloned() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(to_replace) = choose_term_filtered_mut(
                 trace,
                 |term: <span class="kw-2">&amp;</span>Term&lt;PT&gt;| term.get_type_shape() == replacement.get_type_shape(),
-                <span class="comment">// TODO-bitlevel: maybe also check that both are .is_symbolic()
-                </span><span class="self">self</span>.constraints,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.constraints,
                 rand,
             ) {
                 <span class="macro">log::debug!</span>(
@@ -1308,6 +1392,7 @@
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Mutated);
             }
         }
+        <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
         <span class="prelude-val">Ok</span>(MutationResult::Skipped)
     }
 }
@@ -1317,7 +1402,7 @@
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
@@ -1354,15 +1439,18 @@
         trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>steps = <span class="kw-2">&amp;mut </span>trace.steps;
         <span class="kw">let </span>length = steps.len();
         <span class="kw">if </span>length &lt;= <span class="self">self</span>.min_trace_length {
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">if </span>length == <span class="number">0 </span>{
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>remove_index = state.rand_mut().between(<span class="number">0</span>, (length - <span class="number">1</span>) <span class="kw">as </span>u64) <span class="kw">as </span>usize;
@@ -1376,7 +1464,7 @@
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
@@ -1413,15 +1501,18 @@
         trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>steps = <span class="kw-2">&amp;</span>trace.steps;
         <span class="kw">let </span>length = steps.len();
         <span class="kw">if </span>length &gt;= <span class="self">self</span>.max_trace_length {
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">if </span>length == <span class="number">0 </span>{
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>insert_index = state.rand_mut().between(<span class="number">0</span>, length <span class="kw">as </span>u64) <span class="kw">as </span>usize;
@@ -1436,24 +1527,25 @@
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
 <span class="doccomment">/// GENERATE: Generates a previously-unseen term using a term zoo
-</span><span class="kw">pub struct </span>GenerateMutator&lt;S, PT: ProtocolTypes&gt;
+</span><span class="kw">pub struct </span>GenerateMutator&lt;<span class="lifetime">'a</span>, S, PB: ProtocolBehavior&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     mutation_counter: u64,
     refresh_zoo_after: u64,
     constraints: TermConstraints,
-    zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;PT&gt;&gt;,
-    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
+    zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;PB&gt;&gt;,
+    signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PB::ProtocolTypes&gt;,
+    put_registry: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PutRegistry&lt;PB&gt;,
     phantom_s: std::marker::PhantomData&lt;S&gt;,
     with_dy: bool,
 }
-<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; GenerateMutator&lt;S, PT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, PB: ProtocolBehavior&gt; GenerateMutator&lt;<span class="lifetime">'a</span>, S, PB&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
@@ -1462,8 +1554,9 @@
         mutation_counter: u64,
         refresh_zoo_after: u64,
         constraints: TermConstraints,
-        zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;PT&gt;&gt;,
-        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PT&gt;,
+        zoo: <span class="prelude-ty">Option</span>&lt;TermZoo&lt;PB&gt;&gt;,
+        signature: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Signature&lt;PB::ProtocolTypes&gt;,
+        put_registry: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PutRegistry&lt;PB&gt;,
         with_dy: bool,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1472,33 +1565,52 @@
             constraints,
             zoo,
             signature,
+            put_registry,
             phantom_s: std::marker::PhantomData,
             with_dy,
         }
     }
 }
-<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Mutator&lt;Trace&lt;PT&gt;, S&gt; <span class="kw">for </span>GenerateMutator&lt;S, PT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, PB: ProtocolBehavior&gt; Mutator&lt;Trace&lt;PB::ProtocolTypes&gt;, S&gt;
+    <span class="kw">for </span>GenerateMutator&lt;<span class="lifetime">'a</span>, S, PB&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>mutate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="kw-2">&amp;mut </span>S,
-        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PT&gt;,
+        trace: <span class="kw-2">&amp;mut </span>Trace&lt;PB::ProtocolTypes&gt;,
         _stage_idx: i32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MutationResult, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">"[DY] Start mutate with {}"</span>, <span class="self">self</span>.name());
         <span class="kw">if </span>!<span class="self">self</span>.with_dy {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(MutationResult::Skipped);
         }
         <span class="kw">let </span>rand = state.rand_mut();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mutate) = choose_term_mut(trace, <span class="self">self</span>.constraints, rand) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mutate) = choose_term_mut(trace, <span class="kw-2">&amp;</span><span class="self">self</span>.constraints, rand) {
             <span class="macro">log::debug!</span>(<span class="string">"[Mutation] Mutate GenerateMutator on term\n{}"</span>, to_mutate);
             <span class="self">self</span>.mutation_counter += <span class="number">1</span>;
             <span class="kw">let </span>zoo = <span class="kw">if </span><span class="self">self</span>.mutation_counter % <span class="self">self</span>.refresh_zoo_after == <span class="number">0 </span>{
-                <span class="self">self</span>.zoo.insert(TermZoo::generate(<span class="self">self</span>.signature, rand))
+                <span class="macro">log::debug!</span>(<span class="string">"[Mutation] Mutate GenerateMutator: refresh zoo"</span>);
+                <span class="kw">let </span>spawner = Spawner::new(<span class="self">self</span>.put_registry.clone());
+                <span class="kw">let </span>ctx = TraceContext::new(spawner); <span class="comment">// zoo generate symbolic terms
+                </span><span class="self">self</span>.zoo.insert(TermZoo::generate(
+                    <span class="kw-2">&amp;</span>ctx,
+                    <span class="self">self</span>.signature,
+                    rand,
+                    <span class="self">self</span>.constraints.zoo_gen_how_many,
+                ))
             } <span class="kw">else </span>{
-                <span class="self">self</span>.zoo
-                    .get_or_insert_with(|| TermZoo::generate(<span class="self">self</span>.signature, rand))
+                <span class="self">self</span>.zoo.get_or_insert_with(|| {
+                    <span class="kw">let </span>spawner = Spawner::new(<span class="self">self</span>.put_registry.clone());
+                    <span class="kw">let </span>ctx = TraceContext::new(spawner); <span class="comment">// zoo generate symbolic terms
+                    </span>TermZoo::generate(
+                        <span class="kw-2">&amp;</span>ctx,
+                        <span class="self">self</span>.signature,
+                        rand,
+                        <span class="self">self</span>.constraints.zoo_gen_how_many,
+                    )
+                })
             };
             <span class="kw">if let </span><span class="prelude-val">Some</span>(term) = zoo.choose_filtered(
                 |term| to_mutate.get_type_shape() == term.get_type_shape(),
@@ -1507,20 +1619,22 @@
                 to_mutate.mutate(term.clone());
                 <span class="prelude-val">Ok</span>(MutationResult::Mutated)
             } <span class="kw">else </span>{
+                <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
                 <span class="prelude-val">Ok</span>(MutationResult::Skipped)
             }
         } <span class="kw">else </span>{
+            <span class="macro">log::debug!</span>(<span class="string">"       Skipped {}"</span>, <span class="self">self</span>.name());
             <span class="prelude-val">Ok</span>(MutationResult::Skipped)
         }
     }
 }
 
-<span class="kw">impl</span>&lt;S, PT: ProtocolTypes&gt; Named <span class="kw">for </span>GenerateMutator&lt;S, PT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, PB: ProtocolBehavior&gt; Named <span class="kw">for </span>GenerateMutator&lt;<span class="lifetime">'a</span>, S, PB&gt;
 <span class="kw">where
     </span>S: HasRand,
 {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        std::any::type_name::&lt;<span class="self">Self</span>&gt;()
+        remove_prefix_and_type(std::any::type_name::&lt;<span class="self">Self</span>&gt;())
     }
 }
 
@@ -1642,7 +1756,7 @@
     </span><span class="kw">fn </span>test_replace_reuse_mutator() {
         <span class="kw">let </span><span class="kw-2">mut </span>state = create_state();
         <span class="kw">let </span>_server = AgentName::first();
-        <span class="kw">let </span><span class="kw-2">mut </span>mutator = ReplaceReuseMutator::new(TermConstraints::default(), <span class="bool-val">true</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>mutator = ReplaceReuseMutator::new(TermConstraints::default(), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
 
         <span class="kw">fn </span>count_client_hello(trace: <span class="kw-2">&amp;</span>TestTrace) -&gt; usize {
             trace.count_functions_by_name(fn_client_hello.name())
@@ -1732,7 +1846,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stats: HashSet&lt;TracePath&gt; = HashSet::new();
 
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10000 </span>{
-            <span class="kw">let </span>path = choose_term_path(<span class="kw-2">&amp;</span>trace, TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
+            <span class="kw">let </span>path = choose_term_path(<span class="kw-2">&amp;</span>trace, <span class="kw-2">&amp;</span>TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
             find_term_mut(<span class="kw-2">&amp;mut </span>trace, <span class="kw-2">&amp;</span>path).unwrap();
             stats.insert(path);
         }
@@ -1779,7 +1893,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stats: HashMap&lt;u32, u32&gt; = HashMap::new();
 
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10000 </span>{
-            <span class="kw">let </span>term = choose(<span class="kw-2">&amp;</span>trace, TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
+            <span class="kw">let </span>term = choose(<span class="kw-2">&amp;</span>trace, <span class="kw-2">&amp;</span>TermConstraints::default(), <span class="kw-2">&amp;mut </span>rand).unwrap();
 
             <span class="kw">let </span>id = term.<span class="number">0</span>.resistant_id();
 

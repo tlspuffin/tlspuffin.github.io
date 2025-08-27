@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["trace_mutations"],"struct":["GenerateMutator","MutationConfig","RemoveAndLiftMutator","RepeatMutator","ReplaceMatchMutator","ReplaceReuseMutator","SkipMutator","SwapMutator"]};
+window.SIDEBAR_ITEMS = {"fn":["dy_mutations","remove_prefix_and_type"],"struct":["GenerateMutator","MutationConfig","RemoveAndLiftMutator","RepeatMutator","ReplaceMatchMutator","ReplaceReuseMutator","SkipMutator","SwapMutator"],"type":["DyMutations"]};

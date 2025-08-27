@@ -251,15 +251,92 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>libafl::inputs::{BytesInput, HasBytesVec};
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
+
+<span class="kw">use </span>libafl::inputs::{BytesInput, HasBytesVec};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::dynamic_function::TypeShape;
 <span class="kw">use </span><span class="kw">crate</span>::algebra::{ConcreteMessage, DYTerm, Term, TermType};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error::TermBug;
 <span class="kw">use </span><span class="kw">crate</span>::fuzzer::utils::TermPath;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{EvaluatedTerm, ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::trace::{Source, TraceContext};
+
+<span class="doccomment">/// Constants governing heuristic for finding payloads in term evaluations
+</span><span class="kw">const </span>THRESHOLD_SIZE: usize = <span class="number">3</span>; <span class="comment">// minimum size of a payload to be directly searched in root_eval
+</span><span class="kw">const </span>THRESHOLD_RATIO: usize = <span class="number">100</span>; <span class="comment">// maximum ratio for root_eval/too_search for a direct search
+
+</span><span class="doccomment">/// `TermMetadata` stores some metadata about terms.
+</span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>PayloadMetadata {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) readable: bool, <span class="comment">// true when the payload is readable and whole term should be read
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_changed: bool, <span class="comment">// true when the payload has been modified at least once
+</span>}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>PayloadMetadata {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            readable: <span class="bool-val">false</span>,
+            has_changed: <span class="bool-val">false</span>,
+        }
+    }
+}
 
 <span class="doccomment">/// `Term`s are `Term`s equipped with optional `Payloads` when they no longer are treated as
 /// symbolic terms.
@@ -267,14 +344,35 @@
 </span><span class="kw">pub struct </span>Payloads {
     <span class="kw">pub </span>payload_0: BytesInput, <span class="comment">// initially both are equal and correspond to the term evaluation
     </span><span class="kw">pub </span>payload: BytesInput,   <span class="comment">// this one will later be subject to bit-level mutation
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) metadata: PayloadMetadata, <span class="comment">// stores metadata
 </span>}
+
 <span class="kw">impl </span>Payloads {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.payload_0.bytes().len()
     }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>has_changed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.metadata.has_changed
+    }
+
+    <span class="kw">pub fn </span>set_changed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.metadata.has_changed = <span class="bool-val">true
+    </span>}
 }
 
+<span class="kw">impl </span>Display <span class="kw">for </span>Payloads {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(
+            f,
+            <span class="string">"{{\n    payload_0: {:?}\n    payload:   {:?}\n}}"</span>,
+            <span class="self">self</span>.payload_0.bytes(),
+            <span class="self">self</span>.payload.bytes()
+        )
+    }
+}
 <span class="doccomment">/// Payload with the context related to the term it originates from
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 </span><span class="kw">pub struct </span>PayloadContext&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt; {
@@ -283,6 +381,16 @@
     </span>payloads: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Payloads, <span class="comment">// point to the corresponding term.payload
     </span>path: TermPath,         <span class="comment">// path of the sub-term from which this payload originates
 </span>}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, PT: ProtocolTypes&gt; Display <span class="kw">for </span>PayloadContext&lt;<span class="lifetime">'a</span>, PT&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(
+            f,
+            <span class="string">"\n{{ of_term:\n{}\n, payloads: {}, path: {:?}\n}}"</span>,
+            <span class="self">self</span>.of_term, <span class="self">self</span>.payloads, <span class="self">self</span>.path
+        )
+    }
+}
 
 <span class="doccomment">/// A tree of evaluated term, linked to the term structure itself. Created while evaluating a term.
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -321,7 +429,7 @@
         <span class="kw">let </span>path = <span class="kw-2">&amp;</span>path[<span class="number">1</span>..];
         <span class="kw">if </span><span class="self">self</span>.args.len() &lt;= nb {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::TermBug(<span class="macro">format!</span>(
-                <span class="string">"[replace_payloads] [get] Should never happen! EvalTree: {self:?}\n, path: {path:?}"
+                <span class="string">"[replace_payloads] [get] Should never happen! self.args.len() &lt;= nb. EvalTree: {self:?}\n, path: {path:?}"
             </span>)));
         }
         <span class="self">self</span>.args[nb].get(path)

@@ -444,6 +444,13 @@
 <a href="#444" id="444">444</a>
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
 
 <span class="kw">use </span>puffin::agent::AgentName;
@@ -462,16 +469,22 @@
 
 <span class="kw">impl </span>codec::Codec <span class="kw">for </span>TlsTranscript {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-        b.extend(<span class="self">self</span>.<span class="number">0</span>);
-        b.extend(<span class="self">self</span>.<span class="number">1</span>.to_ne_bytes());
+        b.push(<span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>u8);
+        b.extend(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..<span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize]);
     }
 
     <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>codec::Reader) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>t: [u8; <span class="number">64</span>] = &lt;[u8; <span class="number">64</span>]&gt;::try_from(r.take(<span class="number">64</span>)<span class="question-mark">?</span>).ok()<span class="question-mark">?</span>;
-        <span class="kw">let </span>x = r.take(<span class="number">4</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(TlsTranscript(t, i32::from_ne_bytes(x.try_into().unwrap())))
+        <span class="kw">let </span>length = u8::read(r)<span class="question-mark">?</span>;
+        <span class="kw">if </span>length &gt; <span class="number">64 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="kw">let </span><span class="kw-2">mut </span>t = [<span class="number">0u8</span>; <span class="number">64</span>];
+        <span class="kw">let </span>bytes = r.take(length <span class="kw">as </span>usize)<span class="question-mark">?</span>;
+        t[..bytes.len()].copy_from_slice(<span class="kw-2">&amp;</span>bytes);
+        <span class="prelude-val">Some</span>(TlsTranscript(t, length <span class="kw">as </span>i32))
     }
 }
+<span class="macro">dummy_extract_knowledge!</span>(TLSProtocolTypes, TlsTranscript);
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>TranscriptClientHello(<span class="kw">pub </span>TlsTranscript);
@@ -519,6 +532,7 @@
 </span><span class="kw">pub struct </span>TranscriptServerHello(<span class="kw">pub </span>TlsTranscript);
 <span class="kw">impl </span>Transcript <span class="kw">for </span>TranscriptServerHello {
     <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="macro">log::debug!</span>(<span class="string">"TranscriptServerHello.as_slice: {self:?}"</span>);
         <span class="kw">let </span>transcript = <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>;
         <span class="kw-2">&amp;</span>transcript.<span class="number">0</span>[..transcript.<span class="number">1 </span><span class="kw">as </span>usize]
     }

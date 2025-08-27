@@ -678,6 +678,13 @@
 <a href="#678" id="678">678</a>
 <a href="#679" id="679">679</a>
 <a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::time::Duration;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::marker::PhantomData;
@@ -699,7 +706,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::protocol::{ProtocolBehavior, ProtocolTypes};
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use </span><span class="kw">crate</span>::trace::{Spawner, Trace, TraceContext};
+<span class="kw">use </span><span class="kw">crate</span>::trace::{ConfigTrace, Spawner, Trace, TraceContext};
 
 <span class="kw">pub const </span>MAP_FEEDBACK_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges"</span>;
 <span class="kw">const </span>EDGES_OBSERVER_NAME: <span class="kw-2">&amp;</span>str = <span class="string">"edges_observer"</span>;
@@ -755,7 +762,7 @@
     <span class="doccomment">/// How many iterations each stage gets, as an upper bound
     /// It may randomly continue earlier. Each iteration works on a different Input from the corpus
     </span><span class="kw">pub </span>max_iterations_per_stage: u64,
-    <span class="kw">pub </span>max_mutations_per_iteration: u64,
+    <span class="kw">pub </span>max_mutations_pow_per_iteration: u64,
     <span class="comment">// Whether to truncate the input after mutations, prior to adding it to the corpus
     </span><span class="kw">pub </span>with_truncation: bool,
 }
@@ -764,10 +771,11 @@
     <span class="comment">//  TODO:EVAL: evaluate modifications of this config
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            max_iterations_per_stage: <span class="number">256</span>,
-            max_mutations_per_iteration: <span class="number">16</span>,
+            max_iterations_per_stage: <span class="number">128</span>,
+            max_mutations_pow_per_iteration: <span class="number">7</span>,
             with_truncation: <span class="bool-val">true</span>,
-        }
+            <span class="comment">// Default for StdMutationalStage and StdMutationalStage (=HavocScheduledMutator)
+        </span>}
     }
 }
 
@@ -940,7 +948,13 @@
                     <span class="comment">// Input will already be loaded.
                     </span><span class="kw">let </span>current_input = current_testcase.input().as_ref().unwrap();
                     <span class="kw">let </span>spawner = Spawner::new(put_registry.clone());
-                    <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(spawner);
+                    <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new_config(
+                        spawner,
+                        ConfigTrace {
+                            with_bit_level: <span class="self">self</span>.config.mutation_config.with_bit_level,
+                            ..Default::default()
+                        },
+                    );
                     <span class="kw">let </span>error_ok;
                     <span class="kw">match </span>current_input.execute_until_step_wrap(
                         <span class="kw-2">&amp;mut </span>ctx,

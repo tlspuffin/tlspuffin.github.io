@@ -394,6 +394,9 @@
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
 <a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl_bolts::rands::Rand;
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term, TermType};
@@ -407,6 +410,8 @@
     <span class="kw">pub </span>must_be_symbolic: bool,
     <span class="comment">// when true: only look for terms with no payload in sub-terms
     </span><span class="kw">pub </span>no_payload_in_subterm: bool,
+    <span class="comment">// when true: only look for terms with at least one payload in sub-terms
+    </span><span class="kw">pub </span>must_payload_in_subterm: bool,
     <span class="comment">// when true: we do not choose terms that have a list symbol and whose parent also has a list
     // symbol those terms are thus "inside a list", like t in fn_append(t,t3) for t =
     // fn(append(t1,t2)
@@ -426,6 +431,7 @@
                                  * instantiating the fuzzer */
             </span>must_be_symbolic: <span class="bool-val">false</span>,
             no_payload_in_subterm: <span class="bool-val">false</span>,
+            must_payload_in_subterm: <span class="bool-val">false</span>,
             not_inside_list: <span class="bool-val">false</span>,
             weighted_depth: <span class="bool-val">false</span>,
             must_be_root: <span class="bool-val">false</span>,

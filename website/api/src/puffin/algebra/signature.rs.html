@@ -166,6 +166,8 @@
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>itertools::Itertools;
@@ -322,6 +324,8 @@
                                     <span class="string">"opaque" </span>=&gt; attrs.is_opaque = <span class="bool-val">true</span>,
                                     <span class="string">"list" </span>=&gt; attrs.is_list = <span class="bool-val">true</span>,
                                     <span class="string">"get" </span>=&gt; attrs.is_get = <span class="bool-val">true</span>,
+                                    <span class="string">"no_gen" </span>=&gt; attrs.no_gen = <span class="bool-val">true</span>,
+                                    <span class="string">"no_bit" </span>=&gt; attrs.no_bit = <span class="bool-val">true</span>,
                                     <span class="kw">_ </span>=&gt; {},
                                 }
                             )*

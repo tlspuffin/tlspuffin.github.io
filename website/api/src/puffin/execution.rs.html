@@ -297,34 +297,34 @@
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::PutRegistry;
-<span class="kw">use </span><span class="kw">crate</span>::trace::{Spawner, Trace, TraceContext};
+<span class="kw">use </span><span class="kw">crate</span>::trace::{ConfigTrace, Spawner, Trace, TraceContext};
 
-<span class="kw">pub trait </span>TraceRunner {
+<span class="kw">pub trait </span>TraceRunner: Sized {
     <span class="kw">type </span>PB: ProtocolBehavior;
     <span class="kw">type </span>R;
     <span class="kw">type </span>E;
 
     <span class="kw">fn </span>execute&lt;T&gt;(<span class="self">self</span>, trace: T, executed_until: <span class="kw-2">&amp;mut </span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-        T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
+        </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
-        <span class="self">self</span>.execute_config(trace, <span class="bool-val">true</span>, executed_until)
+        <span class="self">Self</span>::execute_config(<span class="self">self</span>, trace, ConfigTrace::default(), executed_until)
     }
 
     <span class="kw">fn </span>execute_config&lt;T&gt;(
         <span class="self">self</span>,
         trace: T,
-        with_reseed: bool,
+        config_trace: ConfigTrace,
         executed_until: <span class="kw-2">&amp;mut </span>usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
-        </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;;
+        </span><span class="self">Self</span>: Sized,
+        T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;;
 }
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Runner&lt;PB: ProtocolBehavior&gt; {
-    registry: PutRegistry&lt;PB&gt;,
+    <span class="kw">pub </span>registry: PutRegistry&lt;PB&gt;,
     spawner: Spawner&lt;PB&gt;,
 }
 
@@ -345,18 +345,18 @@
     <span class="kw">fn </span>execute_config&lt;T&gt;(
         <span class="self">self</span>,
         trace: T,
-        with_reseed: bool,
+        config_trace: ConfigTrace,
         executed_until: <span class="kw-2">&amp;mut </span>usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
         </span>T: AsRef&lt;Trace&lt;&lt;<span class="self">Self</span>::PB <span class="kw">as </span>ProtocolBehavior&gt;::ProtocolTypes&gt;&gt;,
     {
-        <span class="kw">if </span>with_reseed {
+        <span class="kw">if </span>config_trace.with_reseed {
             <span class="comment">// We reseed all PUTs before executing a trace!
             </span><span class="self">self</span>.registry.determinism_reseed_all_factories();
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new(<span class="self">self</span>.spawner.clone());
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = TraceContext::new_config(<span class="self">self</span>.spawner.clone(), config_trace);
         trace.as_ref().execute(<span class="kw-2">&amp;mut </span>ctx, <span class="kw-2">&amp;mut </span><span class="number">0</span>).map_err(|e| {
             <span class="kw-2">*</span>executed_until = ctx.executed_until;
             e
@@ -403,7 +403,7 @@
     <span class="kw">fn </span>execute_config&lt;Tr&gt;(
         <span class="self">self</span>,
         trace: Tr,
-        with_reseed: bool,
+        config_trace: ConfigTrace,
         executed_until: <span class="kw-2">&amp;mut </span>usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::R, <span class="self">Self</span>::E&gt;
     <span class="kw">where
@@ -413,7 +413,7 @@
 
         run_in_subprocess(
             || {
-                <span class="kw">let </span>ret = <span class="kw">match </span>runner.execute_config(trace, with_reseed, executed_until) {
+                <span class="kw">let </span>ret = <span class="kw">match </span>runner.execute_config(trace, config_trace, executed_until) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
                 };

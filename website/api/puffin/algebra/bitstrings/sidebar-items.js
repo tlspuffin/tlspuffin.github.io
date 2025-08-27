@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["replace_payloads"],"struct":["EvalTree","PayloadContext","Payloads"]};
+window.SIDEBAR_ITEMS = {"constant":["THRESHOLD_RATIO","THRESHOLD_SIZE"],"fn":["replace_payloads"],"struct":["EvalTree","PayloadContext","PayloadMetadata","Payloads"]};

@@ -666,6 +666,18 @@
 <a href="#666" id="666">666</a>
 <a href="#667" id="667">667</a>
 <a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::path::{Path, PathBuf};
@@ -690,7 +702,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::protocol::ProtocolBehavior;
 <span class="kw">use </span><span class="kw">crate</span>::put::PutDescriptor;
 <span class="kw">use </span><span class="kw">crate</span>::put_registry::{PutRegistry, TCP_PUT};
-<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, ExecutionResult, Spawner, Trace, TraceContext};
+<span class="kw">use </span><span class="kw">crate</span>::trace::{Action, ConfigTrace, ExecutionResult, Spawner, Trace, TraceContext};
 
 <span class="kw">fn </span>create_app&lt;S&gt;(title: S) -&gt; Command
 <span class="kw">where
@@ -917,6 +929,7 @@
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(matches) = matches.subcommand_matches(<span class="string">"execute"</span>) {
         <span class="kw">let </span>inputs: ValuesRef&lt;String&gt; = matches.get_many(<span class="string">"inputs"</span>).unwrap();
         <span class="kw">let </span>index: usize = <span class="kw-2">*</span>matches.get_one(<span class="string">"index"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
+        <span class="kw">let </span>without_bit_level = matches.get_flag(<span class="string">"wo-bit"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>paths = inputs
             .flat_map(|input| {
@@ -973,9 +986,16 @@
             Spawner::new(put_registry).with_default(default_put),
         );
 
+        <span class="kw">let </span>config_trace = ConfigTrace {
+            with_bit_level: !without_bit_level,
+            ..Default::default()
+        };
+        <span class="kw">if </span>without_bit_level {
+            <span class="macro">log::info!</span>(<span class="string">"Execution without payload evaluations..."</span>);
+        }
         <span class="kw">for </span>path <span class="kw">in </span>lookup_paths {
             <span class="macro">log::info!</span>(<span class="string">"Executing: {}"</span>, path.display());
-            execute(<span class="kw-2">&amp;</span>runner, path);
+            execute(<span class="kw-2">&amp;</span>runner, path, config_trace);
         }
 
         <span class="kw">if </span>!lookup_paths.is_empty() {
@@ -1261,7 +1281,11 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(runner: <span class="kw-2">&amp;</span>Runner&lt;PB&gt;, input: P) {
+<span class="kw">fn </span>execute&lt;PB: ProtocolBehavior, P: AsRef&lt;Path&gt;&gt;(
+    runner: <span class="kw-2">&amp;</span>Runner&lt;PB&gt;,
+    input: P,
+    config_trace: ConfigTrace,
+) {
     <span class="kw">let </span>trace = <span class="kw">if let </span><span class="prelude-val">Ok</span>(t) = Trace::&lt;PB::ProtocolTypes&gt;::from_file(input.as_ref()) {
         t
     } <span class="kw">else </span>{
@@ -1274,7 +1298,7 @@
     <span class="comment">// When generating coverage a crash means that no coverage is stored
     // By executing in a fork, even when that process crashes, the other executed code will still
     // yield coverage
-    </span><span class="kw">let </span>status = ForkedRunner::new(runner).execute(trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>);
+    </span><span class="kw">let </span>status = ForkedRunner::new(runner).execute_config(trace, config_trace, <span class="kw-2">&amp;mut </span><span class="number">0</span>);
 
     <span class="kw">match </span>status {
         <span class="prelude-val">Ok</span>(s) =&gt; <span class="macro">log::info!</span>(<span class="string">"execution finished with status {s:?}"</span>),

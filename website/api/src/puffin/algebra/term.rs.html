@@ -702,6 +702,28 @@
 <a href="#702" id="702">702</a>
 <a href="#703" id="703">703</a>
 <a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides[`DYTerm`]sas well as iterators over them.
 
 </span><span class="kw">use </span>std::fmt;
@@ -992,6 +1014,26 @@
         }
     }
 
+    <span class="doccomment">/// When the term has a variable as sub-term (excluding strict0-sub-terms of readable)
+    </span><span class="kw">pub fn </span>has_variable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.term {
+            DYTerm::Variable(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            DYTerm::Application(<span class="kw">_</span>, args) =&gt; {
+                !<span class="self">self</span>.is_readable() &amp;&amp; args.iter().any(|arg| arg.has_variable())
+            }
+        }
+    }
+
+    <span class="doccomment">/// Whether the term is readable, i.e. whether it has a payload that will be read before
+    /// evaluating
+    </span><span class="kw">pub fn </span>is_readable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(payload) = <span class="kw-2">&amp;</span><span class="self">self</span>.payloads {
+            payload.metadata.readable
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
+    }
+
     <span class="doccomment">/// Erase all payloads in a term, including those under opaque function symbol
     </span><span class="kw">pub fn </span>erase_payloads_subterms(<span class="kw-2">&amp;mut </span><span class="self">self</span>, is_subterm: bool) {
         <span class="kw">if </span>is_subterm {
@@ -1210,12 +1252,14 @@
         )<span class="question-mark">?</span>;
         <span class="comment">// if let Some(mut e) = eval {
         </span><span class="kw">if </span>with_payloads &amp;&amp; !all_payloads.is_empty() {
-            <span class="macro">log::debug!</span>(<span class="string">"[evaluate_config] About to replace for a term {}\n payloads with contexts {:?}\n-------------------------------------------------------------------"</span>,
-                    <span class="self">self</span>, <span class="kw-2">&amp;</span>all_payloads);
-            <span class="prelude-val">Ok</span>((
-                replace_payloads(<span class="self">self</span>, <span class="kw-2">&amp;mut </span>eval_tree, all_payloads, context)<span class="question-mark">?</span>,
-                m,
-            ))
+            <span class="kw">let </span>ft = <span class="macro">format!</span>(<span class="string">"[evaluate_config] About to replace for a term {}\n payloads with contexts: {}\n-------------------------------------------------------------------"</span>,
+                             <span class="self">self</span>, all_payloads.iter().format(<span class="string">","</span>));
+            <span class="macro">log::trace!</span>(<span class="string">"{}"</span>, ft);
+            <span class="kw">let </span>res = replace_payloads(<span class="self">self</span>, <span class="kw-2">&amp;mut </span>eval_tree, all_payloads)<span class="question-mark">?</span>;
+            <span class="macro">log::trace!</span>(
+                <span class="string">"        / [payload]    We successfully evaluated the root term into: {res:?}"
+            </span>);
+            <span class="prelude-val">Ok</span>((res, m))
         } <span class="kw">else </span>{
             <span class="kw">let </span>eval = PB::any_get_encoding(m.as_ref());
             <span class="macro">log::trace!</span>(

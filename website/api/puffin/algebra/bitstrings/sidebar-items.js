@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["THRESHOLD_RATIO","THRESHOLD_SIZE"],"fn":["replace_payloads"],"struct":["EvalTree","PayloadContext","PayloadMetadata","Payloads"]};
+window.SIDEBAR_ITEMS = {"constant":["THRESHOLD_RATIO","THRESHOLD_SIZE"],"fn":["find_unique_match","find_unique_match_rec","first_sub_vec","first_sub_vec_unique","last_sub_vec","replace_payloads","search_sub_vec_all"],"struct":["EvalTree","PayloadContext","PayloadMetadata","Payloads"]};

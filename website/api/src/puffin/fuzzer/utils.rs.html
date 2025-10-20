@@ -413,6 +413,23 @@
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl_bolts::rands::Rand;
 
 <span class="kw">use </span><span class="kw">crate</span>::algebra::{DYTerm, Term, TermType};
@@ -436,8 +453,12 @@
     </span><span class="kw">pub </span>weighted_depth: bool,
     <span class="comment">// only select root terms
     </span><span class="kw">pub </span>must_be_root: bool,
+    <span class="comment">// when true: only look for readable terms
+    </span><span class="kw">pub </span>not_readable: bool,
     <span class="comment">// Number of terms to generate for each type
     </span><span class="kw">pub </span>zoo_gen_how_many: usize,
+    <span class="comment">// Max number of paylaods per term (limiting further MakeMessage)
+    </span><span class="kw">pub </span>threshold_max_payloads_per_term: usize,
 }
 
 <span class="doccomment">/// Default values which represent no constraint
@@ -453,11 +474,13 @@
             not_inside_list: <span class="bool-val">false</span>,
             weighted_depth: <span class="bool-val">false</span>,
             must_be_root: <span class="bool-val">false</span>,
+            not_readable: <span class="bool-val">false</span>,
             zoo_gen_how_many: <span class="number">10</span>, <span class="comment">/* Over-approximates 1/10 of the threshold obtained from
                                    * `test_term_payloads_eval`, making sure we successfully
                                    * generate, MakeMessage,
                                    * and evaluate after 10 expansions of TermZoo. Was 1 initially */
-        </span>}
+            </span>threshold_max_payloads_per_term: <span class="number">10</span>,
+        }
     }
 }
 
@@ -544,22 +567,33 @@
 
                 <span class="kw">while let </span><span class="prelude-val">Some</span>((term, path)) = stack.pop() {
                     <span class="comment">// push next terms onto stack
-                    </span><span class="kw">match </span><span class="kw-2">&amp;</span>term.term {
-                        DYTerm::Variable(<span class="kw">_</span>) =&gt; {
-                            <span class="comment">// reached leaf
-                        </span>}
-                        DYTerm::Application(<span class="kw">_</span>, subterms) =&gt; {
-                            <span class="comment">// inner node, recursively continue
-                            </span><span class="kw">for </span>(path_index, subterm) <span class="kw">in </span>subterms.iter().enumerate() {
-                                <span class="kw">let </span><span class="kw-2">mut </span>new_path = path.clone();
-                                new_path.<span class="number">1</span>.push(path_index); <span class="comment">// invert because of .iter().rev()
-                                </span>stack.push((subterm, new_path));
+
+                    </span><span class="kw">if </span>term.is_symbolic() &amp;&amp; !constraints.must_be_root {
+                        <span class="comment">// if not, we reached a leaf (real leaf or a term with payloads)
+                        </span><span class="kw">match </span><span class="kw-2">&amp;</span>term.term {
+                            DYTerm::Variable(<span class="kw">_</span>) =&gt; {
+                                <span class="comment">// reached leaf
+                            </span>}
+                            DYTerm::Application(<span class="kw">_</span>, subterms) =&gt; {
+                                <span class="comment">// inner node, recursively continue
+                                </span><span class="kw">for </span>(path_index, subterm) <span class="kw">in </span>subterms.iter().enumerate() {
+                                    <span class="kw">let </span><span class="kw-2">mut </span>new_path = path.clone();
+                                    new_path.<span class="number">1</span>.push(path_index); <span class="comment">// invert because of .iter().rev()
+                                    </span>stack.push((subterm, new_path));
+                                }
                             }
                         }
                     }
 
                     <span class="comment">// sample
-                    </span><span class="kw">if </span>filter(term) {
+                    </span><span class="kw">if </span>filter(term)
+                        &amp;&amp; (!constraints.must_be_symbolic || term.is_symbolic())
+                        &amp;&amp; (!constraints.no_payload_in_subterm <span class="comment">// TODO: currently not used!
+                        </span>|| (term.is_symbolic() &amp;&amp; !term.has_payload_to_replace())
+                        || (!term.is_symbolic() &amp;&amp; !term.has_payload_to_replace_wo_root()))
+                        &amp;&amp; (!constraints.not_inside_list || !term.is_list())
+                        &amp;&amp; (!constraints.not_readable || !term.is_readable())
+                    {
                         visited += <span class="number">1</span>;
 
                         <span class="comment">// consider in sampling

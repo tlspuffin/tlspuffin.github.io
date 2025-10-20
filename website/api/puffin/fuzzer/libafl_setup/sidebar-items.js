@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["EDGES_OBSERVER_NAME","MAP_FEEDBACK_NAME"],"fn":["start"],"struct":["FuzzerConfig","MutationStageConfig","RunClientBuilder"],"type":["ConcreteExecutor","ConcreteFeedback","ConcreteMinimizer","ConcreteObservers","ConcreteState"]};
+window.SIDEBAR_ITEMS = {"constant":["EDGES_OBSERVER_NAME","MAP_FEEDBACK_NAME","MIN_BIT_CORPUS","MIN_BIT_EXECS"],"fn":["start"],"struct":["FuzzerConfig","MutationStageConfig","RunClientBuilder"],"type":["ConcreteExecutor","ConcreteFeedback","ConcreteMinimizer","ConcreteObservers","ConcreteState"]};

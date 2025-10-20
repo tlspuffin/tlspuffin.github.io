@@ -954,6 +954,9 @@
 <a href="#954" id="954">954</a>
 <a href="#955" id="955">955</a>
 <a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libafl::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>libafl_bolts::prelude::<span class="kw-2">*</span>;
 
@@ -980,6 +983,8 @@
     </span><span class="kw">pub </span>term_constraints: TermConstraints,
     <span class="kw">pub </span>with_bit_level: bool,
     <span class="kw">pub </span>with_dy: bool,
+    <span class="comment">// Focus on one payload at a time for a whole StdMutationalStage
+    </span><span class="kw">pub </span>with_focus: bool,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>MutationConfig {
@@ -992,6 +997,7 @@
             term_constraints: TermConstraints::default(),
             with_bit_level: <span class="bool-val">true</span>,
             with_dy: <span class="bool-val">true</span>,
+            with_focus: <span class="bool-val">false</span>,
         }
     }
 }

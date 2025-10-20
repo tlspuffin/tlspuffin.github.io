@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["start"],"mod":["feedback","harness","libafl_setup","mutations","sanitizer","stages","stats_monitor","stats_stage","term_zoo","utils"],"struct":["FuzzerConfig"]};
+window.SIDEBAR_ITEMS = {"fn":["start"],"mod":["bit_mutations","feedback","harness","libafl_setup","mutations","sanitizer","stages","stats_monitor","stats_stage","term_zoo","utils"],"struct":["FuzzerConfig"]};

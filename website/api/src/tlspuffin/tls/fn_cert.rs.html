@@ -190,6 +190,9 @@
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 
 </span><span class="kw">use </span>std::sync::Arc;
@@ -241,10 +244,13 @@
     <span class="prelude-val">Ok</span>(RANDOM_EC_PRIVATE_KEY_PKCS8.<span class="number">1</span>.into())
 }
 
-<span class="kw">pub fn </span>fn_certificate_entry(cert: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateEntry, FnError&gt; {
+<span class="kw">pub fn </span>fn_certificate_entry_extensions(
+    cert: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;,
+    extensions: <span class="kw-2">&amp;</span>CertificateExtensions,
+) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateEntry, FnError&gt; {
     <span class="prelude-val">Ok</span>(CertificateEntry {
         cert: Certificate(cert.clone()),
-        exts: CertificateExtensions(<span class="macro">vec!</span>[]),
+        exts: extensions.clone(),
     })
 }
 
@@ -253,12 +259,12 @@
 }
 
 <span class="kw">pub fn </span>fn_chain_append_certificate_entry(
-    cert: <span class="kw-2">&amp;</span>CertificateEntry,
     chain: <span class="kw-2">&amp;</span>Vec&lt;CertificateEntry&gt;,
+    cert: <span class="kw-2">&amp;</span>CertificateEntry,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;CertificateEntry&gt;, FnError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>chain = chain.clone();
-    chain.push(cert.clone());
-    <span class="prelude-val">Ok</span>(chain)
+    <span class="kw">let </span><span class="kw-2">mut </span>res = chain.clone();
+    res.push(cert.clone());
+    <span class="prelude-val">Ok</span>(res)
 }
 
 <span class="kw">pub fn </span>fn_get_context(certificate_request: <span class="kw-2">&amp;</span>Message) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, FnError&gt; {

@@ -672,8 +672,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::base::PayloadU8;
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::enums::{CipherSuite, HandshakeType, NamedGroup};
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::handshake::{
-    CertificateEntries, CertificateEntry, CertificateExtension, CertificateExtensions,
-    HandshakeMessagePayload, HandshakePayload, Random, ServerECDHParams,
+    CertificateEntries, CertificateEntry, HandshakeMessagePayload, HandshakePayload, Random,
+    ServerECDHParams,
 };
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::msgs::message::{Message, MessagePayload, OpaqueMessage, PlainMessage};
 <span class="kw">use </span><span class="kw">crate</span>::tls::rustls::suites::SupportedCipherSuite;
@@ -1285,16 +1285,12 @@
     <span class="prelude-val">Ok</span>(CertificateEntries(entries.clone()))
 }
 
-<span class="kw">pub fn </span>fn_append_certificate_entry(
+<span class="kw">pub fn </span>fn_append_certificate_entries(
     certs: <span class="kw-2">&amp;</span>Vec&lt;CertificateEntry&gt;,
-    cert: <span class="kw-2">&amp;</span>Certificate,
-    extensions: <span class="kw-2">&amp;</span>Vec&lt;CertificateExtension&gt;,
+    cert_entry: <span class="kw-2">&amp;</span>CertificateEntry,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;CertificateEntry&gt;, FnError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>new_certs = certs.clone();
-    new_certs.push(CertificateEntry {
-        cert: cert.clone(),
-        exts: CertificateExtensions(extensions.clone()),
-    });
+    new_certs.push(cert_entry.clone());
 
     <span class="prelude-val">Ok</span>(new_certs)
 }
@@ -1313,5 +1309,9 @@
 
 <span class="kw">pub fn </span>fn_u64_to_u32(input: <span class="kw-2">&amp;</span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;u32, FnError&gt; {
     <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>input <span class="kw">as </span>u32)
+}
+
+<span class="kw">pub fn </span>fn_u32_to_u16(input: <span class="kw-2">&amp;</span>u32) -&gt; <span class="prelude-ty">Result</span>&lt;u16, FnError&gt; {
+    <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>input <span class="kw">as </span>u16)
 }
 </code></pre></div></section></main></body></html>

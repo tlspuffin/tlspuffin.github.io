@@ -2906,6 +2906,15 @@
 <a href="#2906" id="2906">2906</a>
 <a href="#2907" id="2907">2907</a>
 <a href="#2908" id="2908">2908</a>
+<a href="#2909" id="2909">2909</a>
+<a href="#2910" id="2910">2910</a>
+<a href="#2911" id="2911">2911</a>
+<a href="#2912" id="2912">2912</a>
+<a href="#2913" id="2913">2913</a>
+<a href="#2914" id="2914">2914</a>
+<a href="#2915" id="2915">2915</a>
+<a href="#2916" id="2916">2916</a>
+<a href="#2917" id="2917">2917</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Implementation of  special traces. Each may represent a special TLS execution like a full
 //! handshake or an execution which crashes OpenSSL.
 </span><span class="attr">#![allow(dead_code)]
@@ -3549,11 +3558,14 @@
             (fn_payload_u8((fn_empty_bytes_vec))),
             (fn_certificate_entries_make(
                 (fn_chain_append_certificate_entry(
-                (fn_certificate_entry(
-                    fn_alice_cert
-                )),
-              fn_empty_certificate_chain
+                  fn_empty_certificate_chain,
+                  (fn_certificate_entry_extensions(
+                    fn_alice_cert,
+                    (fn_cert_extensions_make(
+                        fn_cert_extensions_new
+                    ))
             ))))
+            ))
         )
     };
 
@@ -3772,10 +3784,13 @@
             (fn_payload_u8((fn_empty_bytes_vec))),
             (fn_certificate_entries_make(
                 (fn_chain_append_certificate_entry(
-                (fn_certificate_entry(
-                    fn_alice_cert
-                )),
-              fn_empty_certificate_chain
+        fn_empty_certificate_chain,
+                (fn_certificate_entry_extensions(
+                    fn_alice_cert,
+                    (fn_cert_extensions_make(
+                        fn_cert_extensions_new
+                    ))
+                ))
             ))))
         )
     };
@@ -3980,10 +3995,13 @@
             (fn_payload_u8((fn_get_context((@certificate_request_message))))),
             (fn_certificate_entries_make(
             (fn_chain_append_certificate_entry(
-                (fn_certificate_entry(
-                    fn_bob_cert
-                )),
-              fn_empty_certificate_chain
+                fn_empty_certificate_chain,
+                (fn_certificate_entry_extensions(
+                    fn_bob_cert,
+                    (fn_cert_extensions_make(
+                        fn_cert_extensions_new
+                    ))
+                ))
             ))))
         )
     };

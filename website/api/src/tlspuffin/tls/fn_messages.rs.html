@@ -507,6 +507,14 @@
 <a href="#507" id="507">507</a>
 <a href="#508" id="508">508</a>
 <a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -609,22 +617,30 @@
     ))?)?)
 }*/
 
-</span><span class="kw">pub fn </span>fn_heartbeat_fake_length(
-    payload: <span class="kw-2">&amp;</span>PayloadU16,
-    fake_length: <span class="kw-2">&amp;</span>u64,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
+// This is now subsumed by bit-level mutations
+// pub fn fn_heartbeat_fake_length(
+//     payload: &amp;PayloadU16,
+//     fake_length: &amp;u64,
+// ) -&gt; Result&lt;Message, FnError&gt; {
+//     Ok(Message {
+//         version: ProtocolVersion::TLSv1_2,
+//         payload: MessagePayload::Heartbeat(HeartbeatPayload {
+//             typ: HeartbeatMessageType::Request,
+//             payload: payload.clone(),
+//             fake_length: Some(*fake_length as u16),
+//         }),
+//     })
+// }
+
+</span><span class="kw">pub fn </span>fn_heartbeat(payload: <span class="kw-2">&amp;</span>PayloadU16) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
     <span class="prelude-val">Ok</span>(Message {
         version: ProtocolVersion::TLSv1_2,
         payload: MessagePayload::Heartbeat(HeartbeatPayload {
             typ: HeartbeatMessageType::Request,
             payload: payload.clone(),
-            fake_length: <span class="prelude-val">Some</span>(<span class="kw-2">*</span>fake_length <span class="kw">as </span>u16),
+            fake_length: <span class="prelude-val">Some</span>(payload.<span class="number">0</span>.len() <span class="kw">as </span>u16),
         }),
     })
-}
-
-<span class="kw">pub fn </span>fn_heartbeat(payload: <span class="kw-2">&amp;</span>PayloadU16) -&gt; <span class="prelude-ty">Result</span>&lt;Message, FnError&gt; {
-    fn_heartbeat_fake_length(payload, <span class="kw-2">&amp;</span>(payload.<span class="number">0</span>.len() <span class="kw">as </span>u64))
 }
 
 <span class="comment">// ----
@@ -897,12 +913,12 @@
 }
 
 <span class="kw">pub fn </span>fn_append_payload_u16_vec(
-    p: <span class="kw-2">&amp;</span>PayloadU16,
     vec: <span class="kw-2">&amp;</span>Vec&lt;PayloadU16&gt;,
+    p: <span class="kw-2">&amp;</span>PayloadU16,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;PayloadU16&gt;, FnError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>vec = vec.clone();
-    vec.push(p.clone());
-    <span class="prelude-val">Ok</span>(vec)
+    <span class="kw">let </span><span class="kw-2">mut </span>res = vec.clone();
+    res.push(p.clone());
+    <span class="prelude-val">Ok</span>(res)
 }
 
 <span class="kw">pub fn </span>fn_make_payload_u16_vec_u16(vec: <span class="kw-2">&amp;</span>Vec&lt;PayloadU16&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;VecU16OfPayloadU16, FnError&gt; {
@@ -914,12 +930,12 @@
 }
 
 <span class="kw">pub fn </span>fn_append_payload_u8_vec(
-    p: <span class="kw-2">&amp;</span>PayloadU8,
     vec: <span class="kw-2">&amp;</span>Vec&lt;PayloadU8&gt;,
+    p: <span class="kw-2">&amp;</span>PayloadU8,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;PayloadU8&gt;, FnError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>vec = vec.clone();
-    vec.push(p.clone());
-    <span class="prelude-val">Ok</span>(vec)
+    <span class="kw">let </span><span class="kw-2">mut </span>res = vec.clone();
+    res.push(p.clone());
+    <span class="prelude-val">Ok</span>(res)
 }
 
 <span class="kw">pub fn </span>fn_make_payload_u8_vec_u16(vec: <span class="kw-2">&amp;</span>Vec&lt;PayloadU8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;VecU16OfPayloadU8, FnError&gt; {

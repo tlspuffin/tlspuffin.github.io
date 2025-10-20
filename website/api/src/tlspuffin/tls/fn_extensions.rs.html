@@ -674,6 +674,12 @@
 <a href="#674" id="674">674</a>
 <a href="#675" id="675">675</a>
 <a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::ptr_arg)]
 #![allow(dead_code)]
 
@@ -780,6 +786,12 @@
     new_extensions.push(extension.clone());
 
     <span class="prelude-val">Ok</span>(new_extensions)
+}
+
+<span class="kw">pub fn </span>fn_cert_extensions_make(
+    extensions: <span class="kw-2">&amp;</span>Vec&lt;CertificateExtension&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateExtensions, FnError&gt; {
+    <span class="prelude-val">Ok</span>(CertificateExtensions(extensions.clone()))
 }
 
 <span class="kw">pub fn </span>fn_new_session_ticket_extensions_new() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;NewSessionTicketExtension&gt;, FnError&gt; {
@@ -1105,17 +1117,17 @@
     )))
 }
 
-<span class="kw">pub fn </span>fn_preshared_keys_server_extension(identities: <span class="kw-2">&amp;</span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(ServerExtension::PresharedKey(<span class="kw-2">*</span>identities <span class="kw">as </span>u16))
+<span class="kw">pub fn </span>fn_preshared_keys_server_extension(identities: <span class="kw-2">&amp;</span>u16) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
+    <span class="prelude-val">Ok</span>(ServerExtension::PresharedKey(<span class="kw-2">*</span>identities))
 }
 <span class="doccomment">/// EarlyData =&gt; 0x002a,
 </span><span class="kw">pub fn </span>fn_early_data_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ClientExtension::EarlyData)
 }
 <span class="kw">pub fn </span>fn_early_data_new_session_ticket_extension(
-    early_data: <span class="kw-2">&amp;</span>u64,
+    early_data: <span class="kw-2">&amp;</span>u32,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;NewSessionTicketExtension, FnError&gt; {
-    <span class="prelude-val">Ok</span>(NewSessionTicketExtension::EarlyData(<span class="kw-2">*</span>early_data <span class="kw">as </span>u32))
+    <span class="prelude-val">Ok</span>(NewSessionTicketExtension::EarlyData(<span class="kw-2">*</span>early_data))
 }
 <span class="kw">pub fn </span>fn_early_data_server_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::EarlyData)
@@ -1214,11 +1226,11 @@
 </span><span class="kw">pub fn </span>fn_key_share_deterministic_extension(
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
-    fn_key_share_extension(<span class="kw-2">&amp;</span>PayloadU16::new(deterministic_key_share(group)<span class="question-mark">?</span>), group)
+    fn_key_share_extension(group, <span class="kw-2">&amp;</span>PayloadU16::new(deterministic_key_share(group)<span class="question-mark">?</span>))
 }
 <span class="kw">pub fn </span>fn_key_share_extension(
-    key_share: <span class="kw-2">&amp;</span>PayloadU16,
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    key_share: <span class="kw-2">&amp;</span>PayloadU16,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ClientExtension::KeyShare(KeyShareEntries(<span class="macro">vec!</span>[
         KeyShareEntry {
@@ -1230,11 +1242,11 @@
 <span class="kw">pub fn </span>fn_key_share_deterministic_server_extension(
     group: <span class="kw-2">&amp;</span>NamedGroup,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
-    fn_key_share_server_extension(<span class="kw-2">&amp;</span>PayloadU16::new(deterministic_key_share(group)<span class="question-mark">?</span>), group)
+    fn_key_share_server_extension(group, <span class="kw-2">&amp;</span>PayloadU16::new(deterministic_key_share(group)<span class="question-mark">?</span>))
 }
 <span class="kw">pub fn </span>fn_key_share_server_extension(
-    key_share: <span class="kw-2">&amp;</span>PayloadU16,
     group: <span class="kw-2">&amp;</span>NamedGroup,
+    key_share: <span class="kw-2">&amp;</span>PayloadU16,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::KeyShare(KeyShareEntry {
         group: <span class="kw-2">*</span>group,
@@ -1312,42 +1324,42 @@
 </span><span class="kw">pub fn </span>fn_unknown_client_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ClientExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ClientExtension::Unknown(UnknownExtension {
         typ: ExtensionType::Unknown(<span class="number">0xFFFF</span>),
-        payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
+        payload: Payload::new([<span class="number">42</span>; <span class="number">10</span>]),
     }))
 }
 
 <span class="kw">pub fn </span>fn_unknown_server_extension() -&gt; <span class="prelude-ty">Result</span>&lt;ServerExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(ServerExtension::Unknown(UnknownExtension {
         typ: ExtensionType::Unknown(<span class="number">0xFFFF</span>),
-        payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
+        payload: Payload::new([<span class="number">42</span>; <span class="number">10</span>]),
     }))
 }
 
 <span class="kw">pub fn </span>fn_unknown_hello_retry_extension() -&gt; <span class="prelude-ty">Result</span>&lt;HelloRetryExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(HelloRetryExtension::Unknown(UnknownExtension {
         typ: ExtensionType::Unknown(<span class="number">0xFFFF</span>),
-        payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
+        payload: Payload::new([<span class="number">42</span>; <span class="number">10</span>]),
     }))
 }
 
 <span class="kw">pub fn </span>fn_unknown_cert_request_extension() -&gt; <span class="prelude-ty">Result</span>&lt;CertReqExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(CertReqExtension::Unknown(UnknownExtension {
         typ: ExtensionType::Unknown(<span class="number">0xFFFF</span>),
-        payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
+        payload: Payload::new([<span class="number">42</span>; <span class="number">10</span>]),
     }))
 }
 
 <span class="kw">pub fn </span>fn_unknown_new_session_ticket_extension() -&gt; <span class="prelude-ty">Result</span>&lt;NewSessionTicketExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(NewSessionTicketExtension::Unknown(UnknownExtension {
         typ: ExtensionType::Unknown(<span class="number">0xFFFF</span>),
-        payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
+        payload: Payload::new([<span class="number">42</span>; <span class="number">10</span>]),
     }))
 }
 
 <span class="kw">pub fn </span>fn_unknown_certificate_extension() -&gt; <span class="prelude-ty">Result</span>&lt;CertificateExtension, FnError&gt; {
     <span class="prelude-val">Ok</span>(CertificateExtension::Unknown(UnknownExtension {
         typ: ExtensionType::Unknown(<span class="number">0xFFFF</span>),
-        payload: Payload::new([<span class="number">42</span>; <span class="number">7000</span>]),
+        payload: Payload::new([<span class="number">42</span>; <span class="number">10</span>]),
     }))
 }
 </code></pre></div></section></main></body></html>
